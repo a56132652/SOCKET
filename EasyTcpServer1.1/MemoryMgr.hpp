@@ -252,7 +252,7 @@ private:
 		}
 	}
 private:
-	MemoryAlloctor<64, 1000000> _mem64;
+	MemoryAlloctor<64, 4000000> _mem64;
 	MemoryAlloctor<128, 1000000> _mem128;
 	//MemoryAlloctor<256, 100000> _mem256;
 	//MemoryAlloctor<512, 100000> _mem512;
