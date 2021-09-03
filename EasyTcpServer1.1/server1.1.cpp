@@ -47,7 +47,7 @@ public:
 		case CMD_LOGIN:
 		{
 			Login* login = (Login*)header;
-			printf("收到客户端<socket:%d>命令：CMD_LOGIN，数据长度 : %d,userName = %s ,PassWord = %s \n", pClient->sockfd(), login->dataLength, login->userName, login->PassWord);
+			//printf("收到客户端<socket:%d>命令：CMD_LOGIN，数据长度 : %d,userName = %s ,PassWord = %s \n", pClient->sockfd(), login->dataLength, login->userName, login->PassWord);
 			//LoginResult* ret = new LoginResult();
 			//pClient->SendData(ret);
 			auto ret = std::make_shared<LoginResult>();
