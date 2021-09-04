@@ -1,7 +1,7 @@
+#include "Cell.hpp"
+#include "CellClient.hpp"
+#include <string>
 #include "EasyTcpServer.hpp"
-#include "thread"
-#include "Alloctor.h"
-//#include "Alloctor.h"
 
 bool g_bRun = true;
 //处理请求函数
@@ -27,19 +27,19 @@ class MyServer : public EasyTcpServer
 {
 public:
 	//只会被一个线程触发 安全
-	virtual void OnNetJoin(ClientSocketPtr& pClient)
+	virtual void OnNetJoin(CellClient* pClient)
 	{
 		EasyTcpServer::OnNetJoin(pClient); 
 	}
 	//cellSetver 4 多个线程触发 不安全
 	//如果只开启一个cellServer就是安全的
-	virtual void OnNetLeave(ClientSocketPtr& pClient)
+	virtual void OnNetLeave(CellClient* pClient)
 	{
 		EasyTcpServer::OnNetLeave(pClient);
 	}
 	//cellSetver 4 多个线程触发 不安全
 	//如果只开启一个cellServer就是安全的
-	virtual void OnNetMsg(CellServer* pCellServer, ClientSocketPtr& pClient, DataHeader* header)
+	virtual void OnNetMsg(CellServer* pCellServer, CellClient* pClient, DataHeader* header)
 	{
 		EasyTcpServer::OnNetMsg(pCellServer, pClient, header);
 		switch (header->cmd)
@@ -47,16 +47,16 @@ public:
 		case CMD_LOGIN:
 		{
 			Login* login = (Login*)header;
-			//printf("收到客户端<socket:%d>命令：CMD_LOGIN，数据长度 : %d,userName = %s ,PassWord = %s \n", pClient->sockfd(), login->dataLength, login->userName, login->PassWord);
+			//printf("收到客户端<socket:%d>命令：CMD_LOGIN，数据长度 : %d,userName = %s ,PassWord = %s \n", cSock, login->dataLength, login->userName, login->PassWord);
 			//LoginResult* ret = new LoginResult();
 			//pClient->SendData(ret);
-			auto ret = std::make_shared<LoginResult>();
-			pCellServer->addSendTask(pClient,(DataHeaderPtr&)ret);
+			LoginResult* ret = new LoginResult();
+			pCellServer->addSendTask(pClient,ret);
 		}
 		break;
 		case CMD_LOGINOUT:
 		{
-			//Loginout* loginout = (Loginout*)header;
+			Loginout* loginout = (Loginout*)header;
 			//printf("收到客户端<socket:%d>命令：CMD_LOGINOUT，数据长度 : %d,userName = %s \n", cSock, loginout->dataLength, loginout->userName);
 			//LoginoutResult ret = {  };
 			//pClient->SendData(&ret);

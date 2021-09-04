@@ -1,7 +1,6 @@
 #ifndef _MessageHeader_hpp_
 #define _MessageHeader_hpp_
 
-#include "EasyTcpServer.hpp"
 
 
 //ЦёБо

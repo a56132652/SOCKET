@@ -1,5 +1,5 @@
 #ifndef  _CELL_TASK_H_
-
+#define  _CELL_TASK_H_
 #include<thread>
 #include<mutex>
 #include<list>
@@ -8,7 +8,7 @@
 class CellTask
 {
 public:
-	CellTask()
+	CellTask() 
 	{
 
 	}
@@ -26,15 +26,14 @@ private:
 
 };
 
-typedef std::shared_ptr<CellTask> CellTaskPtr;
 //执行任务的服务类型
 class CellTaskServer
 {
 private:
 	//任务数据
-	std::list<CellTaskPtr> _tasks;
+	std::list<CellTask*> _tasks;
 	//任务数据缓冲区
-	std::list<CellTaskPtr> _taskBuf;
+	std::list<CellTask*> _taskBuf;
 	//改变数据缓冲区时需要加锁
 	std::mutex _mutex;
 
@@ -48,7 +47,7 @@ public:
 
 	}
 	//添加任务
-	void addTask(CellTaskPtr& task)
+	void addTask(CellTask* task)
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
 		_taskBuf.push_back(task);
@@ -86,6 +85,7 @@ protected:
 			for (auto pTask : _tasks)
 			{
 				pTask->doTask();
+				delete pTask;
 			}
 			_tasks.clear();
 		}
