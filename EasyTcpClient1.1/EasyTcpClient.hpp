@@ -160,7 +160,7 @@ public:
 	//接收缓冲区
 	//char _szRecv[RECV_BUFF_SIZE] = { };
 	//第二缓冲区 消息缓冲区
-	char _szMsgBuf[RECV_BUFF_SIZE * 5] = { };
+	char _szMsgBuf[RECV_BUFF_SIZE ] = { };
 	//消息缓冲区尾部指针
 	int _lastPos = 0;
 
@@ -168,7 +168,7 @@ public:
 	int RecvData(SOCKET cSock)
 	{
 		char* szRecv = _szMsgBuf + _lastPos;
-		int nLen = recv(cSock, szRecv, (RECV_BUFF_SIZE * 5) - _lastPos, 0);
+		int nLen = recv(cSock, szRecv, (RECV_BUFF_SIZE ) - _lastPos, 0);
 		//printf("Len=%d\n", nLen);
 		if (nLen <= 0)
 		{
