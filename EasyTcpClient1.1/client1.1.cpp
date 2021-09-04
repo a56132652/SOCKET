@@ -28,14 +28,26 @@ void  cmdThread()
 
 
 //客户端数量
-const int cCount = 1;
+const int cCount = 1000;
 //发送线程数量
-const int tCount = 1;
+const int tCount = 4;
 //客户端数组
 EasyTcpClient* client[cCount];
 std::atomic_int sendCount = 0;
 std::atomic_int readyCount = 0;
 
+//接收线程
+void recvThread(int begin, int end)
+{
+	while (g_bRun)
+	{
+		for (int i = begin; i < end; i++)
+		{
+			client[i]->OnRun();
+		}
+	}
+}
+//发送线程
 void sendThread(int id)
 {
 	printf("thread<%d> ,start\n", id);
@@ -47,13 +59,13 @@ void sendThread(int id)
 	for (int i = begin; i < end; i++)
 	{
 		client[i] = new EasyTcpClient();
-	}
+	}  
 	for (int i = begin; i < end; i++)
 	{
 
 		client[i]->Connect("127.0.0.1", 4567);	//Linux:192.168.43.129	yql:192.168.1.202  benji:192.168.43.1
 	}
-
+	 
 	printf("thread<%d> Connect<begin=%d, end=%d>\n", id, begin,end);
 
 	readyCount++;
@@ -63,6 +75,9 @@ void sendThread(int id)
 		std::this_thread::sleep_for(t);
 	}
 	
+	//启动接收线程
+	std::thread t1(recvThread, begin, end);
+	t1.detach();
 
 	Login login[10];
 	//strcpy(login[1].userName, "yql");
@@ -74,20 +89,17 @@ void sendThread(int id)
 	}
 	const int nLen = sizeof(login);
 
-	bool isSend = false;
+
 	while (g_bRun)
 	{
 		for (int i = begin; i < end; i++)
 		{
-			if (!isSend)
-			{
-				if (SOCKET_ERROR != client[i]->SendData(login, nLen)) {
+			if (SOCKET_ERROR != client[i]->SendData(login, nLen)) {
 					sendCount++;
-				}
-				isSend = true;
 			}
-			client[i]->OnRun();
 		}
+		//std::chrono::milliseconds t(10);
+		//std::this_thread::sleep_for(t);
 	}
 
 	for (int i = 0; i < cCount; i++)
