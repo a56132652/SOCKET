@@ -5,33 +5,8 @@
 #include "INetEvent.hpp"
 #include "CELLTask.hpp"
 #include "MessageHeader.hpp"
-
-/********************************************************************************************************************************/
-/*********************---------------------CellSendMsgToClientTask(网络消息发送任务)--------------------*************************/
-/********************************************************************************************************************************/
-class CellSendMsgToClientTask : public CellTask
-{
-public:
-	CellSendMsgToClientTask(CellClient* pclient, DataHeader* header)
-	{
-		_pClient = pclient;
-		_pHeader = header;
-	}
-
-	~CellSendMsgToClientTask()
-	{
-
-	}
-
-	virtual void doTask()
-	{
-		_pClient->SendData(_pHeader);
-		delete _pHeader;
-	}
-private:
-	CellClient* _pClient;
-	DataHeader* _pHeader;
-};
+#include <map>
+#include <vector>
 
 /********************************************************************************************************************************/
 /*****************************---------------------CellServer(消息处理类)--------------------************************************/
@@ -261,10 +236,12 @@ public:
 
 	void addSendTask(CellClient* pClient, DataHeader* header)
 	{
-		CellSendMsgToClientTask* task = new CellSendMsgToClientTask(pClient, header);
-		_taskServer.addTask(task);
+		_taskServer.addTask([pClient, header]() {
+			pClient->SendData(header);
+			delete header;
+			});
 	}
-private:
+private:  
 	SOCKET _sock;
 	//正式客户队列
 	std::map<SOCKET, CellClient*> _clients;
