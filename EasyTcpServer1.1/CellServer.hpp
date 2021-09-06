@@ -64,6 +64,7 @@ public:
 	{
 		return _sock != INVALID_SOCKET;
 	}
+
 	//处理网络消息
 	//int _nCount = 0;
 	//备份客户socket fd_set
@@ -92,6 +93,7 @@ public:
 			{
 				std::chrono::milliseconds t(1);
 				std::this_thread::sleep_for(t);
+				_oldTime = CELLTime::getTimeInMilliSec();
 				continue;
 			}
 			fd_set fdRead;
@@ -115,55 +117,93 @@ public:
 			else {
 				memcpy(&fdRead, &_fdRead_back, sizeof(fd_set));
 			}
-			int ret = select(_maxSock + 1, &fdRead, 0, 0, nullptr);
+			timeval t{ 0,1 };
+			int ret = select(_maxSock + 1, &fdRead, 0, 0, &t);
 			if (ret < 0)
 			{
 				printf("select任务结束。\n");
 				Close();
 				return false;
 			}
+	/*		else if (ret == 0)
+			{
+				continue;
+			}*/
 
-#ifdef _WIN32
-			for (int n = 0; n < fdRead.fd_count; n++)
-			{
-				auto iter = _clients.find(fdRead.fd_array[n]);
-				if (iter != _clients.end())
-				{
-					if (RecvData(iter->second) == -1)
-					{
-						if (_pNetEvent)
-							_pNetEvent->OnNetLeave(iter->second);
-						_clients_change = true;
-						_clients.erase(iter->first);
-					}
-				}
-				else {
-					printf("error.iter != _clients.end()\n");
-				}
-			}
-#else
-			std::vector<CellClient*> temp;
-			for (auto iter : _clients)
-			{
-				if (FD_ISSET(iter.second->sockfd(), &fdRead))
-				{
-					if (RecvData(iter.second) == -1)
-					{
-						_clients_change = false;
-						temp.push_back(iter.second);
-						if (_pNetEvent)
-							_pNetEvent->OnNetLeave(iter.second);
-					}
-				}
-			}
-			for (auto pClient : temp)
-			{
-				_clients.erase(pClient->sockfd());
-				delete pClient;
-			}
-#endif	
-
+			ReadData(fdRead);
+			CheckTime();
 		}
+	}
+
+	time_t _oldTime = CELLTime::getTimeInMilliSec();
+	void CheckTime()
+	{
+		auto nowTime = CELLTime::getTimeInMilliSec();
+		auto dt = nowTime - _oldTime;
+		_oldTime = nowTime;
+		 
+		for (auto iter = _clients.begin(); iter != _clients.end();)
+		{
+			if (iter->second->checkHeart(dt))
+			{
+				if (_pNetEvent)
+					_pNetEvent->OnNetLeave(iter->second);
+				_clients_change = true;
+				delete iter->second;
+				auto iterOld = iter;
+				iter++;
+				_clients.erase(iterOld);
+				continue;
+			}
+			iter++;
+		}
+	}
+
+	void ReadData(fd_set& fdRead)
+	{
+#ifdef _WIN32
+		for (int n = 0; n < fdRead.fd_count; n++)
+		{
+			auto iter = _clients.find(fdRead.fd_array[n]);
+			if (iter != _clients.end())
+			{
+				if (RecvData(iter->second) == -1)
+				{
+					if (_pNetEvent)
+						_pNetEvent->OnNetLeave(iter->second);
+					_clients_change = true;
+					closesocket(iter->first);
+					delete iter->second;
+					_clients.erase(iter);	
+				}
+			}
+			else {
+				printf("error.iter != _clients.end()\n");
+			}
+		}
+#else
+		std::vector<CellClient*> temp;
+		for (auto iter : _clients)
+		{
+			if (FD_ISSET(iter.second->sockfd(), &fdRead))
+			{
+				if (RecvData(iter.second) == -1)
+				{
+					if (_pNetEvent)
+						_pNetEvent->OnNetLeave(iter.second);
+					_clients_change = true;
+					close(iter->first);
+					temp.push_back(iter.second);
+
+				}
+			}
+		}
+		for (auto pClient : temp)
+		{
+			_clients.erase(pClient->sockfd());
+			delete pClient;
+		} 
+#endif	
 	}
 
 	//接收数据 处理粘包 拆分包
@@ -234,13 +274,13 @@ public:
 		return _clients.size() + _clientsBuff.size();
 	}
 
-	void addSendTask(CellClient* pClient, DataHeader* header)
-	{
-		_taskServer.addTask([pClient, header]() {
-			pClient->SendData(header);
-			delete header;
-			});
-	}
+	//void addSendTask(CellClient* pClient, DataHeader* header)
+	//{
+	//	_taskServer.addTask([pClient, header]() {
+	//		pClient->SendData(header);
+	//		delete header;
+	//		});
+	//}
 private:  
 	SOCKET _sock;
 	//正式客户队列

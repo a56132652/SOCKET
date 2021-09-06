@@ -46,12 +46,13 @@ public:
 		{
 		case CMD_LOGIN:
 		{
+			pClient->resetDtHeart();
 			Login* login = (Login*)header;
 			//printf("收到客户端<socket:%d>命令：CMD_LOGIN，数据长度 : %d,userName = %s ,PassWord = %s \n", cSock, login->dataLength, login->userName, login->PassWord);
+			LoginResult ret;
+			pClient->SendData(&ret);
 			//LoginResult* ret = new LoginResult();
-			//pClient->SendData(ret);
-			LoginResult* ret = new LoginResult();
-			pCellServer->addSendTask(pClient,ret);
+			//pCellServer->addSendTask(pClient,ret);
 		}
 		break;
 		case CMD_LOGINOUT:
@@ -60,6 +61,13 @@ public:
 			//printf("收到客户端<socket:%d>命令：CMD_LOGINOUT，数据长度 : %d,userName = %s \n", cSock, loginout->dataLength, loginout->userName);
 			//LoginoutResult ret = {  };
 			//pClient->SendData(&ret);
+		}
+		break;
+		case CMD_C2S_HEART:
+		{
+			pClient->resetDtHeart();
+			S2C_Heart* ret;
+			pClient->SendData(ret);
 		}
 		break;
 		default:

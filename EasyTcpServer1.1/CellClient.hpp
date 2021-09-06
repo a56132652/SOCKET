@@ -19,7 +19,8 @@
 #endif
 
 #include"Cell.hpp"
-
+//客户端心跳检测死亡计时时间
+#define CLIENT_HEART_DEAD_TIME 5000
 /********************************************************************************************************************************/
 /**********************-------------------------CellClient(客户端数据类型)-----------------------******************************/
 /********************************************************************************************************************************/
@@ -33,6 +34,8 @@ public:
 		_lastPos = 0;
 		memset(_szSendBuf, 0, SEND_BUFF_SIZE);
 		_lastSendPos = 0;
+
+		resetDtHeart();
 	}
 
 	SOCKET sockfd()
@@ -89,6 +92,23 @@ public:
 		}
 		return ret;
 	}
+
+	void resetDtHeart()
+	{
+		_dtHeart = 0;
+	}
+
+	//心跳检测
+	bool checkHeart(time_t dt)
+	{
+		_dtHeart += dt;
+		if (_dtHeart >= CLIENT_HEART_DEAD_TIME) {
+			printf("socket<%d> dead,LiveTime:%d\n", _sockfd, dt);
+			return true;
+		}
+		return false;
+	}
+
 private:
 	SOCKET _sockfd;
 	//第二缓冲区 消息缓冲区
@@ -100,6 +120,8 @@ private:
 	char _szSendBuf[SEND_BUFF_SIZE] = { };
 	//消息缓冲区尾部指针
 	int _lastSendPos = 0;
+	//心跳死亡计时
+	time_t _dtHeart;
 };
 
 #endif // CellClient

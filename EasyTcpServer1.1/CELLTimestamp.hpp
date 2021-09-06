@@ -4,6 +4,19 @@
 //#include <windows.h>
 #include<chrono>
 using namespace std::chrono;
+
+class CELLTime
+{
+public:
+	//获取当前时间戳（毫秒）
+	static time_t getTimeInMilliSec()
+	{
+		return duration_cast<milliseconds >(high_resolution_clock::now().time_since_epoch()).count();
+	}
+};
+
+
+
 class CELLTimestamp
 {
 public:
@@ -46,7 +59,7 @@ public:
 		return endTimeInMicroSec - startTimeInMicroSec;*/
 
 
-		return duration_cast<microseconds>(high_resolution_clock::now() - _begin).count();;
+		return duration_cast<microseconds>(high_resolution_clock::now() - _begin).count();
 	}
 protected:
 	//LARGE_INTEGER _frequency;
