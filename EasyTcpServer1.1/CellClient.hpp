@@ -20,7 +20,7 @@
 
 #include"Cell.hpp"
 //客户端心跳检测死亡计时时间
-#define CLIENT_HEART_DEAD_TIME 5000
+#define CLIENT_HEART_DEAD_TIME 60000
 /********************************************************************************************************************************/
 /**********************-------------------------CellClient(客户端数据类型)-----------------------******************************/
 /********************************************************************************************************************************/
@@ -103,7 +103,7 @@ public:
 	{
 		_dtHeart += dt;
 		if (_dtHeart >= CLIENT_HEART_DEAD_TIME) {
-			printf("socket<%d> dead,LiveTime:%d\n", _sockfd, dt);
+			printf("checkHeart dead:s=%d,time=%d\n", _sockfd, _dtHeart);
 			return true;
 		}
 		return false;
