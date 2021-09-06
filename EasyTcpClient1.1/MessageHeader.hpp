@@ -11,6 +11,8 @@ enum CMD
 	CMD_LOGINOUT,
 	CMD_LOGINOUT_RESULT,
 	CMD_NEW_USER_JOIN,
+	CMD_C2S_HEART,
+	CMD_S2C_HEART,
 	CMD_ERROR
 };
 //消息头
@@ -36,8 +38,23 @@ struct Login : public DataHeader
 	char PassWord[32];
 	char data[32];
 };
-
-
+//心跳
+struct C2S_Heart : public DataHeader
+{
+	C2S_Heart()
+	{
+		dataLength = sizeof(C2S_Heart);
+		cmd = CMD_C2S_HEART;
+	}
+};
+struct S2C_Heart : public DataHeader
+{
+	S2C_Heart()
+	{
+		dataLength = sizeof(S2C_Heart);
+		cmd = CMD_S2C_HEART;
+	}
+};
 //登录结果
 struct LoginResult : public DataHeader
 {
@@ -84,5 +101,7 @@ struct NewUserJoin : public DataHeader
 	}
 	int sock;
 };
+
+
 
 #endif

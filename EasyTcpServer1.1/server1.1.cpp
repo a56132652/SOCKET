@@ -66,8 +66,8 @@ public:
 		case CMD_C2S_HEART:
 		{
 			pClient->resetDtHeart();
-			S2C_Heart* ret;
-			pClient->SendData(ret);
+			S2C_Heart ret;
+			pClient->SendData(&ret);
 		}
 		break;
 		default:

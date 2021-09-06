@@ -21,7 +21,7 @@ void  cmdThread()
 			break;
 		}
 		else {
-			printf("不支持的命令，请重新输入。\n");
+			printf("不支持的命令，请重新输入。\n"); 
 		}
 	}
 }
@@ -53,7 +53,7 @@ void sendThread(int id)
 	printf("thread<%d> ,start\n", id);
 	//4个线程，ID 1 - 4
 	int c = cCount / tCount;
-	int begin = (id - 1) * c;
+	int begin = (id - 1) * c;  
 	int end = id * c;
 
 	for (int i = begin; i < end; i++)
@@ -80,8 +80,6 @@ void sendThread(int id)
 	t1.detach();
 
 	Login login[10];
-	//strcpy(login[1].userName, "yql");
-	//strcpy(login[1].PassWord, "yqlyyds");
 	for (int i = 0; i < 10; i++)
 	{
 		strcpy(login[i].userName, "yql");
@@ -98,14 +96,14 @@ void sendThread(int id)
 					sendCount++;
 			}
 		}
-		//std::chrono::milliseconds t(10);
+		//std::chrono::milliseconds t(100);
 		//std::this_thread::sleep_for(t);
 	}
 
-	for (int i = 0; i < cCount; i++)
+	for (int n = begin; n < end; n++)
 	{
-		client[i]->Close();	//Linux:192.168.43.129
-		delete client[i];
+		client[n]->Close();	//Linux:192.168.43.129
+		delete client[n];
 	}
 
 	printf("thread<%d> ,exit\n", id);

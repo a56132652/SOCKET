@@ -144,6 +144,7 @@ public:
 		 
 		for (auto iter = _clients.begin(); iter != _clients.end();)
 		{
+			//心跳检测
 			if (iter->second->checkHeart(dt))
 			{
 				if (_pNetEvent)
@@ -155,6 +156,8 @@ public:
 				_clients.erase(iterOld);
 				continue;
 			}
+			//定时发送检测
+			iter->second->checkSend(dt);
 			iter++;
 		}
 	}

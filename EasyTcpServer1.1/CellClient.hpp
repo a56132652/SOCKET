@@ -21,6 +21,8 @@
 #include"Cell.hpp"
 //客户端心跳检测死亡计时时间
 #define CLIENT_HEART_DEAD_TIME 60000
+//间隔指定时间后把发送缓冲区内缓冲的消息数据发送给客户端
+#define CLIENT_SEND_BUFF_TIME 1000 
 /********************************************************************************************************************************/
 /**********************-------------------------CellClient(客户端数据类型)-----------------------******************************/
 /********************************************************************************************************************************/
@@ -36,6 +38,7 @@ public:
 		_lastSendPos = 0;
 
 		resetDtHeart();
+		resetDtSend();
 	}
 
 	SOCKET sockfd()
@@ -56,6 +59,31 @@ public:
 	{
 		_lastPos = pos;
 	}
+
+	//立即发送数据
+	int SendDataReal(DataHeader* header)
+	{
+		SendData(header);
+		SendDataReal();
+	}
+
+	//立即将发送缓冲区的数据发送给客户端
+	int SendDataReal()
+	{
+		int ret = SOCKET_ERROR;
+		//缓冲区有数据
+		if (_lastSendPos > 0 && SOCKET_ERROR != _sockfd)
+		{
+			//发送数据
+			ret = send(_sockfd, _szSendBuf, _lastSendPos, 0);
+			//数据尾部位置 置0
+			_lastSendPos = 0;
+
+			resetDtSend();
+		}
+		return ret;
+	}
+
 	//发送数据
 	int SendData(DataHeader* header)
 	{
@@ -80,7 +108,13 @@ public:
 				ret = send(_sockfd, _szSendBuf, SEND_BUFF_SIZE, 0);
 				//数据尾部位置 置0
 				_lastSendPos = 0;
-
+				//发送计时清零
+				resetDtSend();
+				//发送错误
+				if (SOCKET_ERROR == ret)
+				{
+					return ret;
+				}
 			}
 			else {
 				//将要发送的数据拷贝到发送缓冲区尾部
@@ -98,12 +132,32 @@ public:
 		_dtHeart = 0;
 	}
 
+	void resetDtSend()
+	{
+		_dtSend = 0;
+	}
+
 	//心跳检测
 	bool checkHeart(time_t dt)
 	{
 		_dtHeart += dt;
 		if (_dtHeart >= CLIENT_HEART_DEAD_TIME) {
 			printf("checkHeart dead:s=%d,time=%d\n", _sockfd, _dtHeart);
+			return true;
+		}
+		return false;
+	}
+
+	//定时发送消息检测
+	bool checkSend(time_t dt)
+	{
+		_dtSend += dt;
+		if (_dtSend >= CLIENT_SEND_BUFF_TIME) {
+			//printf("checkSend:s=%d,time=%d\n", _sockfd, _dtSend);
+			//立即发送缓冲区数据
+			SendDataReal();
+			//重置发送计时
+			resetDtSend();
 			return true;
 		}
 		return false;
@@ -122,6 +176,8 @@ private:
 	int _lastSendPos = 0;
 	//心跳死亡计时
 	time_t _dtHeart;
+	//上次发送消息数据的时间
+	time_t _dtSend;
 };
 
 #endif // CellClient
