@@ -39,8 +39,8 @@ public:
 		printf("CellServer%d.Close begin\n", _id);
 		if (_isRun)
 		{
-			_isRun = false;
-			_taskServer.Close();			
+			_taskServer.Close();
+			_isRun = false; 
 			_sem.wait();
 		}
 		printf("CellServer%d.Close end\n", _id);
