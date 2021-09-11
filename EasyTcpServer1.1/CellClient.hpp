@@ -29,8 +29,14 @@
 class CellClient
 {
 public:
+	int id = -1;
+	//À˘ ÙserverID
+	int serverID = -1;
+public:
 	CellClient(SOCKET sockfd = INVALID_SOCKET)
 	{
+		static int n = 1;
+		id = n++;
 		_sockfd = sockfd;
 		memset(_szMsgBuf, 0, RECV_BUFF_SIZE);
 		_lastPos = 0;
@@ -41,6 +47,19 @@ public:
 		resetDtSend();
 	}
 
+	~CellClient()
+	{
+		printf("s=%d CellClient%d.Close 1\n",serverID, id);
+		if (_sockfd != SOCKET_ERROR)
+		{
+#ifdef _WIN32
+			closesocket(_sockfd);
+#else
+			close(_sockfd);
+#endif
+			_sockfd = SOCKET_ERROR;
+		}
+	}
 	SOCKET sockfd()
 	{
 		return _sockfd;

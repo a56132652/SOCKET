@@ -98,9 +98,21 @@ int main()
 
 	}
 	server.Close();
-
-
-	getchar();
+	printf("ÒÑÍË³ö\n");
+	while (true)
+	{
+		Sleep(1);
+	}
+	/*
+	CellTaskServer task;
+	task.Start();
+	Sleep(100);
+	task.Close();
+	while (true)
+	{
+		Sleep(1);
+	}
+	*/
 	return 0;
 }
 
