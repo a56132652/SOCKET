@@ -39,11 +39,14 @@ std::atomic_int readyCount = 0;
 //接收线程
 void recvThread(int begin, int end)
 {
+	//CELLTimestamp t;
 	while (g_bRun)
 	{
-		for (int i = begin; i < end; i++)
+		for (int n = begin; n < end; n++)
 		{
-			client[i]->OnRun();
+			//if (t.getElapsedSecond() > 3.0 && n == begin)
+			//	continue;
+			client[n]->OnRun();
 		}
 	}
 }
@@ -65,7 +68,7 @@ void sendThread(int id)
 
 		client[i]->Connect("127.0.0.1", 4567);	//Linux:192.168.43.129	yql:192.168.1.202  benji:192.168.43.1
 	}
-	 
+	//心跳检测 死亡计时  
 	printf("thread<%d> Connect<begin=%d, end=%d>\n", id, begin,end);
 
 	readyCount++;
@@ -79,15 +82,13 @@ void sendThread(int id)
 	std::thread t1(recvThread, begin, end);
 	t1.detach();
 
-	Login login[10];
-	for (int i = 0; i < 10; i++)
+	Login login[1];
+	for (int i = 0; i < 1; i++)
 	{
 		strcpy(login[i].userName, "yql");
 		strcpy(login[i].PassWord, "yqlyyds");
 	}
 	const int nLen = sizeof(login);
-
-
 	while (g_bRun)
 	{
 		for (int i = begin; i < end; i++)
@@ -105,7 +106,6 @@ void sendThread(int id)
 		client[n]->Close();	//Linux:192.168.43.129
 		delete client[n];
 	}
-
 	printf("thread<%d> ,exit\n", id);
 }
 
@@ -127,7 +127,7 @@ int main()
 	{
 		auto t = tTime.getElapsedSecond();
 		if (t >= 1.0) {
-			printf("thread<%d>,clients<%d>,time<%lf>,send<%d>\n",tCount, cCount, t, (int)(sendCount.load() / t));
+			printf("thread<%d>,clients<%d>,time<%lf>,send<%d>\n",tCount, cCount, t, (int)(sendCount/ t));
 			sendCount = 0;
 			tTime.update();
 		}
@@ -135,7 +135,6 @@ int main()
 	}
 
 	printf("已退出。\n");
-	getchar();
 	return 0;
 
 }
