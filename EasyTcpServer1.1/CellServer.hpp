@@ -5,7 +5,7 @@
 #include "INetEvent.hpp"
 #include "CELLTask.hpp"
 #include "MessageHeader.hpp"
-#include "CELLSemaphore.hpp"
+#include "CELLThread.hpp"
 #include <map>
 #include <vector>
 
@@ -37,19 +37,15 @@ public:
 	void Close()
 	{
 		printf("CellServer%d.Close begin\n", _id);
-		if (_isRun)
-		{
-			_taskServer.Close();
-			_isRun = false; 
-			_sem.wait();
-		}
+		_taskServer.Close();
+		_thread.Close();
 		printf("CellServer%d.Close end\n", _id);
 	}
 
 	//处理网络消息
-	bool onRun()
+	bool onRun(CELLThread* pThread)
 	{
-		while (_isRun)
+		while (pThread->isRun())
 		{
 			if (_clientsBuff.size() > 0)
 			{
@@ -98,9 +94,9 @@ public:
 			int ret = select(_maxSock + 1, &fdRead, 0, 0, &t);
 			if (ret < 0)
 			{
-				printf("select任务结束。\n");
-				Close();
-				return false;
+				printf("CellServer%d OnRun.select Error\n",_id);
+				_thread.Exit();
+				break;
 			}
 	/*		else if (ret == 0)
 			{
@@ -111,8 +107,6 @@ public:
 			CheckTime();
 		}
 		printf("CellServer%d.OnRun  exit\n", _id);
-		ClearClients();
-		_sem.wakeup();
 	}
 
 	
@@ -247,13 +241,10 @@ public:
 
 	void Start()
 	{
-		if (!_isRun)
-		{
-			_isRun = true;
-			std::thread t =std::thread(std::mem_fn(&CellServer::onRun), this);
-			t.detach();
-			_taskServer.Start();
-		}
+		_taskServer.Start();
+		_thread.Start(nullptr,
+			[this](CELLThread* pThread) {onRun(pThread); },
+			[this](CELLThread* pThread) {ClearClients(); });
 	}
 
 	size_t getClientCount()
@@ -303,9 +294,7 @@ private:
 	time_t _oldTime = CELLTime::getTimeInMilliSec();
 	//
 	int _id = -1;
-	//是否工作中
-	bool _isRun = false;
 	//
-	CellSemaphore _sem;
+	CELLThread _thread;
 };
 #endif // !_CELLSERVER_HPP_

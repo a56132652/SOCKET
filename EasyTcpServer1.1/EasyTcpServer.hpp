@@ -21,10 +21,13 @@
 class EasyTcpServer : public INetEvent
 {
 private:
-	SOCKET _sock;
+	//
+	CELLThread _thread;
 	std::vector<CellServer*> _cellServers;
 	//每秒消息计时
 	CELLTimestamp _tTime;
+	//
+	SOCKET _sock;
 protected:
 	//收到消息计数
 	std::atomic_int _msgCount;
@@ -172,12 +175,15 @@ public:
 			//启动消息处理线程
 			ser->Start();
 		}
+		_thread.Start(nullptr,
+			[this](CELLThread* pThread) {onRun(pThread); });
 	}
 
 	//关闭socket
 	void Close()
 	{
 		printf("EasyTcpServer.Close begin\n");
+		_thread.Close();
 		if (_sock != INVALID_SOCKET)
 		{
 			for (auto s : _cellServers)
@@ -196,40 +202,7 @@ public:
 		}
 		printf("EasyTcpServer.Close end\n");
 	}
-	bool onRun() 
-	{
-		if (isRun())
-		{
-			time4msg();
-			fd_set fdRead;
-			//清空
-			FD_ZERO(&fdRead);
-			//将描述符存入数组
-			FD_SET(_sock, &fdRead);
 
-			timeval t = { 0,10 };
-			int ret = select(_sock + 1, &fdRead, 0, 0, &t);
-			if (ret < 0)
-			{
-				printf("Accept Select任务结束。\n");
-				Close();
-				return false;
-			}
-			//判断描述符(socket)是否在集合中
-			if (FD_ISSET(_sock, &fdRead))
-			{
-				//将数组中对应的描述符的计数值清0，并未将该描述符清除
-				FD_CLR(_sock, &fdRead);
-				Accept();
-				return true;
-			}
-		}
-	}
-	//是否工作中
-	bool isRun()
-	{
-		return _sock != INVALID_SOCKET;
-	}
 	//计算并输出每秒收到的网络消息
 	void time4msg()
 	{
@@ -260,6 +233,36 @@ public:
 	virtual void OnNetRecv(CellClient* pClient)
 	{
 		_recvCount++; 
+	}
+private:
+	//处理网络消息
+	void onRun(CELLThread* pThread)
+	{
+		while(pThread->isRun())
+		{
+			time4msg();
+			fd_set fdRead;
+			//清空
+			FD_ZERO(&fdRead);
+			//将描述符存入数组
+			FD_SET(_sock, &fdRead);
+
+			timeval t = { 0,1 };
+			int ret = select(_sock + 1, &fdRead, 0, 0, &t);
+			if (ret < 0)
+			{
+				printf("EasyTcpServer.OnRun Accept Select Exit.\n");
+				pThread->Exit();
+				break;
+			}
+			//判断描述符(socket)是否在集合中
+			if (FD_ISSET(_sock, &fdRead))
+			{
+				//将数组中对应的描述符的计数值清0，并未将该描述符清除
+				FD_CLR(_sock, &fdRead);
+				Accept();
+			}
+		}
 	}
 };
 

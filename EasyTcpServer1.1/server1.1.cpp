@@ -3,25 +3,11 @@
 #include <string>
 #include "EasyTcpServer.hpp"
 
-bool g_bRun = true;
-//处理请求函数
-void  cmdThread()
-{
-	while (true)
-	{
-		char cmdBuf[256] = { };
-		scanf("%s", cmdBuf);
-		if (0 == strcmp(cmdBuf, "exit"))
-		{
-			g_bRun = false;
-			printf("退出cmdThread线程\n");
-			break;
-		}
-		else {
-			printf("不支持的命令，请重新输入。\n");
-		}
-	}
-}
+//bool g_bRun = true;
+////处理请求函数
+//void  cmdThread()
+//{
+//}
 
 class MyServer : public EasyTcpServer
 {
@@ -89,15 +75,25 @@ int main()
 	server.Listen(5);
 	server.Start(4);
 
-	std::thread t1(cmdThread);
-	t1.detach();	 
+/*	std::thread t1(cmdThread);
+	t1.detach();*/	 \
 
-	while (g_bRun)
-	{	
-		server.onRun();
-
+	while (true)
+	{
+		char cmdBuf[256] = { };
+		scanf("%s", cmdBuf);
+		if (0 == strcmp(cmdBuf, "exit"))
+		{
+			server.Close();
+			printf("退出cmdThread线程\n");
+			break;
+		}
+		else {
+			printf("不支持的命令，请重新输入。\n");
+		}
 	}
-	server.Close();
+	
+	//server.Close();
 	printf("已退出\n");
 	while (true)
 	{
