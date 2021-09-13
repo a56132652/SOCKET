@@ -1,5 +1,5 @@
 #include "Cell.hpp"
-#include "CellClient.hpp"
+#include "CELLClient.hpp"
 #include <string>
 #include "EasyTcpServer.hpp"
 
@@ -13,21 +13,21 @@ class MyServer : public EasyTcpServer
 {
 public:
 	//只会被一个线程触发 安全
-	virtual void OnNetJoin(CellClient* pClient)
+	virtual void OnNetJoin(CELLClient* pClient)
 	{
 		EasyTcpServer::OnNetJoin(pClient); 
 	}
 	//cellSetver 4 多个线程触发 不安全
-	//如果只开启一个cellServer就是安全的
-	virtual void OnNetLeave(CellClient* pClient)
+	//如果只开启一个CELLServer就是安全的
+	virtual void OnNetLeave(CELLClient* pClient)
 	{
 		EasyTcpServer::OnNetLeave(pClient);
 	}
 	//cellSetver 4 多个线程触发 不安全
-	//如果只开启一个cellServer就是安全的
-	virtual void OnNetMsg(CellServer* pCellServer, CellClient* pClient, DataHeader* header)
+	//如果只开启一个CELLServer就是安全的
+	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient, DataHeader* header)
 	{
-		EasyTcpServer::OnNetMsg(pCellServer, pClient, header);
+		EasyTcpServer::OnNetMsg(pCELLServer, pClient, header);
 		switch (header->cmd)
 		{
 		case CMD_LOGIN:
@@ -36,9 +36,13 @@ public:
 			Login* login = (Login*)header;
 			//printf("收到客户端<socket:%d>命令：CMD_LOGIN，数据长度 : %d,userName = %s ,PassWord = %s \n", cSock, login->dataLength, login->userName, login->PassWord);
 			LoginResult ret;
-			pClient->SendData(&ret);
+			if (SOCKET_ERROR == pClient->SendData(&ret))
+			{
+				//发送缓冲区满了，消息没发出去
+				printf("<Socket=%d> Send Full\n", pClient->sockfd());
+			}
 			//LoginResult* ret = new LoginResult();
-			//pCellServer->addSendTask(pClient,ret);
+			//pCELLServer->addSendTask(pClient,ret);
 		}
 		break;
 		case CMD_LOGINOUT:
@@ -72,10 +76,10 @@ int main()
 	MyServer server;
 	server.InitSocket(); 
 	server.Bind(NULL, 4567);
-	server.Listen(5);
+	server.Listen(64);
 	server.Start(4);
 
-/*	std::thread t1(cmdThread);
+/*	std::thread t1(cmdThread); 
 	t1.detach();*/	 \
 
 	while (true)
@@ -92,23 +96,13 @@ int main()
 			printf("不支持的命令，请重新输入。\n");
 		}
 	}
-	
-	//server.Close();
+
 	printf("已退出\n");
+#ifdef _WIN32
 	while (true)
-	{
-		Sleep(1);
-	}
-	/*
-	CellTaskServer task;
-	task.Start();
-	Sleep(100);
-	task.Close();
-	while (true)
-	{
-		Sleep(1);
-	}
-	*/
+		Sleep(10);
+#endif
 	return 0;
+
 }
 

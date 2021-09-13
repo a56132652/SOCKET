@@ -2,28 +2,21 @@
 #define	_EasyTcpServer_hpp_
 
 
-#include<stdio.h>
-#include<thread>
-#include<vector>
-#include<map>
-#include<mutex>
-#include<functional>
-#include<atomic>
-
-#include"Cell.hpp"
+#include"CELL.hpp"
+#include"CELLClient.hpp"
+#include"CELLServer.hpp"
 #include"INetEvent.hpp"
-#include "CellServer.hpp"
-#include "CellClient.hpp"
-/********************************************************************************************************************************/
-/*****************************-------------------------EasyTcpServer-----------------------**************************************/
-/********************************************************************************************************************************/
+
+#include<thread>
+#include<mutex>
+#include<atomic>
 
 class EasyTcpServer : public INetEvent
 {
 private:
 	//
 	CELLThread _thread;
-	std::vector<CellServer*> _cellServers;
+	std::vector<CELLServer*> _CELLServers;
 	//每秒消息计时
 	CELLTimestamp _tTime;
 	//
@@ -143,33 +136,33 @@ public:
 			printf("socket=<%d>错误，接收到无效客户端SOCKET...\n", (int)_sock);
 		}
 		else {
-			//将新客户端分配给客户数量最少的cellServer
-			addClientToCellServer(new CellClient(cSock));
+			//将新客户端分配给客户数量最少的CELLServer
+			addClientToCELLServer(new CELLClient(cSock));
 			//获取IP地址	inet_ntoa(_clientAddr.sin_addr)
 		}
 		return cSock;
 	}
 
-	void addClientToCellServer(CellClient* pClient)
+	void addClientToCELLServer(CELLClient* pClient)
 	{
-		//查找客户数量最少的CellServer消息处理对象
-		auto pMinServer = _cellServers[0];
-		for (auto pCellServer : _cellServers)
+		//查找客户数量最少的CELLServer消息处理对象
+		auto pMinServer = _CELLServers[0];
+		for (auto pCELLServer : _CELLServers)
 		{
-			if (pMinServer->getClientCount() > pCellServer->getClientCount())
+			if (pMinServer->getClientCount() > pCELLServer->getClientCount())
 			{
-				pMinServer = pCellServer;
+				pMinServer = pCELLServer;
 			}	
 		}
 		pMinServer->addClient(pClient); 
 	}
 
-	void Start(int nCellServer)
+	void Start(int nCELLServer)
 	{
-		for (int i = 0; i < nCellServer; i++)
+		for (int i = 0; i < nCELLServer; i++)
 		{
-			auto ser = new CellServer(i+1);
-			_cellServers.push_back(ser);
+			auto ser = new CELLServer(i+1);
+			_CELLServers.push_back(ser);
 			//注册网络事件接收对象
 			ser->setEventObj(this);
 			//启动消息处理线程
@@ -186,11 +179,11 @@ public:
 		_thread.Close();
 		if (_sock != INVALID_SOCKET)
 		{
-			for (auto s : _cellServers)
+			for (auto s : _CELLServers)
 			{
 				delete s;
 			}
-			_cellServers.clear();
+			_CELLServers.clear();
 #ifdef _WIN32
 			//关闭套接字socket
 			closesocket(_sock);
@@ -210,27 +203,27 @@ public:
 		auto t1 = _tTime.getElapsedSecond();
 		if (t1 >= 1.0)
 		{
-			printf("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>\n",(int)_cellServers.size(),t1, _sock, (int)_clientCount,(int)(_recvCount/ t1), (int)(_msgCount / t1));
+			printf("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>\n",(int)_CELLServers.size(),t1, _sock, (int)_clientCount,(int)(_recvCount/ t1), (int)(_msgCount / t1));
 			_recvCount = 0;
 			_msgCount = 0;
 			_tTime.update();
 		}
 	}
-	virtual void OnNetJoin(CellClient* pClient)
+	virtual void OnNetJoin(CELLClient* pClient)
 	{
 		_clientCount++;
 		//printf("client<%d> join\n", pClient->sockfd());
 	}
-	virtual void OnNetLeave(CellClient* pClient)
+	virtual void OnNetLeave(CELLClient* pClient)
 	{
 		_clientCount--;
 		//printf("client<%d> leave\n", pClient->sockfd());
 	}
-	virtual void OnNetMsg(CellServer* pCellServer, CellClient* pClient,DataHeader* header)
+	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient,DataHeader* header)
 	{
 		_msgCount++;
 	}
-	virtual void OnNetRecv(CellClient* pClient)
+	virtual void OnNetRecv(CELLClient* pClient)
 	{
 		_recvCount++; 
 	}

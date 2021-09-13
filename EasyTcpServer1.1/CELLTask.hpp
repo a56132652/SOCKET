@@ -8,33 +8,25 @@
 
 
 //执行任务的服务类型
-class CellTaskServer
+class CELLTaskServer
 {
 public:
 	//所属serverID
 	int serverID = -1;
 private:
-	typedef std::function<void()> CellTask;
+	typedef std::function<void()> CELLTask;
 private:
 	//任务数据
-	std::list<CellTask> _tasks;
+	std::list<CELLTask> _tasks;
 	//任务数据缓冲区
-	std::list<CellTask> _taskBuf;
+	std::list<CELLTask> _taskBuf;
 	//改变数据缓冲区时需要加锁
 	std::mutex _mutex;
 	//
 	CELLThread _thread;
 public:
-	CellTaskServer()
-	{
-
-	}
-	~CellTaskServer()
-	{
-
-	}
 	//添加任务
-	void addTask(CellTask task)
+	void addTask(CELLTask task)
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
 		_taskBuf.push_back(task);
@@ -47,11 +39,11 @@ public:
 
 	void Close()
 	{
-		printf("CellTaskServer%d.Close begin\n", serverID);
+		printf("CELLTaskServer%d.Close begin\n", serverID);
 		
 		_thread.Close();
 
-		printf("CellTaskServer%d.Close end\n", serverID);
+		printf("CELLTaskServer%d.Close end\n", serverID);
 	}
 protected:
 	//工作函数
@@ -81,9 +73,10 @@ protected:
 			{
 				pTask();
 			}
+			//清空任务
 			_tasks.clear();
 		}
-		printf("CellTaskServer%d.OnRun exit\n", serverID);
+		printf("CELLTaskServer%d.OnRun exit\n", serverID);
 	} 
 };
 

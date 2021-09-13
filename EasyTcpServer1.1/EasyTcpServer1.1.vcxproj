@@ -155,10 +155,10 @@
     <ClCompile Include="server1.1.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Cell.hpp" />
-    <ClInclude Include="CellClient.hpp" />
+    <ClInclude Include="CELL.hpp" />
+    <ClInclude Include="CELLClient.hpp" />
     <ClInclude Include="CELLSemaphore.hpp" />
-    <ClInclude Include="CellServer.hpp" />
+    <ClInclude Include="CELLServer.hpp" />
     <ClInclude Include="CELLThread.hpp" />
     <ClInclude Include="CELLTimestamp.hpp" />
     <ClInclude Include="EasyTcpServer.hpp" />

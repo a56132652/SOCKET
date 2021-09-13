@@ -1,39 +1,22 @@
-#ifndef _CellClienthpp_
-#define _CellClienthpp_
+#ifndef _CELLClienthpp_
+#define _CELLClienthpp_
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define FD_SETSIZE      2506
-#include<windows.h>
-#include<WinSock2.h>
-#pragma comment(lib,"ws2_32.lib")
-#else
-#include<unistd.h>
-#include<arpa/inet.h>
-#include<string.h>
+#include"CELL.hpp"
 
-#define SOCKET int
-#define INVALID_SOCKET (int)(~0)
-#define SOCKET_ERROR (-1)
-#endif
-
-#include"Cell.hpp"
 //客户端心跳检测死亡计时时间
 #define CLIENT_HEART_DEAD_TIME 60000
-//间隔指定时间后把发送缓冲区内缓冲的消息数据发送给客户端
-#define CLIENT_SEND_BUFF_TIME 1000 
-/********************************************************************************************************************************/
-/**********************-------------------------CellClient(客户端数据类型)-----------------------******************************/
-/********************************************************************************************************************************/
-class CellClient
+//在间隔指定时间后
+//把发送缓冲区内缓存的消息数据发送给客户端
+#define CLIENT_SEND_BUFF_TIME 200 
+//客户端数据类型
+class CELLClient
 {
 public:
 	int id = -1;
 	//所属serverID
 	int serverID = -1;
 public:
-	CellClient(SOCKET sockfd = INVALID_SOCKET)
+	CELLClient(SOCKET sockfd = INVALID_SOCKET)
 	{
 		static int n = 1;
 		id = n++;
@@ -47,17 +30,17 @@ public:
 		resetDtSend();
 	}
 
-	~CellClient()
+	~CELLClient()
 	{
-		printf("s=%d CellClient%d.Close 1\n",serverID, id);
-		if (_sockfd != SOCKET_ERROR)
+		printf("s=%d CELLClient%d.Close 1\n", serverID, id);
+		if (INVALID_SOCKET != _sockfd)
 		{
 #ifdef _WIN32
 			closesocket(_sockfd);
 #else
 			close(_sockfd);
 #endif
-			_sockfd = SOCKET_ERROR;
+			_sockfd = INVALID_SOCKET;
 		}
 	}
 	SOCKET sockfd()
@@ -80,7 +63,7 @@ public:
 	}
 
 	//立即发送数据
-	int SendDataReal(DataHeader* header)
+	void SendDataReal(DataHeader* header)
 	{
 		SendData(header);
 		SendDataReal();
@@ -89,20 +72,23 @@ public:
 	//立即将发送缓冲区的数据发送给客户端
 	int SendDataReal()
 	{
-		int ret = SOCKET_ERROR;
+		int ret = 0;
 		//缓冲区有数据
-		if (_lastSendPos > 0 && SOCKET_ERROR != _sockfd)
+		if (_lastSendPos > 0 && INVALID_SOCKET != _sockfd)
 		{
 			//发送数据
 			ret = send(_sockfd, _szSendBuf, _lastSendPos, 0);
 			//数据尾部位置 置0
 			_lastSendPos = 0;
-
+			//
+			_sendBuffFullCount = 0;
+			//
 			resetDtSend();
 		}
 		return ret;
 	}
 
+	//缓冲区大小根据业务需求的差异而变化调整
 	//发送数据
 	int SendData(DataHeader* header)
 	{
@@ -112,40 +98,25 @@ public:
 		//要发送的数据
 		const char* pSendData = (const char*)header;
 
-		while (true)
+		if (_lastSendPos + nSendLen <= SEND_BUFF_SIZE)
 		{
-			if (_lastSendPos + nSendLen >= SEND_BUFF_SIZE)
+			//将要发送的数据拷贝到发送缓冲区尾部
+			memcpy(_szSendBuf + _lastSendPos, pSendData, nSendLen);
+			//数据尾部位置移动
+			_lastSendPos += nSendLen;
+
+			if (_lastSendPos == SEND_BUFF_SIZE)
 			{
-				//计算可拷贝的数据长度
-				int nCopyLen = SEND_BUFF_SIZE - _lastSendPos;
-				memcpy(_szSendBuf + _lastSendPos, pSendData, nCopyLen);
-				//剩余数据位置
-				pSendData += nCopyLen;
-				//剩余数据长度
-				nSendLen -= nCopyLen;
-				//发送数据
-				ret = send(_sockfd, _szSendBuf, SEND_BUFF_SIZE, 0);
-				//数据尾部位置 置0
-				_lastSendPos = 0;
-				//发送计时清零
-				resetDtSend();
-				//发送错误
-				if (SOCKET_ERROR == ret)
-				{
-					return ret;
-				}
+				_sendBuffFullCount++;
 			}
-			else {
-				//将要发送的数据拷贝到发送缓冲区尾部
-				memcpy(_szSendBuf + _lastSendPos, pSendData, nSendLen);
-				//数据尾部位置移动
-				_lastSendPos += nSendLen;
-				break;
-			}
+			return nSendLen;
+		}
+		else {
+			_sendBuffFullCount++;
 		}
 		return ret;
 	}
-
+	 
 	void resetDtHeart()
 	{
 		_dtHeart = 0;
@@ -166,7 +137,7 @@ public:
 		}
 		return false;
 	}
-
+	 
 	//定时发送消息检测
 	bool checkSend(time_t dt)
 	{
@@ -188,17 +159,18 @@ private:
 	char _szMsgBuf[RECV_BUFF_SIZE] = { };
 	//消息缓冲区尾部指针
 	int _lastPos = 0;
-
 	//第二缓冲区 发送缓冲区
 	char _szSendBuf[SEND_BUFF_SIZE] = { };
 	//消息缓冲区尾部指针
-	int _lastSendPos = 0;
+	int _lastSendPos;
 	//心跳死亡计时
 	time_t _dtHeart;
 	//上次发送消息数据的时间
 	time_t _dtSend;
+	//发送缓冲区写满计数
+	int _sendBuffFullCount = 0;
 };
 
-#endif // CellClient
+#endif // CELLClient
 
 

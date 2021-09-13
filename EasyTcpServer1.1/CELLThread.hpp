@@ -1,8 +1,8 @@
 #ifndef _CELL_THREAD_HPP_
 #define _CELL_THREAD_HPP_
+
 #include"CELLSemaphore.hpp"
-#include<functional>
-#include<mutex>
+
 class CELLThread
 {
 private:
@@ -72,7 +72,7 @@ private:
 	//不同线程中改变数据是需要加锁
 	std::mutex _mutex;
 	//控制线程的终止、退出
-	CellSemaphore _sem;
+	CELLSemaphore _sem;
 	//线程是否启动运行中
 	bool _isRun = false;
 

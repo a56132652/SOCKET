@@ -2,21 +2,12 @@
 #define _CELL_SEMAPHORE_HPP_
 #include<chrono>
 #include<thread>
-#include<mutex>
 #include<condition_variable>
 
-class CellSemaphore
+class CELLSemaphore
 {
 public:
-	CellSemaphore()
-	{
-
-	}
-	~CellSemaphore()
-	{
-
-	}
-
+	//阻塞当前线程
 	void wait()
 	{
 		std::unique_lock<std::mutex> lock(_mutex);
@@ -31,7 +22,7 @@ public:
 
 
 	}
-
+	//唤醒当前线程
 	void wakeup()
 	{
 		std::lock_guard <std::mutex> lock(_mutex);
