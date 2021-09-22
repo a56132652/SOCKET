@@ -156,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CELL.hpp" />
+    <ClInclude Include="CELLBuffer.hpp" />
     <ClInclude Include="CELLClient.hpp" />
     <ClInclude Include="CELLSemaphore.hpp" />
     <ClInclude Include="CELLServer.hpp" />

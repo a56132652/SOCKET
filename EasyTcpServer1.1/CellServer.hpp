@@ -1,4 +1,4 @@
-#ifndef _CELLServer_HPP_
+ï»¿#ifndef _CELLServer_HPP_
 #define _CELLServer_HPP_
 
 #include"CELL.hpp"
@@ -29,7 +29,7 @@ public:
 	{
 		_pNetEvent = event;
 	}  
-	//¹Ø±Õsocket
+	//å…³é—­socket
 	void Close()
 	{
 		printf("CELLServer%d.Close begin\n", _id);
@@ -38,14 +38,14 @@ public:
 		printf("CELLServer%d.Close end\n", _id);
 	}
 
-	//´¦ÀíÍøÂçÏûÏ¢
+	//å¤„ç†ç½‘ç»œæ¶ˆæ¯
 	bool onRun(CELLThread* pThread)
 	{
 		while (pThread->isRun())
 		{
 			if (_clientsBuff.size() > 0)
 			{
-				//´Ó»º³å¶ÓÁĞÀïÈ¡³ö¿Í»§Êı¾İ
+				//ä»ç¼“å†²é˜Ÿåˆ—é‡Œå–å‡ºå®¢æˆ·æ•°æ®
 				std::lock_guard<std::mutex> lock(_mutex);
 				for (auto pClient : _clientsBuff)
 				{
@@ -57,7 +57,7 @@ public:
 				_clientsBuff.clear();
 				_clients_change = true;
 			}
-			//Èç¹ûÃ»ÓĞĞèÒª´¦ÀíµÄ¿Í»§¶Ë£¬¾ÍÌø¹ı
+			//å¦‚æœæ²¡æœ‰éœ€è¦å¤„ç†çš„å®¢æˆ·ç«¯ï¼Œå°±è·³è¿‡
 			if (_clients.empty())
 			{
 				std::chrono::milliseconds t(1);
@@ -72,11 +72,11 @@ public:
 			if (_clients_change)
 			{
 				_clients_change = false;
-				//Çå¿Õ
+				//æ¸…ç©º
 				FD_ZERO(&fdRead);
-				//½«ÃèÊö·û´æÈë¼¯ºÏ
+				//å°†æè¿°ç¬¦å­˜å…¥é›†åˆ
 				_maxSock = _clients.begin()->second->sockfd();
-				//½«ĞÂ¼ÓÈëµÄ¿Í»§¶Ë¼ÓÈëfdReadÊı×é
+				//å°†æ–°åŠ å…¥çš„å®¢æˆ·ç«¯åŠ å…¥fdReadæ•°ç»„
 				for (auto iter : _clients)
 				{
 					FD_SET(iter.second->sockfd(), &fdRead);
@@ -128,7 +128,7 @@ public:
 		 
 		for (auto iter = _clients.begin(); iter != _clients.end();)
 		{
-			//ĞÄÌø¼ì²â
+			//å¿ƒè·³æ£€æµ‹
 			if (iter->second->checkHeart(dt))
 			{
 				if (_pNetEvent)
@@ -141,7 +141,7 @@ public:
 				_clients.erase(iterOld);
 				continue;
 			}
-			////¶¨Ê±·¢ËÍ¼ì²â
+			////å®šæ—¶å‘é€æ£€æµ‹
 			//iter->second->checkSend(dt);
 			iter++;
 		}
@@ -223,50 +223,30 @@ public:
 #endif
 	}
 
-	//½ÓÊÕÊı¾İ ´¦ÀíÕ³°ü ²ğ·Ö°ü
+	//æ¥æ”¶æ•°æ® å¤„ç†ç²˜åŒ… æ‹†åˆ†åŒ…
 	int RecvData(CELLClient* pClient)
 	{
-		char* szRecv = pClient->msgBuf() + pClient->getLastPos();
-		// 5 ½ÓÊÕ¿Í»§¶ËÊı¾İ
-		int nLen = (int)recv(pClient->sockfd(), szRecv, (RECV_BUFF_SIZE)-pClient->getLastPos(), 0);
-		_pNetEvent->OnNetRecv(pClient);
+		// æ¥æ”¶å®¢æˆ·ç«¯æ•°æ®
+		int nLen = pClient->RecvData();
 		//printf("Len=%d\n", nLen);
 		if (nLen <= 0)
 		{
-			//printf("¿Í»§¶Ë<Socket:%d>ÒÑÍË³ö£¬ÈÎÎñ½áÊø¡£\n", pClient->sockfd());
 			return -1;
 		}
-		//½«ÊÕµ½µÄÊı¾İ¿½±´µ½ÏûÏ¢»º³åÇø
-		//memcpy(pClient->msgBuf() + pClient->getLastPos(), _szRecv, nLen);
-		//ÏûÏ¢»º³åÇøµÄÊı¾İÎ²²¿Î»ÖÃºóÒÆ
-		pClient->setLastPos(pClient->getLastPos() + nLen);
-		//ÅĞ¶ÏÏûÏ¢»º³åÇøµÄÊı¾İ³¤¶ÈÊÇ·ñ´óÓÚÏûÏ¢Í·DataHeader³¤¶È
-		while (pClient->getLastPos() >= sizeof(DataHeader))
+		//è§¦å‘<æ¥æ”¶åˆ°ç½‘ç»œæ•°æ®>äº‹ä»¶
+		_pNetEvent->OnNetRecv(pClient);
+		//å¾ªç¯åˆ¤æ–­æ˜¯å¦æœ‰æ¶ˆæ¯éœ€è¦å¤„ç†
+		while (pClient->hasMsg())
 		{
-			//ÕâÊ±¾Í¿ÉÒÔÖªµÀµ±Ç°ÏûÏ¢µÄ³¤¶È
-			DataHeader* header = (DataHeader*)pClient->msgBuf();
-			//ÅĞ¶ÏÏûÏ¢»º³åÇøµÄÊı¾İ³¤¶ÈÊÇ·ñ´óÓÚÏûÏ¢³¤¶È
-			if (pClient->getLastPos() > header->dataLength)
-			{
-				//Ê£ÓàÎ´´¦ÀíÏûÏ¢»º³åÇøÊı¾İµÄ³¤¶È
-				int nSize = pClient->getLastPos() - header->dataLength;
-				//´¦ÀíÍøÂçÏûÏ¢
-				OnNetMsg(pClient, header);
-				//½«ÏûÏ¢»º³åÇøÊ£ÓàÎ´´¦ÀíÊı¾İÇ°ÒÆ
-				memcpy(pClient->msgBuf(), pClient->msgBuf() + header->dataLength, pClient->getLastPos() - header->dataLength);
-				//ÏûÏ¢»º³åÇøµÄÊı¾İÎ²²¿Ç°ÒÆ
-				pClient->setLastPos(nSize);
-			}
-			else
-			{
-				//ÏûÏ¢»º³åÇøÊ£ÓàÊı¾İ²»¹»Ò»ÌõÍêÕûÊı¾İ
-				break;
-			}
+			//å¤„ç†ç½‘ç»œæ¶ˆæ¯
+			OnNetMsg(pClient, pClient->front_msg());
+			//ç§»é™¤æ¶ˆæ¯é˜Ÿåˆ—æœ€å‰çš„ä¸€æ¡æ•°æ®
+			pClient->pop_front_msg();
 		}
 		return 0;
 	}
 
-	//ÏìÓ¦ÍøÂçÏûÏ¢
+	//å“åº”ç½‘ç»œæ¶ˆæ¯
 	virtual void OnNetMsg(CELLClient* pClient, DataHeader* header)
 	{
 		_pNetEvent->OnNetMsg(this, pClient, header);
@@ -315,23 +295,23 @@ private:
 		_clientsBuff.clear();
 	}
 private:  
-	//ÕıÊ½¿Í»§¶ÓÁĞ
+	//æ­£å¼å®¢æˆ·é˜Ÿåˆ—
 	std::map<SOCKET, CELLClient*> _clients;
-	//»º³å¿Í»§¶ÓÁĞ
+	//ç¼“å†²å®¢æˆ·é˜Ÿåˆ—
 	std::vector<CELLClient*> _clientsBuff;
-	//»º³å¶ÓÁĞµÄËø
+	//ç¼“å†²é˜Ÿåˆ—çš„é”
 	std::mutex _mutex;
-	//ÍøÂçÊÂ¼ş¶ÔÏó
+	//ç½‘ç»œäº‹ä»¶å¯¹è±¡
 	INetEvent* _pNetEvent;
 	// 
 	CELLTaskServer _taskServer;
-	//±¸·İ¿Í»§socket fd_set
+	//å¤‡ä»½å®¢æˆ·socket fd_set
 	fd_set _fdRead_back;
-	//¿Í»§ÁĞ±íÊÇ·ñ±ä»¯
+	//å®¢æˆ·åˆ—è¡¨æ˜¯å¦å˜åŒ–
 	bool _clients_change = true;
 	//
 	SOCKET _maxSock;
-	//¾ÉµÄÊ±¼ä´Á
+	//æ—§çš„æ—¶é—´æˆ³
 	time_t _oldTime = CELLTime::getTimeInMilliSec();
 	//
 	int _id = -1;

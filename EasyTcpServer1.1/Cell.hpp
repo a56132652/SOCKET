@@ -12,6 +12,7 @@
 #include<unistd.h>
 #include<arpa/inet.h>
 #include<string.h>
+#include<signal.h>
 
 #define SOCKET int
 #define INVALID_SOCKET (int)(~0)

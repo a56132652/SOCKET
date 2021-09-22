@@ -97,8 +97,8 @@ void sendThread(int id)
 					sendCount++;
 			}
 		}
-		//std::chrono::milliseconds t(100);
-		//std::this_thread::sleep_for(t);
+		std::chrono::milliseconds t(100);
+		std::this_thread::sleep_for(t);
 	}
 
 	for (int n = begin; n < end; n++)
