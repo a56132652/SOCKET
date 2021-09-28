@@ -61,10 +61,10 @@ public:
 		_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (INVALID_SOCKET == _sock)
 		{
-			printf("错误，建立socket失败...\n");
+			CELLLog::Info("错误，建立socket失败...\n");
 		}
 		else {
-			printf("建立<socket=%d>成功...\n", (int)_sock);
+			CELLLog::Info("建立<socket=%d>成功...\n", (int)_sock);
 		}
 		return _sock;
 	}
@@ -101,10 +101,10 @@ public:
 		int ret = bind(_sock, (sockaddr*)&_sin, sizeof(_sin));
 		if (SOCKET_ERROR == ret)
 		{
-			printf("错误，绑定网络端口<%d>失败...\n",port);
+			CELLLog::Info("错误，绑定网络端口<%d>失败...\n",port);
 		}
 		else {
-			printf("绑定端口<%d>成功...\n", port);
+			CELLLog::Info("绑定端口<%d>成功...\n", port);
 		}
 		return ret;
 	}
@@ -116,10 +116,10 @@ public:
 		int ret = listen(_sock, n);
 		if (SOCKET_ERROR == ret)
 		{
-			printf("socket=<%d>错误，监听网络端口失败...\n", (int)_sock);
+			CELLLog::Info("socket=<%d>错误，监听网络端口失败...\n", (int)_sock);
 		}
 		else {
-			printf("socket=<%d>监听网络端口成功...\n", (int)_sock);
+			CELLLog::Info("socket=<%d>监听网络端口成功...\n", (int)_sock);
 		}
 		return ret;
 	}
@@ -138,7 +138,7 @@ public:
 #endif
 		if (INVALID_SOCKET == cSock)
 		{
-			printf("socket=<%d>错误，接收到无效客户端SOCKET...\n", (int)_sock);
+			CELLLog::Info("socket=<%d>错误，接收到无效客户端SOCKET...\n", (int)_sock);
 		}
 		else {
 			//将新客户端分配给客户数量最少的CELLServer
@@ -180,7 +180,7 @@ public:
 	//关闭socket
 	void Close()
 	{
-		printf("EasyTcpServer.Close begin\n");
+		CELLLog::Info("EasyTcpServer.Close begin\n");
 		_thread.Close();
 		if (_sock != INVALID_SOCKET)
 		{
@@ -198,7 +198,7 @@ public:
 #endif
 			_sock == INVALID_SOCKET;
 		}
-		printf("EasyTcpServer.Close end\n");
+		CELLLog::Info("EasyTcpServer.Close end\n");
 	}
 
 	//计算并输出每秒收到的网络消息
@@ -208,7 +208,7 @@ public:
 		auto t1 = _tTime.getElapsedSecond();
 		if (t1 >= 1.0)
 		{
-			printf("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>\n",(int)_CELLServers.size(),t1, _sock, (int)_clientCount,(int)(_recvCount/ t1), (int)(_msgCount / t1));
+			CELLLog::Info("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>\n",(int)_CELLServers.size(),t1, _sock, (int)_clientCount,(int)(_recvCount/ t1), (int)(_msgCount / t1));
 			_recvCount = 0;
 			_msgCount = 0;
 			_tTime.update();
@@ -217,12 +217,12 @@ public:
 	virtual void OnNetJoin(CELLClient* pClient)
 	{
 		_clientCount++;
-		//printf("client<%d> join\n", pClient->sockfd());
+		//CELLLog::Info("client<%d> join\n", pClient->sockfd());
 	}
 	virtual void OnNetLeave(CELLClient* pClient)
 	{
 		_clientCount--;
-		//printf("client<%d> leave\n", pClient->sockfd());
+		//CELLLog::Info("client<%d> leave\n", pClient->sockfd());
 	}
 	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient,DataHeader* header)
 	{
@@ -249,7 +249,7 @@ private:
 			int ret = select(_sock + 1, &fdRead, 0, 0, &t);
 			if (ret < 0)
 			{
-				printf("EasyTcpServer.OnRun Accept Select Exit.\n");
+				CELLLog::Info("EasyTcpServer.OnRun Accept Select Exit.\n");
 				pThread->Exit();
 				break;
 			}
