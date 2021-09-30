@@ -6,6 +6,7 @@
 #include"CELLClient.hpp"
 #include"CELLServer.hpp"
 #include"INetEvent.hpp"
+#include"CELLNetWork.hpp"
 
 #include<thread>
 #include<mutex>
@@ -45,19 +46,7 @@ public:
 	//初始化socket
 	SOCKET InitSocket()
 	{
-#ifdef _WIN32
-		WORD ver = MAKEWORD(2, 2);				//创建WINDOWS版本号
-		WSADATA dat;
-		WSAStartup(ver, &dat);					//启动网络环境,此函数调用了一个WINDOWS的静态链接库，因此需要加入静态链接库文件
-#endif
-
-#ifndef _WIN32
-		//if (sognal(SIGPIPE, SIG_IGN) == SIG_ERR)
-		//	return (1);
-		//忽略异常信号，默认情况会导致进程终止
-		signal(SIGPIPE, SIG_IGN);
-#endif // !_WIN32
-
+		CELLNetWork::Init();
 		_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (INVALID_SOCKET == _sock)
 		{
@@ -192,12 +181,11 @@ public:
 #ifdef _WIN32
 			//关闭套接字socket
 			closesocket(_sock);
-			WSACleanup();
 #else
 			close(_sock);
 #endif
 			_sock == INVALID_SOCKET;
-		}
+		} 
 		CELLLog::Info("EasyTcpServer.Close end\n");
 	}
 

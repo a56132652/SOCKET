@@ -7,7 +7,7 @@
 
 class CELLLog
 {
-public:
+private:
 	CELLLog()
 	{
 		_taskServer.Start();
