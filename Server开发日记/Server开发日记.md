@@ -1,4 +1,4 @@
-# 首次封装EasyTcpServer
+# 一、首次封装EasyTcpServer
 
 - 初始化SOCKET——InitSocket()
 - 绑定端口号——Bind()
@@ -194,7 +194,7 @@
 				}
 			}
 			timeval t = { 1,0 };
-			//select最后一个参数为NULL时，select函数阻塞直到有数据可以操作
+			//select最后一个参数为NULL时，select函数阻塞直到有数据可以操作,否则继续向下执行，当有消息时返回
 			int ret = select(maxSock + 1, &fdRead, &fdWrite, &fdExc, &t);
 			{
 				if (ret < 0) {
@@ -215,6 +215,7 @@
 			{
 				if (FD_ISSET(_clients[n], &fdRead))
 				{
+                    //接受数据，如果数据有误，则清除该客户端socket
 					if (RecvData(_clients[n]) == -1)
 					{
 						auto iter = _clients.begin() + n;
@@ -269,7 +270,12 @@
 	{
 		return _sock != INVALID_SOCKET;
 	}
-	//接收数据 处理粘包 拆分包
+```
+
+## 9. 接收数据 处理粘包、拆包
+
+```c++
+//接收数据 处理粘包 拆分包
 	int RecvData(SOCKET _cSock)
 	{
 		char szRecv[1024] = { };
@@ -287,8 +293,9 @@
 		OnNewMsg(_cSock,header);
 		return 0;
 	}
-
 ```
+
+
 
 ## 10. 给指定SOCKET发送数据
 
@@ -317,4 +324,97 @@
 	}
 
 ```
+
+
+
+# 二、缓冲区溢出、无法发送、网络阻塞
+
+## 1. 原因
+
+- 调用send（）函数时，系统会首先将消息放入一个发送缓冲区，该缓冲区的大小随操作系统类型而变。消息进入发送缓冲区后，并不是立即发出，而是有一个定时定量的发送机制，即经过一定时间后发出或者当消息缓冲区的数据量达到一定值后一起发出。消息经发送缓冲区，然后通过网络传输层，发送至接收端。
+
+- 接收端也有一个接收缓冲区，调用recv（）时，将数据从接收缓冲区中取出 ,本程序中，每次取出固定大小的数据
+
+  ```c++
+  int nLen = recv(_cSock, szRecv, sizeof(DataHeader), 0);
+  ```
+
+  然后根据DataHeader中记录的消息体长度，再从接收缓冲区中取出整个消息
+
+  ```c++
+  recv(_cSock, szRecv + sizeof(DataHeader), header->dataLength - sizeof(DataHeader), 0);
+  ```
+
+- 当send的速度大于recv的速度时，接收缓冲区将会发生溢出，发送端也将无法发送数据，造成网络阻塞
+
+- 为什么前辈们在设计网络通信时没有为此问题设计解决方案？
+
+  - 因为在当时，数据传输速率是很低的，数字拨号上网的带宽仅为56Kbps，所以当时的设计方案是符合当时的要求的
+
+
+
+## 2. 解决方法
+
+1. 尽可能的将数据从系统的接收缓冲区中提取出来，设计双缓冲区，即自定义一个接收缓冲区和一个消息缓冲区
+
+   ```c++
+       #ifndef RECV_BUFF_SIZE
+       #define RECV_BUFF_SIZE 102400
+       #endif // !RECV_BUFF_SIZE
+   
+       //缓冲区
+       char _szRecv[RECV_BUFF_SIZE] = {};
+       //第二缓冲区 消息缓冲区
+       char _szMsgBuf[RECV_BUFF_SIZE * 10];
+       //消息缓冲区的数据尾部位置
+       int _lastPos = 0;
+   ```
+
+   
+
+2. 每次将消息从系统的缓冲区中提取到接收缓冲区，然后将接收缓冲区的数据拷贝到消息缓冲区
+
+   ```c++
+    //接收数据 处理粘包 拆分包
+   	int RecvData(SOCKET _cSock)
+   	{
+   		int nLen = recv(_cSock, _szRecv, RECV_BUFF_SIZE, 0);
+   		if (nLen <= 0)
+   		{
+   			printf("客户端<Socket:%d>已退出，任务结束。\n", _cSock);
+   			return -1;
+   		}
+           //将收取到的数据拷贝到消息缓冲区
+   		memcpy(_szMsgBuf + _lastPos, _szRecv, nLen);
+           //消息缓冲区的数据尾部位置后移
+   		_lastPos += nLen;
+           //判断消息缓冲区的数据长度大于消息头DataHeader长度
+   		while (_lastPos >= sizeof(DataHeader))
+   		{
+   			//这时就可以知道当前消息的长度
+   			DataHeader* header = (DataHeader*)_szMsgBuf;
+   			//判断消息缓冲区的数据长度大于消息长度
+   			if (_lastPos >= header->dataLength)
+   			{
+   				//消息缓冲区剩余未处理数据的长度
+   				int nSize = _lastPos - header->dataLength;
+   				//处理网络消息
+   				OnNetMsg(_cSock,header);
+   				//将消息缓冲区剩余未处理数据前移
+   				memcpy(_szMsgBuf, _szMsgBuf + header->dataLength, nSize);
+   				//消息缓冲区的数据尾部位置前移
+   				_lastPos = nSize;
+   			}
+   			else {
+   				//消息缓冲区剩余数据不够一条完整消息
+   				break;
+   			}
+   		}
+   		return 0;
+   	}
+   ```
+
+   
+
+
 
