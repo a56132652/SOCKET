@@ -942,13 +942,13 @@ void sendThread(int id)
 1. 解耦，生产者和消费者只依赖缓冲区，而不互相依赖
 2. 支持并发和异步
 
-###  **完善结构：**
+###  1）**完善结构：**
 
 ​	目前缓冲区只用于传递socket，当消费者线程中recv()返回-1即有客户端断开连接时，消费者线程还需要通知生产者线程，还缺少这样一个反向的逻辑。 
 
-### **修改代码**
+### 2）**修改代码**
 
-#### 1）从EasyTcpServer中分离处理消息逻辑
+#### （1）从EasyTcpServer中分离处理消息逻辑
 
 定义新类型CELLServer，用于消息处理
 
@@ -1174,7 +1174,7 @@ public:
 
 	void Start()
 	{
-        //std::mem_fn()用于转换成安全类型
+        //std::mem_fn(),把成员函数转为函数对象，使用对象指针或对象（引用）进行绑定
 		_thread = std::thread(std::mem_fn(&CellServer::OnRun), this);
 		_taskServer.Start();
 	}
@@ -1206,7 +1206,7 @@ private:
 };
 ```
 
-#### 2） 将消息处理类型用于EasyTcpServer
+#### （2） 将消息处理类型用于EasyTcpServer
 
 - 在EasyTcpServer成员变量中添加一个消息处理对象的数组
 
@@ -1275,3 +1275,10 @@ private:
   ```
 
   
+
+### 3）达成目标，迅速稳定连接10K客户端
+
+
+
+​	
+
