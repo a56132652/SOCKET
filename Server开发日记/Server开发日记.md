@@ -1280,5 +1280,133 @@ private:
 
 
 
-​	
+# 六、select模型接收数据性能瓶颈与优化
+
+
+
+## 1. 利用性能探查器分析性能消耗
+
+![image-20211014173107333](C:\Users\Sakura\AppData\Roaming\Typora\typora-user-images\image-20211014173107333.png)
+
+
+
+![image-20211014173117088](C:\Users\Sakura\AppData\Roaming\Typora\typora-user-images\image-20211014173117088.png)
+
+
+
+![image-20211014173430135](C:\Users\Sakura\AppData\Roaming\Typora\typora-user-images\image-20211014173430135.png)
+
+
+
+## 2. 优化FD_SET
+
+#### 	优化前
+
+```c++
+for(int n = (int)_clients.size() - 1 ; n>= 0; n--)
+{
+    //FD_SET(fd_set *fdset);用于在文件描述符集合中增加一个新的文件描述符。
+    FD_SET(_clients[n]->sockfd(), &fdRead);
+    if(maxSock < _clients[n]->sockfd())
+    {
+        maxSock = _clients[n]->sockfd();
+    }
+}
+```
+
+当n = 10000时，在while死循环中，每次循环都要将这10000个socket逐个加入fdRead中，耗费了大量时间。
+
+#### **解决方法：**
+
+​	定义一个备份数组以及一个标志量，标志量用来标识是否有新客户加入或是否有客端离开，备份数组用来备份上次循环中的fdRead数组，若没有发生变化，则下次循环时直接将备份数组拷贝给fdRead，若发生变化，则采用旧方法，对现有的所有socket进行逐个加入
+
+#### 优化后
+
+```c++
+if (_clients_change)
+{
+	_clients_change = false;
+	//清空
+	FD_ZERO(&fdRead);
+	//将描述符存入集合
+	_maxSock = _clients.begin()->second->sockfd();
+	//将新加入的客户端加入fdRead数组
+	for (auto iter : _clients)
+	{
+		FD_SET(iter.second->sockfd(), &fdRead);
+		if (_maxSock < iter.second->sockfd()) {
+			_maxSock = iter.second->sockfd();
+		}
+	}
+	memcpy(&_fdRead_back, &fdRead, sizeof(fd_set));
+}
+else {
+	memcpy(&fdRead, &_fdRead_back, sizeof(fd_set));
+}
+```
+
+![image-20211014203347034](C:\Users\Sakura\AppData\Roaming\Typora\typora-user-images\image-20211014203347034.png)
+
+![image-20211014203403680](C:\Users\Sakura\AppData\Roaming\Typora\typora-user-images\image-20211014203403680.png)
+
+![image-20211014203442376](C:\Users\Sakura\AppData\Roaming\Typora\typora-user-images\image-20211014203442376.png)
+
+此时性能消耗主要集中在select模型。
+
+## 3. 优化FD_ISSET
+
+将_clients从vector换成map,提升查询效率
+
+```c++
+#ifdef _WIN32
+		for (int n = 0; n < fdRead.fd_count; n++)
+		{
+			auto iter = _clients.find(fdRead.fd_array[n]);
+			if (iter != _clients.end())
+			{
+				if (-1 == RecvData(iter->second))
+				{
+					OnClientLeave(iter->second);
+					_clients.erase(iter);
+				}
+			}
+		}
+#else
+		for (auto iter = _clients.begin(); iter != _clients.end(); )
+		{
+			if (FD_ISSET(iter->second->sockfd(), &fdRead))
+			{
+				if (-1 == RecvData(iter->second))
+				{
+					OnClientLeave(iter->second);
+					auto iterOld = iter;
+					iter++;
+					_clients.erase(iterOld);
+					continue;
+				}
+			}
+			iter++;
+		}
+#endif
+```
+
+#### 优化后
+
+![image-20211014210314616](C:\Users\Sakura\AppData\Roaming\Typora\typora-user-images\image-20211014210314616.png)
+
+性能消耗集中在select模型中
+
+ 
+
+## 4. CELLServer数据收发的性能瓶颈
+
+经过测试，recv能力远大于send,recv可达到 400万+/秒，send可达到170万+/秒
+
+当前程序中，数据的收与发在同一线程中完成，线程中，只有当数据发送完后，才能继续去处理别的消息，这不符合程序设计中减少耦合性的要求，因此，需要将收发业务分离，接收与发送分别用两个线程来处理，依旧使用生产者-消费者设计模式
+
+
+
+# 七、添加定量发送数据缓冲区
+
+在实际应用场景中，当Server接收（recv）一次某客户端数据时，Server可能还要通知其它N个客户端，即调用N次send()函数。在这种情况下，为了提高程序效率，需要减少send()的调用，因此我们可以把要发送的数据积攒起来，即用一个缓冲区缓存起来，在**经过一段时间或当消息量达到一定量后**进行一次性发送，即**定时定量发送**。
 
