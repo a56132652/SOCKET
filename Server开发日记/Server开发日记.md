@@ -1406,7 +1406,60 @@ else {
 
 
 
-# 七、添加定量发送数据缓冲区
+## 5. 添加定量发送数据缓冲区
 
 在实际应用场景中，当Server接收（recv）一次某客户端数据时，Server可能还要通知其它N个客户端，即调用N次send()函数。在这种情况下，为了提高程序效率，需要减少send()的调用，因此我们可以把要发送的数据积攒起来，即用一个缓冲区缓存起来，在**经过一段时间或当消息量达到一定量后**进行一次性发送，即**定时定量发送**。
+
+```c++
+    #define RECV_BUFF_SIZE 10240*5
+    #define SEND_BUFF_SIZE RECV_BUFF_SIZE
+
+	//发送数据
+	int SendData(DataHeader* header)
+	{
+		int ret = SOCKET_ERROR;
+		//要发送的数据长度
+		int nSendLen = header->dataLength;
+		//要发送的数据
+		const char* pSendData = (const char*)header;
+
+		//while循环用于发送数据量远远大于发送缓冲区时，一次发送不可能发完
+		while (true)
+		{
+			if (_lastSendPos + nSendLen >= SEND_BUFF_SIZE)
+			{
+				//计算可拷贝的数据长度
+				int nCopyLen = SEND_BUFF_SIZE - _lastSendPos;
+				//拷贝数据
+				memcpy(_szSendBuf + _lastSendPos, pSendData, nCopyLen);
+				//计算剩余数据位置
+				pSendData += nCopyLen;
+				//计算剩余数据长度
+				nSendLen -= nCopyLen;
+				//发送数据
+				ret = send(_sockfd, _szSendBuf, SEND_BUFF_SIZE, 0);
+				//数据尾部位置清零
+				_lastSendPos = 0;
+				//发送错误
+				if (SOCKET_ERROR == ret)
+				{
+					return ret;
+				}
+			}else {
+				//将要发送的数据 拷贝到发送缓冲区尾部
+				memcpy(_szSendBuf + _lastSendPos, pSendData, nSendLen);
+				//计算数据尾部位置
+				_lastSendPos += nSendLen;
+				//退出循环
+				break;
+			}
+		}
+		return ret;
+	}
+
+```
+
+
+
+## 6. Server消息接收与发送分离
 
