@@ -1463,3 +1463,138 @@ else {
 
 ## 6. Server消息接收与发送分离
 
+当前程序中，数据的收与发在同一线程中完成，线程中，只有当数据发送完后，才能继续去处理别的消息，这不符合程序设计中减少耦合性的要求，因此，需要将收发业务分离，接收与发送分别用两个线程来处理，依旧使用生产者-消费者设计模式
+
+### 1) 添加新类型 CELLTask(任务基类)
+
+```c++
+//任务类型-基类
+class CellTask
+{
+public:
+	CellTask()
+	{
+
+	}
+
+	//虚析构
+	virtual ~CellTask()
+	{
+
+	}
+	//执行任务
+	virtual void doTask()
+	{
+
+	}
+private:
+
+};
+```
+
+### 2) 添加任务的服务类型 CELLTaskServer
+
+```c++
+//执行任务的服务类型
+class CellTaskServer 
+{
+private:
+	//任务数据
+	std::list<CellTask*> _tasks;
+	//任务数据缓冲区
+	std::list<CellTask*> _tasksBuf;
+	//改变数据缓冲区时需要加锁
+	std::mutex _mutex;
+public:
+	//添加任务
+	void addTask(CellTask* task)
+	{
+		std::lock_guard<std::mutex> lock(_mutex);
+		_tasksBuf.push_back(task);
+	}
+	//启动工作线程
+	void Start()
+	{
+		//线程
+		std::thread t(std::mem_fn(&CellTaskServer::OnRun),this);
+		t.detach();
+	}
+protected:
+	//工作函数
+	void OnRun()
+	{
+		while (true)
+		{
+			//从缓冲区取出数据
+			if (!_tasksBuf.empty())
+			{
+				std::lock_guard<std::mutex> lock(_mutex);
+				for (auto pTask : _tasksBuf)
+				{
+					_tasks.push_back(pTask);
+				}
+				_tasksBuf.clear();
+			}
+			//如果没有任务
+			if (_tasks.empty())
+			{
+				std::chrono::milliseconds t(1);
+				std::this_thread::sleep_for(t);
+				continue;
+			}
+			//处理任务
+			for (auto pTask : _tasks)
+			{
+				pTask->doTask();
+				delete pTask;
+			}
+			//清空任务
+			_tasks.clear();
+		}
+	}
+};
+```
+
+### 3) 分离向客户端发送数据业务
+
+#### （1）定义 网络消息发送任务
+
+```c++
+//网络消息发送任务
+class CellSendMsg2ClientTask:public CellTask
+{
+	ClientSocket* _pClient;
+	DataHeader* _pHeader;
+public:
+	CellSendMsg2ClientTask(ClientSocket* pClient, DataHeader* header)
+	{
+		_pClient = pClient;
+		_pHeader = header;
+	}
+
+	//执行任务
+	void doTask()
+	{
+		_pClient->SendData(_pHeader);
+		delete _pHeader;
+	}
+};
+```
+
+#### （2）CELLServer中添加
+
+	CeLLTaskServer _taskServer;
+
+#### （3）调用
+
+```c++
+LoginResult* ret = new LoginResult();
+pCellServer->addSendTask(pClient, ret);
+```
+
+### 4）隐患
+
+频繁的申请与释放内存，降低了效率，还可能形成内存碎片
+
+![image-20211016225851183](C:\Users\Sakura\AppData\Roaming\Typora\typora-user-images\image-20211016225851183.png)
+
