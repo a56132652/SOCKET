@@ -1863,4 +1863,90 @@ private:
 };
 ```
 
-+
+#### （4）MemoryAlloctor
+
+```c++
+//便于在声明类成员变量时初始化MemoryAlloc的成员数据
+template<size_t nSzie,size_t nBlockSzie>
+class MemoryAlloctor :public MemoryAlloc
+{
+public:
+	MemoryAlloctor()
+	{
+		//8 4   61/8=7  61%8=5
+		const size_t n = sizeof(void*);
+		//(7*8)+8 
+		_nSzie = (nSzie/n)*n +(nSzie % n ? n : 0);
+		_nBlockSzie = nBlockSzie;
+	}
+
+};
+```
+
+### 3) 代码编写细节
+
+- 由于内存块分为块头以及实际使用内存两部分，因此在进行内存申请与释放时要额外注意。当申请内存时，我们申请到的是一块完整的内存，即包含内存头和实际使用内存，此时指针指向内存头，而返回的时候，应该对该地址进行偏移，使其指向实际使用内存，然后返回给用户；当释放内存时，传入的是实际使用内存的地址，因此我们也要偏移，使指针指向内存头，然后进行释放操作。
+- 使用了模板编程MemoryAlloctor，便于在声明类成员变量时初始化MemoryAlloc的成员数据
+- 调试技巧
+
+```c++
+//在Visual Studio Debug模式下，输出调试信息，否则，不输出
+#ifdef _DEBUG
+#include<stdio.h>
+	#define xPrintf(...) printf(__VA_ARGS__)
+#else
+	#define xPrintf(...)
+#endif
+```
+
+### 
+
+### 4）支持多线程
+
+**申请内存加锁**
+
+```c++
+
+	//申请内存
+	void* allocMemory(size_t nSize)
+	{
+		std::lock_guard<std::mutex> lg(_mutex);
+		if (!_pBuf)
+		{
+			initMemory();
+		}
+        ...
+    }
+		
+```
+
+**释放内存加锁**
+
+```c++
+//释放内存
+	void freeMemory(void* pMem)
+	{
+		MemoryBlock* pBlock = (MemoryBlock*)( (char*)pMem  - sizeof(MemoryBlock));
+		assert(1 == pBlock->nRef);
+		if (pBlock->bPool)
+		{
+			std::lock_guard<std::mutex> lg(_mutex);
+			if (--pBlock->nRef != 0)
+			{
+				return;
+			}
+			pBlock->pNext = _pHeader;
+			_pHeader = pBlock;
+		}
+		else {
+			if (--pBlock->nRef != 0)
+			{
+				return;
+			}
+			free(pBlock);
+		}
+	}
+```
+
+
+
