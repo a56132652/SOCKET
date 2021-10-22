@@ -2329,3 +2329,246 @@ void addSendTask(CellClient* pClient, netmsg_DataHeader* header)
 
 #### (3) 删除网络消息发送任务class CellSendMsg2ClientTask:public CellTask
 
+
+
+# 七、添加心跳检测
+
+## 1. 意义：
+
+在外网复杂环境下，当某客户端断开连接后，服务端并不能实时感知，因此需要一个解决方案，即心跳检测
+
+## 2. 心跳检测：
+
+在客户端连接到服务端时，服务端为客户端创建一个死亡倒计时，客户端在此
+
+时间内需向服务端发送一条网络消息（心跳消息） ，心跳消息可以是一条特定的消息，但为了简单起见，心跳消息可以是任意一条消息，若超过死亡计时仍未收到消息，则服务端将此客户端移除，避免浪费资源
+
+### 3) 添加获取当前时间函数
+
+```c++
+class CELLTime
+{
+public:
+	//获取当前时间戳 (毫秒)
+	static time_t getNowInMilliSec()
+	{
+		return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+	}
+};
+```
+
+### 4) 在CELLClient中添加死亡倒计时
+
+```c++
+//客户端心跳检测死亡计时时间
+#define CLIENT_HREAT_DEAD_TIME 60000
+//心跳死亡计时
+time_t _dtHeart;
+
+void resetDTHeart()
+{
+	_dtHeart = 0;
+}
+
+//心跳检测
+bool checkHeart(time_t dt)
+{
+    //dt为两次检测的时间差，当前时间加上时间差等于最新的存活时间
+	_dtHeart += dt;
+    //若超过了死亡计时时间
+	if (_dtHeart >= CLIENT_HREAT_DEAD_TIME)
+	{
+		printf("checkHeart dead:s=%d,time=%d\n",_sockfd, _dtHeart);
+		return true;
+	}
+	return false;
+}
+```
+
+### 5) 在CELLServer中添加死亡倒计时
+
+在OnRun()成员函数中对所有客户端进行心跳检测，在OnRun()函数末尾调用CheckTime()
+
+```c++
+	//旧的时间戳
+	time_t _oldTime = CELLTime::getNowInMilliSec();
+	void CheckTime()
+	{
+		//当前时间戳
+		auto nowTime = CELLTime::getNowInMilliSec();
+        //两次检测的时间差
+		auto dt = nowTime - _oldTime;
+		_oldTime = nowTime;
+
+		for (auto iter = _clients.begin(); iter != _clients.end(); )
+		{
+			if (iter->second->checkHeart(dt))
+			{
+				if (_pNetEvent)
+					_pNetEvent->OnNetLeave(iter->second);
+				_clients_change = true;
+				delete iter->second;
+				auto iterOld = iter;
+				iter++;
+				_clients.erase(iterOld);
+				continue;
+			}
+			iter++;
+		}
+	}
+```
+
+### 6) 添加新的消息类型
+
+```c++
+enum CMD
+{
+	CMD_LOGIN,
+	CMD_LOGIN_RESULT,
+	CMD_LOGOUT,
+	CMD_LOGOUT_RESULT,
+	CMD_NEW_USER_JOIN,
+	CMD_C2S_HEART,
+	CMD_S2C_HEART,
+	CMD_ERROR
+};
+
+struct netmsg_c2s_Heart : public netmsg_DataHeader
+{
+	netmsg_c2s_Heart()
+	{
+		dataLength = sizeof(netmsg_c2s_Heart);
+		cmd = CMD_C2S_HEART;
+	}
+};
+
+struct netmsg_s2c_Heart : public netmsg_DataHeader
+{
+	netmsg_s2c_Heart()
+	{
+		dataLength = sizeof(netmsg_s2c_Heart);
+		cmd = CMD_S2C_HEART;
+	}
+};
+```
+
+
+
+### 7) MyServer中重写OnNetMsg
+
+```c++
+virtual void OnNetMsg(CellServer* pCellServer, CellClient* pClient, netmsg_DataHeader* header)
+	{
+		EasyTcpServer::OnNetMsg(pCellServer, pClient, header);
+		switch (header->cmd)
+		{
+		case CMD_LOGIN:
+		{
+			pClient->resetDTHeart();
+			//send recv 
+			netmsg_Login* login = (netmsg_Login*)header;
+			//printf("收到客户端<Socket=%d>请求：CMD_LOGIN,数据长度：%d,userName=%s PassWord=%s\n", cSock, login->dataLength, login->userName, login->PassWord);
+			//忽略判断用户密码是否正确的过程
+			netmsg_LoginR ret;
+			pClient->SendData(&ret);
+			//netmsg_LoginR* ret = new netmsg_LoginR();
+			//pCellServer->addSendTask(pClient, ret);
+		}//接收 消息---处理 发送   生产者 数据缓冲区  消费者 
+		break;
+		case CMD_LOGOUT:
+		{
+			netmsg_Logout* logout = (netmsg_Logout*)header;
+			//printf("收到客户端<Socket=%d>请求：CMD_LOGOUT,数据长度：%d,userName=%s \n", cSock, logout->dataLength, logout->userName);
+			//忽略判断用户密码是否正确的过程
+			//netmsg_LogoutR ret;
+			//SendData(cSock, &ret);
+		}
+		break;
+		case CMD_C2S_HEART:
+		{
+			pClient->resetDTHeart();
+			netmsg_s2c_Heart ret;
+			pClient->SendData(&ret);
+		}
+        break;
+		default:
+		{
+			printf("<socket=%d>收到未定义消息,数据长度：%d\n", pClient->sockfd(), header->dataLength);
+			//netmsg_DataHeader ret;
+			//SendData(cSock, &ret);
+		}
+		break;
+		}
+	}
+```
+
+
+
+# 八、添加定时发送缓存数据
+
+在CELLServer中添加
+
+```c++ 
+    //在间隔指定时间后
+    //把发送缓冲区内缓存的消息数据发送给客户端
+    #define CLIENT_SEND_BUFF_TIME 200
+	
+	void resetDTSend()
+	{
+		_dtSend = 0;
+	}
+
+//定时发送消息检测
+	bool checkSend(time_t dt)
+	{
+		_dtSend += dt;
+		if (_dtSend >= CLIENT_SEND_BUFF_TIME)
+		{
+			//printf("checkSend:s=%d,time=%d\n", _sockfd, _dtSend);
+			//立即将发送缓冲区的数据发送出去
+			SendDataReal();
+			//重置发送计时
+			resetDTSend();
+			return true;
+		}
+		return false;
+	}
+
+	//上次发送消息数据的时间
+	time_t _dtSend;
+```
+
+ 在CELLServer中调用
+
+```c++
+	//旧的时间戳
+	time_t _oldTime = CELLTime::getNowInMilliSec();
+	void CheckTime()
+	{
+		//当前时间戳
+		auto nowTime = CELLTime::getNowInMilliSec();
+		auto dt = nowTime - _oldTime;
+		_oldTime = nowTime;
+
+		for (auto iter = _clients.begin(); iter != _clients.end(); )
+		{
+			//心跳检测
+			if (iter->second->checkHeart(dt))
+			{
+				if (_pNetEvent)
+					_pNetEvent->OnNetLeave(iter->second);
+				_clients_change = true;
+				delete iter->second;
+				auto iterOld = iter;
+				iter++;
+				_clients.erase(iterOld);
+				continue;
+			}
+			//定时发送检测
+			iter->second->checkSend(dt);
+			iter++;
+		}
+	}
+
+```
+
