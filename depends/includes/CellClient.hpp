@@ -69,6 +69,11 @@ public:
 		return (DataHeader*)_recvBuff.data();
 	}
 
+	bool needWrite()
+	{
+		return _sendBuff.needWrite();
+	}
+
 	void pop_front_msg()
 	{
 		if (hasMsg())

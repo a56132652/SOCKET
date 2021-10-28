@@ -6,6 +6,48 @@
 #include<atomic>
 
 
+class MyClient : public EasyTcpClient
+{
+public:
+	//响应网络消息
+	virtual void OnNetMsg(DataHeader* header)
+	{
+		switch (header->cmd)
+		{
+		case CMD_LOGIN_RESULT:
+		{
+			LoginResult* login = (LoginResult*)header;
+			//CELLLog::Info("<socket=%d> recv msgType：CMD_LOGIN_RESULT\n", (int)_pClient->sockfd());
+		}
+		break;
+		case CMD_LOGINOUT:
+		{
+			Loginout* logout = (Loginout*)header;
+			//CELLLog::Info("<socket=%d> recv msgType：CMD_LOGOUT_RESULT\n", (int)_pClient->sockfd());
+		}
+		break;
+		case CMD_NEW_USER_JOIN:
+		{
+			NewUserJoin* userJoin = (NewUserJoin*)header;
+			//CELLLog::Info("<socket=%d> recv msgType：CMD_NEW_USER_JOIN\n", (int)_pClient->sockfd());
+		}
+		break;
+		case CMD_ERROR:
+		{
+			CELLLog::Info("<socket=%d> recv msgType：CMD_ERROR\n", (int)_pClient->sockfd());
+		}
+		break;
+		default:
+		{
+			CELLLog::Info("error, <socket=%d> recv undefine msgType\n", (int)_pClient->sockfd());
+		}
+		}
+	}
+private:
+
+};
+
+
 bool g_bRun = true;
 //处理请求函数
 void  cmdThread()
@@ -61,7 +103,7 @@ void sendThread(int id)
 
 	for (int i = begin; i < end; i++)
 	{
-		client[i] = new EasyTcpClient();
+		client[i] = new MyClient();
 	}  
 	for (int i = begin; i < end; i++)
 	{
@@ -93,7 +135,7 @@ void sendThread(int id)
 	{
 		for (int i = begin; i < end; i++)
 		{
-			if (SOCKET_ERROR != client[i]->SendData(login, nLen)) {
+			if (SOCKET_ERROR != client[i]->SendData(login)) {
 					sendCount++;
 			}
 		}
