@@ -1,15 +1,59 @@
-#define WIN32_LEAN_AND_MEAN
-#include<windows.h>
-#include<WinSock2.h>
+#include <iostream>
+#include "Cell.hpp"
+#include "EasyTcpClient.hpp"
 
-//#pragma comment(lib,"ws2_32.lib")			//声明静态链接库
+class MyClient : public EasyTcpClient
+{
+public:
+	//响应网络消息
+	virtual void OnNetMsg(DataHeader* header)
+	{
+		switch (header->cmd)
+		{
+		case CMD_LOGIN_RESULT:
+		{
+			LoginResult* login = (LoginResult*)header;
+			//CELLLog::Info("<socket=%d> recv msgType：CMD_LOGIN_RESULT\n", (int)_pClient->sockfd());
+		}
+		break;
+		case CMD_LOGINOUT:
+		{
+			Loginout* logout = (Loginout*)header;
+			//CELLLog::Info("<socket=%d> recv msgType：CMD_LOGOUT_RESULT\n", (int)_pClient->sockfd());
+		}
+		break;
+		case CMD_NEW_USER_JOIN:
+		{
+			NewUserJoin* userJoin = (NewUserJoin*)header;
+			//CELLLog::Info("<socket=%d> recv msgType：CMD_NEW_USER_JOIN\n", (int)_pClient->sockfd());
+		}
+		break;
+		case CMD_ERROR:
+		{
+			CELLLog::Info("<socket=%d> recv msgType：CMD_ERROR\n", (int)_pClient->sockfd());
+		}
+		break;
+		default:
+		{
+			CELLLog::Info("error, <socket=%d> recv undefine msgType\n", (int)_pClient->sockfd());
+		}
+		}
+	}
+private:
+
+};
+
+
 int main()
 {
-	WORD ver = MAKEWORD(2,2);				//创建WINDOWS版本号
-	WSADATA dat;
-	WSAStartup(ver, &dat);					//启动网络环境,此函数调用了一个WINDOWS的静态链接库，因此需要加入静态链接库文件
-
-
-	WSACleanup();							//关闭Socket网络环境
+	MyClient client;
+	client.Connect("127.0.0.1", 4567);
+	//client.SendData();
+	while (client.isRun()) 
+	{
+		client.OnRun();
+		
+		CELLThread::Sleep(10);
+	}
 	return 0;
 }
