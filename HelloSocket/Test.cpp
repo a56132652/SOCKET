@@ -1,7 +1,8 @@
 #include <iostream>
 #include "Cell.hpp"
 #include "EasyTcpClient.hpp"
-
+#include "CELLStream.hpp"
+#include "CELLMsgStream.hpp"
 class MyClient : public EasyTcpClient
 {
 public:
@@ -46,6 +47,7 @@ private:
 
 int main()
 {
+	CELLStream s;
 	MyClient client;
 	client.Connect("127.0.0.1", 4567);
 	//client.SendData();

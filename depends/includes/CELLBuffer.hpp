@@ -11,7 +11,7 @@ public:
 		_nSize = nSize;
 		_pBuff = new char[_nSize];
 	}
-	~CELLBuffer()
+	virtual ~CELLBuffer()
 	{
 		if (_pBuff)
 		{

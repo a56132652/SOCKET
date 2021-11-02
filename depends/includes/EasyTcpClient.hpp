@@ -168,6 +168,11 @@ public:
 	{
 		return _pClient->SendData(header);
 	}
+
+	int SendData(const char* pData, int len)
+	{
+		return _pClient->SendData((const char*)pData,len);
+	}
 protected:
 	CELLClient* _pClient = nullptr;
 	bool _isConnect = false;
