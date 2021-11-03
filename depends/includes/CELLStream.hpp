@@ -1,6 +1,7 @@
 #ifndef _CELL_STREAM_HPP_
 #define _CELL_STREAM_HPP_
 #include<cstdint>
+#include"CELLLog.hpp"
 //字节流BYTE
 class CELLStream
 {
@@ -76,6 +77,8 @@ public:
 				pop(nLen);
 			return true;
 		}
+		//错误日志
+		CELLLog::Info("CELLStream::Read failed.");
 		return false;
 	}
 
@@ -104,6 +107,7 @@ public:
 				return len1;
 			}
 		}
+		CELLLog::Info("error, CELLStream::ReadArray failed.");
 		return 0;
 	}
 	int8_t ReadInt8(int8_t def = 0) 
@@ -153,6 +157,7 @@ public:
 			push(nLen);
 			return true;
 		}
+		CELLLog::Info("error, CELLStream::Write failed.");
 		return false;
 	}
 
@@ -171,6 +176,7 @@ public:
 			push(nLen);
 			return true;
 		}
+		CELLLog::Info("error, CELLStream::WriteArray failed.");
 		return false;
 	}
 	//char
