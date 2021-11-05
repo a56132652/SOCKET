@@ -65,6 +65,9 @@ public:
 				_oldTime = CELLTime::getTimeInMilliSec();
 				continue;
 			}
+
+			CheckTime();
+
 			fd_set fdRead;
 			fd_set fdWrite;
 			//fd_set fdExc;
@@ -90,21 +93,41 @@ public:
 				memcpy(&fdRead, &_fdRead_back, sizeof(fd_set));
 			}
 
-			memcpy(&fdWrite, &_fdRead_back, sizeof(fd_set));
+			bool bNeedWrite = false;
+			FD_ZERO(&fdWrite);
+			for (auto iter : _clients)
+			{
+				//需要写数据的客户端才加入fd_set检测是否可写
+				if (iter.second->needWrite()) {
+					bNeedWrite = true;
+					FD_SET(iter.second->sockfd(), &fdWrite);
+				}
+			}
+			//memcpy(&fdWrite, &_fdRead_back, sizeof(fd_set));
 			//memcpy(&fdExc, &_fdRead_back, sizeof(fd_set));
 
+
+
 			timeval t{ 0,1 };
-			int ret = select(_maxSock + 1, &fdRead, &fdWrite, nullptr, &t);
+			int ret = 0;
+			if (bNeedWrite)
+			{
+				ret = select(_maxSock + 1, &fdRead, &fdWrite, nullptr, &t);
+			}
+			else {
+				ret = select(_maxSock + 1, &fdRead, nullptr, nullptr, &t);
+			}
+
 			if (ret < 0)
 			{
 				CELLLog::Info("CELLServer%d OnRun.select Error exit\n",_id);
 				pThread->Exit();
 				break;
 			}
-	/*		else if (ret == 0)
+			else if (ret == 0)
 			{
 				continue;
-			}*/
+			}
 
 			ReadData(fdRead);
 			WriteData(fdWrite);
@@ -114,7 +137,6 @@ public:
 			//{
 			//	CELLLog::Info("###fdExc=%d\n", fdExc.fd_count);
 			//}
-			CheckTime();
 		}
 		CELLLog::Info("CELLServer%d.OnRun  exit\n", _id);
 
@@ -173,7 +195,7 @@ public:
 #else
 		for (auto iter = _clients.begin(); iter != _clients.end(); )
 		{
-			if (FD_ISSET(iter->second->sockfd(), &fdWrite))
+			if (iter->second->needWrite() && FD_ISSET(iter->second->sockfd(), &fdWrite))
 			{
 				if (-1 == iter->second->SendDataReal())
 				{
