@@ -34,12 +34,12 @@ public:
 		{
 			pClient->resetDtHeart();
 			Login* login = (Login*)header;
-			//CELLLog::Info("收到客户端<socket:%d>命令：CMD_LOGIN，数据长度 : %d,userName = %s ,PassWord = %s \n", cSock, login->dataLength, login->userName, login->PassWord);
+			//CELLLog_Info("收到客户端<socket:%d>命令：CMD_LOGIN，数据长度 : %d,userName = %s ,PassWord = %s \n", cSock, login->dataLength, login->userName, login->PassWord);
 			LoginResult ret;
 			if (SOCKET_ERROR == pClient->SendData(&ret))
 			{
 				//发送缓冲区满了，消息没发出去
-				CELLLog::Info("<Socket=%d> Send Full\n", pClient->sockfd());
+				CELLLog_Info("<Socket=%d> Send Full\n", pClient->sockfd());
 			}
 			//LoginResult* ret = new LoginResult();
 			//pCELLServer->addSendTask(pClient,ret);
@@ -48,7 +48,7 @@ public:
 		case CMD_LOGINOUT:
 		{
 			Loginout* loginout = (Loginout*)header;
-			//CELLLog::Info("收到客户端<socket:%d>命令：CMD_LOGINOUT，数据长度 : %d,userName = %s \n", cSock, loginout->dataLength, loginout->userName);
+			//CELLLog_Info("收到客户端<socket:%d>命令：CMD_LOGINOUT，数据长度 : %d,userName = %s \n", cSock, loginout->dataLength, loginout->userName);
 			//LoginoutResult ret = {  };
 			//pClient->SendData(&ret);
 		}
@@ -62,7 +62,7 @@ public:
 		break;
 		default:
 		{
-			CELLLog::Info("<socket:%d>收到未定义消息，数据长度：%d\n", pClient->sockfd(), header->dataLength);
+			CELLLog_Info("<socket:%d>收到未定义消息，数据长度：%d\n", pClient->sockfd(), header->dataLength);
 			//DataHeader ret;
 			//pClient->SendData(&ret);
 		}
@@ -73,7 +73,7 @@ public:
 
 int main()
 {
-	CELLLog::Instance().setLogPath("serverLog.txt","w");
+	CELLLog::Instance().setLogPath("serverLog","w");
 	MyServer server;
 	server.InitSocket(); 
 	server.Bind(NULL, 4567);
@@ -90,15 +90,15 @@ int main()
 		if (0 == strcmp(cmdBuf, "exit"))
 		{
 			server.Close();
-			CELLLog::Info("退出cmdThread线程\n");
+			CELLLog_Info("退出cmdThread线程\n");
 			break;
 		}
 		else {
-			CELLLog::Info("不支持的命令，请重新输入。\n");
+			CELLLog_Info("不支持的命令，请重新输入。\n");
 		}
 	}
 
-	CELLLog::Info("已退出\n");
+	CELLLog_Info("已退出\n");
 //#ifdef _WIN32
 //	while (true)
 //		Sleep(10);

@@ -25,16 +25,16 @@ public:
 
 		if (_pClient)
 		{
-			CELLLog::Info("warning, initSocket close old socket<%d>...\n", (int)_pClient->sockfd());
+			CELLLog_Info("warning, initSocket close old socket<%d>...\n", (int)_pClient->sockfd());
 			Close();
 		}
 		SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (INVALID_SOCKET == sock)
 		{
-			CELLLog::Info("error, create socket failed...\n");
+			CELLLog_Error("error, create socket failed...\n");
 		}
 		else {
-			//CELLLog::Info("create socket<%d> success...\n", (int)sock);
+			//CELLLog_Info("create socket<%d> success...\n", (int)sock);
 			_pClient = new CELLClient(sock);
 		}
 	}
@@ -55,15 +55,15 @@ public:
 #else
 		_sin.sin_addr.s_addr = inet_addr(ip);
 #endif
-		//CELLLog::Info("<socket=%d> connecting <%s:%d>...\n", (int)_pClient->sockfd(), ip, port);
+		//CELLLog_Info("<socket=%d> connecting <%s:%d>...\n", (int)_pClient->sockfd(), ip, port);
 		int ret = connect(_pClient->sockfd(), (sockaddr*)&_sin, sizeof(sockaddr_in));
 		if (SOCKET_ERROR == ret)
 		{
-			CELLLog::Info("<socket=%d> connect <%s:%d> failed...\n", (int)_pClient->sockfd(), ip, port);
+			CELLLog_Info("<socket=%d> connect <%s:%d> failed...\n", (int)_pClient->sockfd(), ip, port);
 		}
 		else {
 			_isConnect = true;
-			//CELLLog::Info("<socket=%d> connect <%s:%d> success...\n", (int)_pClient->sockfd(), ip, port);
+			//CELLLog_Info("<socket=%d> connect <%s:%d> success...\n", (int)_pClient->sockfd(), ip, port);
 		}
 		return ret;
 	}
@@ -106,16 +106,16 @@ public:
 
 			if (ret < 0)
 			{
-				CELLLog::Info("error,<socket=%d>OnRun.select exit\n", (int)_sock);
+				CELLLog_Error("error,<socket=%d>OnRun.select exit\n", (int)_sock);
 				Close();
 				return false;
 			}
 
 			if (FD_ISSET(_sock, &fdRead))
 			{
-				if (-1 == RecvData(_sock))
+				if (SOCKET_ERROR == RecvData(_sock))
 				{
-					CELLLog::Info("error,<socket=%d>OnRun.select RecvData exit\n", (int)_sock);
+					CELLLog_Error("error,<socket=%d>OnRun.select RecvData exit\n", (int)_sock);
 					Close();
 					return false;
 				}
@@ -125,7 +125,7 @@ public:
 			{
 				if (-1 == _pClient->SendDataReal())
 				{
-					CELLLog::Info("error,<socket=%d>OnRun.select SendDataReal exit\n", (int)_sock);
+					CELLLog_Error("error,<socket=%d>OnRun.select SendDataReal exit\n", (int)_sock);
 					Close();
 					return false;
 				}

@@ -31,17 +31,17 @@ public:
 			auto n7 = r.ReadArray(pw, 32);
 			int ata[10] = {};
 			auto n8 = r.ReadArray(ata, 10);
-			CELLLog::Info("<socket=%d> recv msgType£ºCMD_LOGOUT_RESULT\n", (int)_pClient->sockfd());
+			CELLLog_Info("<socket=%d> recv msgType£ºCMD_LOGOUT_RESULT\n", (int)_pClient->sockfd());
 		}
 		break;
 		case CMD_ERROR:
 		{
-			CELLLog::Info("<socket=%d> recv msgType£ºCMD_ERROR\n", (int)_pClient->sockfd());
+			CELLLog_Info("<socket=%d> recv msgType£ºCMD_ERROR\n", (int)_pClient->sockfd());
 		}
 		break;
 		default:
 		{
-			CELLLog::Info("error, <socket=%d> recv undefine msgType\n", (int)_pClient->sockfd());
+			CELLLog_Error("error, <socket=%d> recv undefine msgType\n", (int)_pClient->sockfd());
 		}
 		}
 	}

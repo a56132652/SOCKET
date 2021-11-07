@@ -157,6 +157,24 @@
   <ItemGroup>
     <ClCompile Include="client1.1.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\depends\includes\Cell.hpp" />
+    <ClInclude Include="..\depends\includes\CELLBuffer.hpp" />
+    <ClInclude Include="..\depends\includes\CellClient.hpp" />
+    <ClInclude Include="..\depends\includes\CELLLog.hpp" />
+    <ClInclude Include="..\depends\includes\CELLMsgStream.hpp" />
+    <ClInclude Include="..\depends\includes\CELLNetWork.hpp" />
+    <ClInclude Include="..\depends\includes\CELLSemaphore.hpp" />
+    <ClInclude Include="..\depends\includes\CellServer.hpp" />
+    <ClInclude Include="..\depends\includes\CELLStream.hpp" />
+    <ClInclude Include="..\depends\includes\CELLTask.hpp" />
+    <ClInclude Include="..\depends\includes\CELLThread.hpp" />
+    <ClInclude Include="..\depends\includes\CELLTimestamp.hpp" />
+    <ClInclude Include="..\depends\includes\EasyTcpClient.hpp" />
+    <ClInclude Include="..\depends\includes\EasyTcpServer.hpp" />
+    <ClInclude Include="..\depends\includes\INetEvent.hpp" />
+    <ClInclude Include="..\depends\includes\MessageHeader.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -20,9 +20,9 @@ public:
 	}
 	~CELLServer()
 	{
-		CELLLog::Info("CELLServer%d.~CELLServer exit begin\n", _id);
+		CELLLog_Info("CELLServer%d.~CELLServer exit begin\n", _id);
 		Close();
-		CELLLog::Info("CELLServer%d.~CELLServer exit end\n", _id);
+		CELLLog_Info("CELLServer%d.~CELLServer exit end\n", _id);
 	}
 
 	void setEventObj(INetEvent* event)
@@ -32,10 +32,10 @@ public:
 	//关闭socket
 	void Close()
 	{
-		CELLLog::Info("CELLServer%d.Close begin\n", _id);
+		CELLLog_Info("CELLServer%d.Close begin\n", _id);
 		_taskServer.Close();
 		_thread.Close();
-		CELLLog::Info("CELLServer%d.Close end\n", _id);
+		CELLLog_Info("CELLServer%d.Close end\n", _id);
 	}
 
 	//处理网络消息
@@ -120,7 +120,7 @@ public:
 
 			if (ret < 0)
 			{
-				CELLLog::Info("CELLServer%d OnRun.select Error exit\n",_id);
+				CELLLog_Info("CELLServer%d OnRun.select Error exit\n",_id);
 				pThread->Exit();
 				break;
 			}
@@ -132,13 +132,13 @@ public:
 			ReadData(fdRead);
 			WriteData(fdWrite);
 			//WriteData(fdExc);
-			//CELLLog::Info("CELLServer%d.OnRun.select: fdRead=%d,fdWrite=%d\n", _id, fdRead.fd_count, fdWrite.fd_count);
+			//CELLLog_Info("CELLServer%d.OnRun.select: fdRead=%d,fdWrite=%d\n", _id, fdRead.fd_count, fdWrite.fd_count);
 			//if (fdExc.fd_count > 0)
 			//{
-			//	CELLLog::Info("###fdExc=%d\n", fdExc.fd_count);
+			//	CELLLog_Info("###fdExc=%d\n", fdExc.fd_count);
 			//}
 		}
-		CELLLog::Info("CELLServer%d.OnRun  exit\n", _id);
+		CELLLog_Info("CELLServer%d.OnRun  exit\n", _id);
 
 	}
 
@@ -251,7 +251,7 @@ public:
 	{
 		// 接收客户端数据
 		int nLen = pClient->RecvData();
-		//CELLLog::Info("Len=%d\n", nLen);
+		//CELLLog_Info("Len=%d\n", nLen);
 		if (nLen <= 0)
 		{
 			return -1;

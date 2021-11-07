@@ -83,9 +83,10 @@ public:
 			char* szRecv = _pBuff + _nLast;
 			// 接收客户端数据
 			int nLen = (int)recv(sockfd, szRecv, _nSize - _nLast, 0);
-			//CELLLog::Info("Len=%d\n", nLen);
+			
 			if (nLen <= 0)
 			{
+				CELLLog_Info("Len=%d\n", nLen);
 				return nLen;
 			}
 			//消息缓冲区的数据尾部位置后移

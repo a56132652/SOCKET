@@ -39,11 +39,11 @@ public:
 
 	void Close()
 	{
-		//CELLLog::Info("CELLTaskServer%d.Close begin\n", serverID);
+		//CELLLog_Info("CELLTaskServer%d.Close begin\n", serverID);
 		
 		_thread.Close();
 
-		//CELLLog::Info("CELLTaskServer%d.Close end\n", serverID);
+		//CELLLog_Info("CELLTaskServer%d.Close end\n", serverID);
 	}
 protected:
 	//¹¤×÷º¯Êý
@@ -81,7 +81,7 @@ protected:
 		{
 			pTask();
 		}
-		//CELLLog::Info("CELLTaskServer%d.OnRun exit\n", serverID);
+		//CELLLog_Info("CELLTaskServer%d.OnRun exit\n", serverID);
 	} 
 };
 
