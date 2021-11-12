@@ -1,0 +1,9 @@
+Info [2021-11-12 15:41:20]CELLLog::setLogPath success,<serverLog[2021-11-12_23_41_20].txt,w>
+Info [2021-11-12 15:41:20]建立<socket=188>成功...
+Info [2021-11-12 15:41:20]绑定端口<4567>成功...
+Info [2021-11-12 15:41:20]socket=<188>监听网络端口成功...
+Info [2021-11-12 15:41:21]thread<1>,time<1.000524>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:41:22]thread<1>,time<1.000221>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:41:23]thread<1>,time<1.000798>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:41:24]thread<1>,time<1.000220>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:41:25]thread<1>,time<1.000222>,socket<188>,clients<0>,recv<0>,msg<0>

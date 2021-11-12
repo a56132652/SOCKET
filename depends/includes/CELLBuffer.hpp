@@ -86,7 +86,7 @@ public:
 			
 			if (nLen <= 0)
 			{
-				CELLLog_Info("Len=%d\n", nLen);
+				CELLLog_Info("Len=%d", nLen);
 				return nLen;
 			}
 			//消息缓冲区的数据尾部位置后移

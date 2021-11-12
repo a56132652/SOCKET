@@ -31,7 +31,7 @@ public:
 
 	~CELLClient()
 	{
-		CELLLog_Debug("s=%d CELLClient%d.Close 1\n", serverID, id);
+		CELLLog_Debug("s=%d CELLClient%d.Close 1", serverID, id);
 		if (INVALID_SOCKET != _sockfd)
 		{
 #ifdef _WIN32
@@ -118,7 +118,7 @@ public:
 	{
 		_dtHeart += dt;
 		if (_dtHeart >= CLIENT_HEART_DEAD_TIME) {
-			CELLLog_Info("checkHeart dead:s=%d,time=%d\n", _sockfd, _dtHeart);
+			CELLLog_Info("checkHeart dead:s=%d,time=%d", _sockfd, _dtHeart);
 			return true;
 		}
 		return false;
@@ -129,7 +129,7 @@ public:
 	{
 		_dtSend += dt;
 		if (_dtSend >= CLIENT_SEND_BUFF_TIME) {
-			//CELLLog_Info("checkSend:s=%d,time=%d\n", _sockfd, _dtSend);
+			//CELLLog_Info("checkSend:s=%d,time=%d", _sockfd, _dtSend);
 			//立即发送缓冲区数据
 			SendDataReal();
 			//重置发送计时

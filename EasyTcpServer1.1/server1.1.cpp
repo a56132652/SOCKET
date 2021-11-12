@@ -1,10 +1,10 @@
-#include "Cell.hpp"
+ï»¿#include "Cell.hpp"
 #include "CELLClient.hpp"
 #include <string>
 #include "EasyTcpServer.hpp"
 
 //bool g_bRun = true;
-////´¦ÀíÇëÇóº¯Êı
+////å¤„ç†è¯·æ±‚å‡½æ•°
 //void  cmdThread()
 //{
 //}
@@ -12,19 +12,19 @@
 class MyServer : public EasyTcpServer
 {
 public:
-	//Ö»»á±»Ò»¸öÏß³Ì´¥·¢ °²È«
+	//åªä¼šè¢«ä¸€ä¸ªçº¿ç¨‹è§¦å‘ å®‰å…¨
 	virtual void OnNetJoin(CELLClient* pClient)
 	{
 		EasyTcpServer::OnNetJoin(pClient); 
 	}
-	//cellSetver 4 ¶à¸öÏß³Ì´¥·¢ ²»°²È«
-	//Èç¹ûÖ»¿ªÆôÒ»¸öCELLServer¾ÍÊÇ°²È«µÄ
+	//cellSetver 4 å¤šä¸ªçº¿ç¨‹è§¦å‘ ä¸å®‰å…¨
+	//å¦‚æœåªå¼€å¯ä¸€ä¸ªCELLServerå°±æ˜¯å®‰å…¨çš„
 	virtual void OnNetLeave(CELLClient* pClient)
 	{
 		EasyTcpServer::OnNetLeave(pClient);
 	}
-	//cellSetver 4 ¶à¸öÏß³Ì´¥·¢ ²»°²È«
-	//Èç¹ûÖ»¿ªÆôÒ»¸öCELLServer¾ÍÊÇ°²È«µÄ
+	//cellSetver 4 å¤šä¸ªçº¿ç¨‹è§¦å‘ ä¸å®‰å…¨
+	//å¦‚æœåªå¼€å¯ä¸€ä¸ªCELLServerå°±æ˜¯å®‰å…¨çš„
 	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient, DataHeader* header)
 	{
 		EasyTcpServer::OnNetMsg(pCELLServer, pClient, header);
@@ -34,12 +34,12 @@ public:
 		{
 			pClient->resetDtHeart();
 			Login* login = (Login*)header;
-			//CELLLog_Info("ÊÕµ½¿Í»§¶Ë<socket:%d>ÃüÁî£ºCMD_LOGIN£¬Êı¾İ³¤¶È : %d,userName = %s ,PassWord = %s \n", cSock, login->dataLength, login->userName, login->PassWord);
+			//CELLLog_Info("æ”¶åˆ°å®¢æˆ·ç«¯<socket:%d>å‘½ä»¤ï¼šCMD_LOGINï¼Œæ•°æ®é•¿åº¦ : %d,userName = %s ,PassWord = %s ", cSock, login->dataLength, login->userName, login->PassWord);
 			LoginResult ret;
 			if (SOCKET_ERROR == pClient->SendData(&ret))
 			{
-				//·¢ËÍ»º³åÇøÂúÁË£¬ÏûÏ¢Ã»·¢³öÈ¥
-				CELLLog_Info("<Socket=%d> Send Full\n", pClient->sockfd());
+				//å‘é€ç¼“å†²åŒºæ»¡äº†ï¼Œæ¶ˆæ¯æ²¡å‘å‡ºå»
+				CELLLog_Info("<Socket=%d> Send Full", pClient->sockfd());
 			}
 			//LoginResult* ret = new LoginResult();
 			//pCELLServer->addSendTask(pClient,ret);
@@ -48,7 +48,7 @@ public:
 		case CMD_LOGINOUT:
 		{
 			Loginout* loginout = (Loginout*)header;
-			//CELLLog_Info("ÊÕµ½¿Í»§¶Ë<socket:%d>ÃüÁî£ºCMD_LOGINOUT£¬Êı¾İ³¤¶È : %d,userName = %s \n", cSock, loginout->dataLength, loginout->userName);
+			//CELLLog_Info("æ”¶åˆ°å®¢æˆ·ç«¯<socket:%d>å‘½ä»¤ï¼šCMD_LOGINOUTï¼Œæ•°æ®é•¿åº¦ : %d,userName = %s ", cSock, loginout->dataLength, loginout->userName);
 			//LoginoutResult ret = {  };
 			//pClient->SendData(&ret);
 		}
@@ -62,7 +62,7 @@ public:
 		break;
 		default:
 		{
-			CELLLog_Info("<socket:%d>ÊÕµ½Î´¶¨ÒåÏûÏ¢£¬Êı¾İ³¤¶È£º%d\n", pClient->sockfd(), header->dataLength);
+			CELLLog_Info("<socket:%d>æ”¶åˆ°æœªå®šä¹‰æ¶ˆæ¯ï¼Œæ•°æ®é•¿åº¦ï¼š%d", pClient->sockfd(), header->dataLength);
 			//DataHeader ret;
 			//pClient->SendData(&ret);
 		}
@@ -71,17 +71,52 @@ public:
 	}
 };
 
-int main()
+const char* argsToStr(int argc, char* args[],int index, const char* def, const char* argName)
 {
+	if (index >= argc)
+	{
+		CELLLog_Error("argToStr, index=%d argc=%d argName=%s", index, argc, argName);
+	}else{
+		def = args[index];
+	}
+	CELLLog_Info("%s=%s", argName, def);
+	return def;
+}
+
+int argsToInt(int argc, char* args[], int index, int def, const char* argName)
+{
+	if (index >= argc)
+	{
+		CELLLog_Error("argToStr, index=%d argc=%d argName=%s", index, argc, argName);
+	}
+	else {
+		def = atoi(args[index]);
+	}
+	CELLLog_Info("%s=%d", argName, def);
+	return def;
+}
+
+int main(int argc, char* args[])
+{
+	const char* strIP = argsToStr(argc,args,1,"any","strIP");
+	uint16_t nPort = argsToInt(argc, args, 2, 4567, "nPort");
+	int nThread = argsToInt(argc, args, 3, 1, "nThread");
+	int nClient = argsToInt(argc, args, 4, 1, "nClient");
+
+	if (strcmp(strIP, "any") == 0)
+	{
+		strIP = nullptr;
+	}
+
 	CELLLog::Instance().setLogPath("serverLog","w");
 	MyServer server;
 	server.InitSocket(); 
-	server.Bind(NULL, 4567);
+	server.Bind(strIP, nPort);
 	server.Listen(64);
-	server.Start(4);
+	server.Start(nThread);
 
 /*	std::thread t1(cmdThread); 
-	t1.detach();*/	 \
+	t1.detach();*/	
 
 	while (true)
 	{
@@ -90,15 +125,15 @@ int main()
 		if (0 == strcmp(cmdBuf, "exit"))
 		{
 			server.Close();
-			CELLLog_Info("ÍË³öcmdThreadÏß³Ì\n");
+			CELLLog_Info("é€€å‡ºcmdThreadçº¿ç¨‹");
 			break;
 		}
 		else {
-			CELLLog_Info("²»Ö§³ÖµÄÃüÁî£¬ÇëÖØĞÂÊäÈë¡£\n");
+			CELLLog_Info("ä¸æ”¯æŒçš„å‘½ä»¤ï¼Œè¯·é‡æ–°è¾“å…¥ã€‚");
 		}
 	}
 
-	CELLLog_Info("ÒÑÍË³ö\n");
+	CELLLog_Info("å·²é€€å‡º");
 //#ifdef _WIN32
 //	while (true)
 //		Sleep(10);

@@ -31,7 +31,7 @@ private:
 		_taskServer.Close();
 		if (_logFile)
 		{
-			Info("CELLLog fclose (_logFile)\n");
+			Info("CELLLog fclose (_logFile)");
 			fclose(_logFile);
 			_logFile = nullptr;
 		}
@@ -47,7 +47,7 @@ public:
 	{
 		if (_logFile)
 		{
-			Info("CELLLog::setLogPath _logFile != nullptr\n");
+			Info("CELLLog::setLogPath _logFile != nullptr");
 			fclose(_logFile);
 			_logFile = nullptr;
 		}
@@ -59,10 +59,10 @@ public:
 		_logFile = fopen(logPath, mode);
 		if (_logFile)
 		{
-			Info("CELLLog::setLogPath success,<%s,%s>\n", logPath, mode);
+			Info("CELLLog::setLogPath success,<%s,%s>", logPath, mode);
 		}
 		else {
-			Info("CELLLog::setLogPath failed,<%s,%s>\n", logPath, mode);
+			Info("CELLLog::setLogPath failed,<%s,%s>", logPath, mode);
 		}
 	}
 
@@ -74,7 +74,7 @@ public:
 	template<typename ...Args>
 	static void Error(const char* pformat, Args ... args)
 	{
-		Echo("Error", pformat, args...);
+		Echo("Error ", pformat, args...);
 	}
 
 	static void Warring(const char* pStr)
@@ -85,7 +85,7 @@ public:
 	template<typename ...Args>
 	static void Warring(const char* pformat, Args ... args)
 	{
-		Echo("Warring", pformat, args...);
+		Echo("Warring ", pformat, args...);
 	}
 
 	static void Debug(const char* pStr)
@@ -96,7 +96,7 @@ public:
 	template<typename ...Args>
 	static void Debug(const char* pformat, Args ... args)
 	{
-		Echo("Debug", pformat, args...);
+		Echo("Debug ", pformat, args...);
 	}
 
 
@@ -108,7 +108,7 @@ public:
 	template<typename ...Args>
 	static void Info(const char* pformat, Args ... args)
 	{
-		Echo("Info", pformat, args...);
+		Echo("Info ", pformat, args...);
 	}
 
 	template<typename ...Args>
@@ -125,10 +125,13 @@ public:
 				fprintf(pLog->_logFile, "%s", type);
 				fprintf(pLog->_logFile, "[%d-%d-%d %d:%d:%d]", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec);
 				fprintf(pLog->_logFile, pformat, args...);
+				fprintf(pLog->_logFile, "%s","\n");
 				fflush(pLog->_logFile);
 			}
+			printf("%s", type);
 			printf(pformat, args...);
-			});
+			printf("%s", "\n");
+		});
 	}
 
 private:

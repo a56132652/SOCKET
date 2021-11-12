@@ -1,0 +1,18 @@
+Error [2021-11-12 15:36:12]argToStr, index=1 argc=1 argName=strIP
+Info [2021-11-12 15:36:12]strIP=any
+Error [2021-11-12 15:36:12]argToStr, index=2 argc=1 argName=nPort
+Info [2021-11-12 15:36:12]nPort=4567
+Error [2021-11-12 15:36:12]argToStr, index=3 argc=1 argName=nThread
+Info [2021-11-12 15:36:12]nThread=1
+Error [2021-11-12 15:36:12]argToStr, index=4 argc=1 argName=nClient
+Info [2021-11-12 15:36:12]nClient=1
+Info [2021-11-12 15:36:12]CELLLog::setLogPath success,<serverLog[2021-11-12_23_36_12].txt,w>
+Info [2021-11-12 15:36:12]建立<socket=188>成功...
+Info [2021-11-12 15:36:12]绑定端口<4567>成功...
+Info [2021-11-12 15:36:12]socket=<188>监听网络端口成功...
+Info [2021-11-12 15:36:13]thread<1>,time<1.000734>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:36:14]thread<1>,time<1.000228>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:36:15]thread<1>,time<1.000848>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:36:16]thread<1>,time<1.000766>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:36:17]thread<1>,time<1.000908>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:36:18]thread<1>,time<1.000302>,socket<188>,clients<0>,recv<0>,msg<0>

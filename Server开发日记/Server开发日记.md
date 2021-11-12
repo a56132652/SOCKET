@@ -3394,3 +3394,98 @@ private:
 
 ```
 
+# 十七、简易命令脚本
+
+## 1. 对main函数的输入参数进行处理
+
+```c++
+const char* argsToStr(int argc, char* args[],int index, const char* def, const char* argName)
+{
+	if (index >= argc)
+	{
+		CELLLog_Error("argToStr, index=%d argc=%d argName=%s", index, argc, argName);
+	}else{
+		def = args[index];
+	}
+	CELLLog_Info("%s=%s", argName, def);
+	return def;
+}
+
+int argsToInt(int argc, char* args[], int index, int def, const char* argName)
+{
+	if (index >= argc)
+	{
+		CELLLog_Error("argToStr, index=%d argc=%d argName=%s", index, argc, argName);
+	}
+	else {
+		def = atoi(args[index]);
+	}
+	CELLLog_Info("%s=%d", argName, def);
+	return def;
+}
+
+int main(int argc, char* args[])
+{
+	const char* strIP = argsToStr(argc,args,1,"any","strIP");
+	uint16_t nPort = argsToInt(argc, args, 2, 4567, "nPort");
+	int nThread = argsToInt(argc, args, 3, 1, "nThread");
+	int nClient = argsToInt(argc, args, 4, 1, "nClient");
+
+	if (strcmp(strIP, "any") == 0)
+	{
+		strIP = nullptr;
+	}
+
+	CELLLog::Instance().setLogPath("serverLog","w");
+	MyServer server;
+	server.InitSocket(); 
+	server.Bind(strIP, nPort);
+	server.Listen(64);
+	server.Start(nThread);
+
+/*	std::thread t1(cmdThread); 
+	t1.detach();*/	
+
+	while (true)
+	{
+		char cmdBuf[256] = { };
+		scanf("%s", cmdBuf);
+		if (0 == strcmp(cmdBuf, "exit"))
+		{
+			server.Close();
+			CELLLog_Info("退出cmdThread线程");
+			break;
+		}
+		else {
+			CELLLog_Info("不支持的命令，请重新输入。");
+		}
+	}
+
+	CELLLog_Info("已退出");
+//#ifdef _WIN32
+//	while (true)
+//		Sleep(10);
+//#endif
+	return 0;
+
+}
+
+```
+
+## 2. 简易命令脚本
+
+```shell
+::服务端IP地址
+@set strIP=any
+rem 服务端端口
+@set nPort=4567
+::消息处理线程数
+@set nThread=1
+::客户端上限
+@set nClient=1
+
+EasyTcpServer1.1 %strIP% %nPort% %nThread% %nClient%
+
+@pause
+```
+

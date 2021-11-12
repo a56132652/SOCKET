@@ -1,0 +1,17 @@
+Info [2021-11-12 15:46:32]CELLLog::setLogPath success,<serverLog[2021-11-12_23_46_32].txt,w>
+Info [2021-11-12 15:46:32]建立<socket=208>成功...
+Info [2021-11-12 15:46:32]绑定端口<4567>成功...
+Info [2021-11-12 15:46:32]socket=<208>监听网络端口成功...
+Info [2021-11-12 15:46:33]thread<1>,time<1.000825>,socket<208>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:46:34]thread<1>,time<1.000219>,socket<208>,clients<0>,recv<0>,msg<0>
+Info [2021-11-12 15:46:35]EasyTcpServer.Close begin
+Info [2021-11-12 15:46:35]CELLServer1.~CELLServer exit begin
+Info [2021-11-12 15:46:35]CELLServer1.Close begin
+Info [2021-11-12 15:46:35]CELLServer1.OnRun  exit
+Info [2021-11-12 15:46:35]CELLServer1.Close end
+Info [2021-11-12 15:46:35]CELLServer1.~CELLServer exit end
+Info [2021-11-12 15:46:35]EasyTcpServer.Close end
+Info [2021-11-12 15:46:35]退出cmdThread线程
+Info [2021-11-12 15:46:35]已退出
+Info [2021-11-12 15:46:35]EasyTcpServer.Close begin
+Info [2021-11-12 15:46:35]EasyTcpServer.Close end
