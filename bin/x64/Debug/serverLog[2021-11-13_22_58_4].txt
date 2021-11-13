@@ -1,0 +1,9 @@
+Info [2021-11-13 14:58:4]CELLLog::setLogPath success,<serverLog[2021-11-13_22_58_4].txt,w>
+Info [2021-11-13 14:58:4]create <socket=240> success...
+Info [2021-11-13 14:58:4]bind port<4567> success...
+Info [2021-11-13 14:58:4]listen socket=<240> success...
+Info [2021-11-13 14:58:5]thread<1>,time<1.013998>,socket<240>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:6]thread<1>,time<1.005185>,socket<240>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:7]thread<1>,time<1.005210>,socket<240>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:8]thread<1>,time<1.005221>,socket<240>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:9]thread<1>,time<1.005515>,socket<240>,clients<0>,recv<0>,msg<0>

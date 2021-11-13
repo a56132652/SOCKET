@@ -1,0 +1,27 @@
+Info [2021-11-13 14:58:11]CELLLog::setLogPath success,<serverLog[2021-11-13_22_58_11].txt,w>
+Info [2021-11-13 14:58:11]create <socket=188> success...
+Error [2021-11-13 14:58:11]Error£¬bind port<0> failed...
+Error [2021-11-13 14:58:11]listen socket=<188> failed...
+Info [2021-11-13 14:58:12]thread<0>,time<1.009623>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:13]thread<0>,time<1.004791>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:14]thread<0>,time<1.005315>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:15]thread<0>,time<1.005236>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:16]thread<0>,time<1.005231>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:17]thread<0>,time<1.005251>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:18]thread<0>,time<1.005234>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:19]thread<0>,time<1.005229>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:20]thread<0>,time<1.000887>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:21]thread<0>,time<1.000252>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:22]thread<0>,time<1.000206>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:23]thread<0>,time<1.000114>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:24]thread<0>,time<1.000200>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:25]thread<0>,time<1.000220>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:26]thread<0>,time<1.000496>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:27]thread<0>,time<1.000292>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:28]thread<0>,time<1.000067>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:29]thread<0>,time<1.000214>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:30]thread<0>,time<1.000785>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:31]thread<0>,time<1.000343>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:32]thread<0>,time<1.000077>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:33]thread<0>,time<1.000411>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:58:34]thread<0>,time<1.000196>,socket<188>,clients<0>,recv<0>,msg<0>

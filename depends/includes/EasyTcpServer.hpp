@@ -50,10 +50,10 @@ public:
 		_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (INVALID_SOCKET == _sock)
 		{
-			CELLLog_Info("错误，建立socket失败...");
+			CELLLog_Error("Error，create socket faild...");
 		}
 		else {
-			CELLLog_Info("建立<socket=%d>成功...", (int)_sock);
+			CELLLog_Info("create <socket=%d> success...", (int)_sock);
 		}
 		return _sock;
 	}
@@ -90,10 +90,10 @@ public:
 		int ret = bind(_sock, (sockaddr*)&_sin, sizeof(_sin));
 		if (SOCKET_ERROR == ret)
 		{
-			CELLLog_Info("错误，绑定网络端口<%d>失败...",port);
+			CELLLog_Error("Error，bind port<%d> failed...",port);
 		}
 		else {
-			CELLLog_Info("绑定端口<%d>成功...", port);
+			CELLLog_Info("bind port<%d> success...", port);
 		}
 		return ret;
 	}
@@ -105,10 +105,10 @@ public:
 		int ret = listen(_sock, n);
 		if (SOCKET_ERROR == ret)
 		{
-			CELLLog_Info("socket=<%d>错误，监听网络端口失败...", (int)_sock);
+			CELLLog_Error("listen socket=<%d> failed...", (int)_sock);
 		}
 		else {
-			CELLLog_Info("socket=<%d>监听网络端口成功...", (int)_sock);
+			CELLLog_Info("listen socket=<%d> success...", (int)_sock);
 		}
 		return ret;
 	}
@@ -127,7 +127,7 @@ public:
 #endif
 		if (INVALID_SOCKET == cSock)
 		{
-			CELLLog_Info("socket=<%d>错误，接收到无效客户端SOCKET...", (int)_sock);
+			CELLLog_Error("socket=<%d>Error，accept invalid SOCKET...", (int)_sock);
 		}
 		else {
 			//将新客户端分配给客户数量最少的CELLServer

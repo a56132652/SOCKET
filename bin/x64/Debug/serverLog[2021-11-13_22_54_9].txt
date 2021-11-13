@@ -1,0 +1,13 @@
+Debug [2021-11-13 14:54:9]nClient=3
+Debug [2021-11-13 14:54:9]::Æ´½Ó×Ö·û´®
+Info [2021-11-13 14:54:9]strIP=strIP=127.0.0.1
+Info [2021-11-13 14:54:9]nPort=0
+Info [2021-11-13 14:54:9]nThread=0
+Info [2021-11-13 14:54:9]nClient=0
+Info [2021-11-13 14:54:9]CELLLog::setLogPath success,<serverLog[2021-11-13_22_54_9].txt,w>
+Info [2021-11-13 14:54:9]½¨Á¢<socket=224>³É¹¦...
+Info [2021-11-13 14:54:9]´íÎó£¬°ó¶¨ÍøÂç¶Ë¿Ú<0>Ê§°Ü...
+Info [2021-11-13 14:54:9]socket=<224>´íÎó£¬¼àÌýÍøÂç¶Ë¿ÚÊ§°Ü...
+Info [2021-11-13 14:54:10]thread<0>,time<1.005037>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:54:11]thread<0>,time<1.005152>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:54:12]thread<0>,time<1.005206>,socket<224>,clients<0>,recv<0>,msg<0>

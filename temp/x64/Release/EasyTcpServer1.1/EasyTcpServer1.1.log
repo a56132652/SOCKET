@@ -9,6 +9,6 @@ F:\A3-git_repos\SOCKET\depends\includes\EasyTcpServer.hpp(187,10): warning C4553
 F:\A3-git_repos\SOCKET\depends\includes\EasyTcpServer.hpp(237,27): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
   正在生成代码
   Previous IPDB not found, fall back to full compilation.
-  All 884 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 931 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   已完成代码的生成
   EasyTcpServer1.1.vcxproj -> F:\A3-git_repos\SOCKET\bin\x64\Release\EasyTcpServer1.1.exe

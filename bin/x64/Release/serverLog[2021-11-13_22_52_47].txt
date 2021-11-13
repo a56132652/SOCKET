@@ -1,0 +1,9 @@
+Info [2021-11-13 14:52:47]nPort=0
+Info [2021-11-13 14:52:47]nThread=0
+Info [2021-11-13 14:52:47]nClient=0
+Info [2021-11-13 14:52:47]CELLLog::setLogPath success,<serverLog[2021-11-13_22_52_47].txt,w>
+Info [2021-11-13 14:52:47]建立<socket=188>成功...
+Info [2021-11-13 14:52:47]错误，绑定网络端口<0>失败...
+Info [2021-11-13 14:52:47]socket=<188>错误，监听网络端口失败...
+Info [2021-11-13 14:52:48]thread<0>,time<1.000109>,socket<188>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:52:49]thread<0>,time<1.000223>,socket<188>,clients<0>,recv<0>,msg<0>

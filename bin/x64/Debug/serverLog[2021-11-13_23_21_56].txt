@@ -1,0 +1,19 @@
+Info [2021-11-13 15:21:56]CELLLog::setLogPath success,<serverLog[2021-11-13_23_21_56].txt,w>
+Info [2021-11-13 15:21:56]create <socket=224> success...
+Error [2021-11-13 15:21:56]Error£¬bind port<0> failed...
+Error [2021-11-13 15:21:56]listen socket=<224> failed...
+Info [2021-11-13 15:21:57]thread<0>,time<1.000480>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:21:58]thread<0>,time<1.000201>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:21:59]thread<0>,time<1.000131>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:0]thread<0>,time<1.003228>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:1]thread<0>,time<1.005201>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:2]thread<0>,time<1.005192>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:3]thread<0>,time<1.005195>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:4]thread<0>,time<1.005418>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:5]thread<0>,time<1.005189>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:6]thread<0>,time<1.005200>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:7]thread<0>,time<1.005565>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:8]thread<0>,time<1.004840>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:9]thread<0>,time<1.005211>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:10]thread<0>,time<1.005186>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 15:22:11]thread<0>,time<1.005199>,socket<224>,clients<0>,recv<0>,msg<0>

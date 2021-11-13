@@ -2,7 +2,7 @@
 #include "CELLClient.hpp"
 #include <string>
 #include "EasyTcpServer.hpp"
-
+#include "CELLConfig.hpp"
 //bool g_bRun = true;
 ////处理请求函数
 //void  cmdThread()
@@ -98,7 +98,10 @@ int argsToInt(int argc, char* args[], int index, int def, const char* argName)
 
 int main(int argc, char* args[])
 {
-	const char* strIP = argsToStr(argc,args,1,"any","strIP");
+	CELLConfig::Instance().Init(argc, args);
+
+	const char* strIP = CELLConfig::Instance().getStr("strIP", "any");
+	
 	uint16_t nPort = argsToInt(argc, args, 2, 4567, "nPort");
 	int nThread = argsToInt(argc, args, 3, 1, "nThread");
 	int nClient = argsToInt(argc, args, 4, 1, "nClient");

@@ -1,0 +1,27 @@
+Info [2021-11-13 14:52:52]EasyTcpServer1.1
+Info [2021-11-13 14:52:52]strIP=127.0.0.1
+Info [2021-11-13 14:52:52]nPort=4567
+Info [2021-11-13 14:52:52]::Æ´½Ó×Ö·û´®
+Info [2021-11-13 14:52:52]nThread=2
+Info [2021-11-13 14:52:52]::Æ´½Ó×Ö·û´®
+Info [2021-11-13 14:52:52]nClient=3
+Info [2021-11-13 14:52:52]::Æ´½Ó×Ö·û´®
+Info [2021-11-13 14:52:52]strIP=strIP=127.0.0.1
+Info [2021-11-13 14:52:52]nPort=0
+Info [2021-11-13 14:52:52]nThread=0
+Info [2021-11-13 14:52:52]nClient=0
+Info [2021-11-13 14:52:52]CELLLog::setLogPath success,<serverLog[2021-11-13_22_52_52].txt,w>
+Info [2021-11-13 14:52:52]½¨Á¢<socket=204>³É¹¦...
+Info [2021-11-13 14:52:52]´íÎó£¬°ó¶¨ÍøÂç¶Ë¿Ú<0>Ê§°Ü...
+Info [2021-11-13 14:52:52]socket=<204>´íÎó£¬¼àÌýÍøÂç¶Ë¿ÚÊ§°Ü...
+Info [2021-11-13 14:52:53]thread<0>,time<1.000209>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:52:54]thread<0>,time<1.000222>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:52:55]thread<0>,time<1.000216>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:52:56]thread<0>,time<1.014243>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:52:57]thread<0>,time<1.005223>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:52:58]thread<0>,time<1.005220>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:52:59]thread<0>,time<1.005219>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:53:0]thread<0>,time<1.005207>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:53:1]thread<0>,time<1.005234>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:53:2]thread<0>,time<1.005222>,socket<204>,clients<0>,recv<0>,msg<0>
+Info [2021-11-13 14:53:3]thread<0>,time<1.005213>,socket<204>,clients<0>,recv<0>,msg<0>
