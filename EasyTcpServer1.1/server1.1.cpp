@@ -101,10 +101,14 @@ int main(int argc, char* args[])
 	CELLConfig::Instance().Init(argc, args);
 
 	const char* strIP = CELLConfig::Instance().getStr("strIP", "any");
-	
-	uint16_t nPort = argsToInt(argc, args, 2, 4567, "nPort");
-	int nThread = argsToInt(argc, args, 3, 1, "nThread");
-	int nClient = argsToInt(argc, args, 4, 1, "nClient");
+	uint16_t nPort = CELLConfig::Instance().getInt("nPort", 4567);
+	int nThread = CELLConfig::Instance().getInt("nThread", 2);
+	int nClient = CELLConfig::Instance().getInt("nClient", 1);
+
+	if (CELLConfig::Instance().hasKey("-p"))
+	{
+		CELLLog_Info("hasKey -p");
+	}
 
 	if (strcmp(strIP, "any") == 0)
 	{

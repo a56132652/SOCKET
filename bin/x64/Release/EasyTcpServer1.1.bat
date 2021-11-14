@@ -17,6 +17,8 @@ set cmd=%cmd% nPort=4567
 set cmd=%cmd% nThread=2		
 ::客户端上限          
 set cmd=%cmd% nClient=3		
+
+set cmd=%cmd% -p
 ::启动程序 传入参数
 EasyTcpServer1.1 %cmd%
 

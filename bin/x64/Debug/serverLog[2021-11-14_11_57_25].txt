@@ -1,0 +1,22 @@
+Info [2021-11-14 3:57:25]CELLLog::setLogPath success,<serverLog[2021-11-14_11_57_25].txt,w>
+Info [2021-11-14 3:57:25]create <socket=224> success...
+Info [2021-11-14 3:57:25]bind port<4567> success...
+Info [2021-11-14 3:57:25]listen socket=<224> success...
+Info [2021-11-14 3:57:26]thread<2>,time<1.010340>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:27]thread<2>,time<1.005164>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:28]thread<2>,time<1.005216>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:29]thread<2>,time<1.005178>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:30]thread<2>,time<1.005209>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:31]thread<2>,time<1.005350>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:32]thread<2>,time<1.005202>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:33]thread<2>,time<1.005188>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:34]thread<2>,time<1.005193>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:35]thread<2>,time<1.005215>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:36]thread<2>,time<1.005198>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:37]thread<2>,time<1.005152>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:38]thread<2>,time<1.005203>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:39]thread<2>,time<1.005194>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:40]thread<2>,time<1.005183>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:41]thread<2>,time<1.005214>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:42]thread<2>,time<1.005227>,socket<224>,clients<0>,recv<0>,msg<0>
+Info [2021-11-14 3:57:43]thread<2>,time<1.005199>,socket<224>,clients<0>,recv<0>,msg<0>

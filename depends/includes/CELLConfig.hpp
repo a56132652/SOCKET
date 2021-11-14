@@ -30,7 +30,7 @@ public:
 
 	void Init(int argc, char* args[])
 	{
-		_exePath = args[0];
+		_exePath = args[0]; 
 		for (int n = 1; n < argc; n++)
 		{
 			madeCmd(args[n]);
@@ -72,6 +72,27 @@ public:
 
 		CELLLog_Info("CELLConfig::getStr %s=%s", argName, def);
 		return def;
+	}
+
+	int getInt(const char* argName, int def)
+	{
+		auto iter = _kv.find(argName);
+		if (iter == _kv.end())
+		{
+			CELLLog_Error("CELLConfig::getInit not found <%s>", argName);
+		}
+		else {
+			def = atoi(iter->second.c_str());
+		}
+
+		CELLLog_Info("CELLConfig::getInt %s=%d", argName, def);
+		return def;
+	}
+
+	bool hasKey(const char* key)
+	{
+		auto iter = _kv.find(key);
+		return iter != _kv.end();
 	}
 
 private:

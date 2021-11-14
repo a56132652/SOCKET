@@ -3394,7 +3394,7 @@ private:
 
 ```
 
-# 十七、简易命令脚本
+# 十七、命令脚本
 
 ## 1. 对main函数的输入参数进行处理
 
@@ -3489,3 +3489,122 @@ EasyTcpServer1.1 %strIP% %nPort% %nThread% %nClient%
 @pause
 ```
 
+## 3. 增强命令脚本
+
+###  1）灵活传参
+
+利用key-value方式，将变量名作为key，而参数作为value，以key-value的形式一起传入
+
+新增头文件CELLConfig.hpp
+
+```c++
+#ifndef _CELL_CONFIG_HPP_
+#define	_CELL_CONFIG_HPP_
+/*
+	专门用于读取配置数据
+	目前我们的配置参数主要来源于main函数的args传入
+*/
+#include"Cell.hpp"
+#include"CELLLog.hpp"
+#include<string>
+#include<map>
+
+class CELLConfig
+{
+private:
+	CELLConfig()
+	{
+
+	}
+public:
+	~CELLConfig()
+	{
+
+	}
+
+	static CELLConfig& Instance()
+	{
+		static CELLConfig obj;
+		return obj;
+	}
+
+	void Init(int argc, char* args[])
+	{
+		_exePath = args[0]; 
+		for (int n = 1; n < argc; n++)
+		{
+			madeCmd(args[n]);
+		}
+	}
+
+	void madeCmd(char* cmd)
+	{
+		//cmd: strIP=127.0.0.1
+		char* val = strchr(cmd, '=');
+		//若查找成功，返回从 '='开始的字符串
+		if (val)
+		{
+			//将等号换为字符串结束符'\0'
+			//cmd:strIP\0127.0.0.1
+			*val = '\0';
+			//val:127.0.0.1
+			//cmd:strIP
+			val++;
+
+			_kv[cmd] = val;
+			CELLLog_Debug("madeCmd k<%s> v<%s>", cmd, val);
+		}else{
+			_kv[cmd] = "";
+			CELLLog_Debug("madeCmd k<%s> ", cmd);
+		}
+	}
+
+	const char* getStr(const char* argName, const char* def)
+	{
+		auto iter = _kv.find(argName);
+		if (iter == _kv.end())
+		{
+			CELLLog_Error("CELLConfig::getStr not found <%s>", argName);
+		}
+		else {
+			def = iter->second.c_str();
+		}
+
+		CELLLog_Info("CELLConfig::getStr %s=%s", argName, def);
+		return def;
+	}
+
+	int getInt(const char* argName, int def)
+	{
+		auto iter = _kv.find(argName);
+		if (iter == _kv.end())
+		{
+			CELLLog_Error("CELLConfig::getInit not found <%s>", argName);
+		}
+		else {
+			def = atoi(iter->second.c_str());
+		}
+
+		CELLLog_Info("CELLConfig::getInt %s=%d", argName, def);
+		return def;
+	}
+
+	bool hasKey(const char* key)
+	{
+		auto iter = _kv.find(key);
+		return iter != _kv.end();
+	}
+
+private:
+	//保存当前可执行程序的路径
+	std::string _exePath;
+	//配置传入的key-value型数据
+	std::map<std::string, std::string> _kv;
+};
+
+#endif // !_CELL_CONFIG_HPP_
+```
+
+
+
+hasKey()用于扩展脚本功能，例如-p,-s,-k
