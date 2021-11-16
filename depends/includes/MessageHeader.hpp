@@ -6,7 +6,7 @@
 //Ö¸Áî
 enum CMD
 {
-	CMD_LOGIN,
+	CMD_LOGIN = 10,
 	CMD_LOGIN_RESULT,
 	CMD_LOGINOUT,
 	CMD_LOGINOUT_RESULT,
@@ -37,6 +37,7 @@ struct Login : public DataHeader
 	char userName[32];
 	char PassWord[32];
 	char data[32];
+	int msgID;
 };
 //ÐÄÌø
 struct C2S_Heart : public DataHeader
@@ -66,6 +67,7 @@ struct LoginResult : public DataHeader
 	}
 	int result;
 	char data[92];
+	int msgID;
 
 };
 

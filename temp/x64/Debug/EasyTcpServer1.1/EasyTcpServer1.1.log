@@ -7,4 +7,33 @@ F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(183,21): warning C4018: �
 F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(218,21): warning C4018: “<”: 有符号/无符号不匹配
 F:\A3-git_repos\SOCKET\depends\includes\EasyTcpServer.hpp(187,10): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
 F:\A3-git_repos\SOCKET\depends\includes\EasyTcpServer.hpp(237,27): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLMsgStream.hpp(67,1): warning C4267: “参数”: 从“size_t”转换到“uint32_t”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLMsgStream.hpp(72,1): warning C4267: “参数”: 从“size_t”转换到“uint32_t”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(77,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(115): message : 查看对正在编译的函数 模板 实例化“bool CELLStream::Read<int8_t>(T &,bool)”的引用
+          with
+          [
+              T=int8_t
+          ]
+F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(152,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(185): message : 查看对正在编译的函数 模板 实例化“bool CELLStream::Write<int8_t>(T)”的引用
+          with
+          [
+              T=int8_t
+          ]
+F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(157,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(169,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLMsgStream.hpp(62): message : 查看对正在编译的函数 模板 实例化“bool CELLStream::WriteArray<const char>(T *,uint32_t)”的引用
+          with
+          [
+              T=const char
+          ]
+F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(176,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(101,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\EasyTcpServer1.1\server1.1.cpp(88): message : 查看对正在编译的函数 模板 实例化“uint32_t CELLStream::ReadArray<char>(T *,uint32_t)”的引用
+          with
+          [
+              T=char
+          ]
+F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(106,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
   EasyTcpServer1.1.vcxproj -> F:\A3-git_repos\SOCKET\bin\x64\Debug\EasyTcpServer1.1.exe

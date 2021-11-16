@@ -19,24 +19,26 @@ public:
 		Close();
 	}
 	//初始化socket
-	void InitSocket()
+	SOCKET InitSocket(int sendSize = SEND_BUFF_SIZE, int recvSize = RECV_BUFF_SIZE)
 	{
 		CELLNetWork::Init();
 
 		if (_pClient)
 		{
-			CELLLog::Info("warning, initSocket close old socket<%d>...\n", (int)_pClient->sockfd());
+			CELLLog_Info("warning, initSocket close old socket<%d>...", (int)_pClient->sockfd());
 			Close();
 		}
 		SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (INVALID_SOCKET == sock)
 		{
-			CELLLog::Info("error, create socket failed...\n");
+			CELLLog_Error("create socket failed...");
 		}
 		else {
-			//CELLLog::Info("create socket<%d> success...\n", (int)sock);
-			_pClient = new CELLClient(sock);
+			CELLNetWork::make_reuseaddr(sock);
+			//CELLLog_Info("create socket<%d> success...", (int)sock);
+			_pClient = new CELLClient(sock, sendSize, recvSize);
 		}
+		return sock;
 	}
 
 	//连接服务器
@@ -80,7 +82,7 @@ public:
 	}
 
 	//处理网络消息
-	bool OnRun()
+	bool OnRun(int microseconds = 1)
 	{
 		if (isRun())
 		{
@@ -93,7 +95,7 @@ public:
 			fd_set fdWrite;
 			FD_ZERO(&fdWrite);
 
-			timeval t = { 0,1 };
+			timeval t = { 0,microseconds };
 			int ret = 0;
 			if (_pClient->needWrite())
 			{

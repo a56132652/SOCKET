@@ -62,7 +62,7 @@ public:
 			{
 				std::chrono::milliseconds t(1);
 				std::this_thread::sleep_for(t);
-				_oldTime = CELLTime::getTimeInMilliSec();
+				_oldTime = CELLTime::getNowInMilliSec();
 				continue;
 			}
 
@@ -145,7 +145,7 @@ public:
 	
 	void CheckTime()
 	{
-		auto nowTime = CELLTime::getTimeInMilliSec();
+		auto nowTime = CELLTime::getNowInMilliSec();
 		auto dt = nowTime - _oldTime;
 		_oldTime = nowTime;
 		 
@@ -335,7 +335,7 @@ private:
 	//
 	SOCKET _maxSock;
 	//旧的时间戳
-	time_t _oldTime = CELLTime::getTimeInMilliSec();
+	time_t _oldTime = CELLTime::getNowInMilliSec();
 	//
 	int _id = -1;
 	//

@@ -1,0 +1,51 @@
+Info [2021-11-16 10:49:7]CELLLog::setLogPath success,<clientLog.txt,w>
+Debug [2021-11-16 10:49:7]madeCmd k<strIP> v<127.0.0.1>
+Debug [2021-11-16 10:49:7]madeCmd k<nPort> v<4567>
+Debug [2021-11-16 10:49:7]madeCmd k<nThread> v<1>
+Debug [2021-11-16 10:49:7]madeCmd k<nClient> v<10000>
+Debug [2021-11-16 10:49:7]madeCmd k<nMsg> v<10>
+Debug [2021-11-16 10:49:7]madeCmd k<nSendSleep> v<1000>
+Debug [2021-11-16 10:49:7]madeCmd k<nSendBuffSize> v<20480>
+Debug [2021-11-16 10:49:7]madeCmd k<nRecvBuffSize> v<20480>
+Debug [2021-11-16 10:49:7]madeCmd k<-checkMsgID> 
+Info [2021-11-16 10:49:7]CELLConfig::getStr strIP=127.0.0.1
+Info [2021-11-16 10:49:7]CELLConfig::getInt nPort=4567
+Info [2021-11-16 10:49:7]CELLConfig::getInt nThread=1
+Info [2021-11-16 10:49:7]CELLConfig::getInt nClient=10000
+Info [2021-11-16 10:49:7]CELLConfig::getInt nMsg=10
+Info [2021-11-16 10:49:7]CELLConfig::getInt nSendSleep=1000
+Info [2021-11-16 10:49:7]CELLConfig::getInt nSendBuffSize=20480
+Info [2021-11-16 10:49:7]CELLConfig::getInt nRecvBuffSize=20480
+Info [2021-11-16 10:49:7]thread<1>,start
+Info [2021-11-16 10:49:7]thread<1>,Connect<begin=0, end=10000 ,nConnect=10000>
+Info [2021-11-16 10:49:8]thread<1>,clients<10000>,connect<10000>,time<1.009369>,send<0>
+Info [2021-11-16 10:49:9]thread<1>,clients<10000>,connect<10000>,time<1.005203>,send<100000>
+Info [2021-11-16 10:49:10]thread<1>,clients<10000>,connect<10000>,time<1.005134>,send<100000>
+Info [2021-11-16 10:49:11]thread<1>,clients<10000>,connect<10000>,time<1.005185>,send<100000>
+Info [2021-11-16 10:49:12]thread<1>,clients<10000>,connect<10000>,time<1.005190>,send<100000>
+Info [2021-11-16 10:49:13]thread<1>,clients<10000>,connect<10000>,time<1.005221>,send<100000>
+Info [2021-11-16 10:49:14]thread<1>,clients<10000>,connect<10000>,time<1.005193>,send<100000>
+Info [2021-11-16 10:49:15]thread<1>,clients<10000>,connect<10000>,time<1.005228>,send<100000>
+Info [2021-11-16 10:49:16]thread<1>,clients<10000>,connect<10000>,time<1.005149>,send<100000>
+Info [2021-11-16 10:49:17]thread<1>,clients<10000>,connect<10000>,time<1.005210>,send<100000>
+Info [2021-11-16 10:49:18]thread<1>,clients<10000>,connect<10000>,time<1.005202>,send<100000>
+Info [2021-11-16 10:49:19]thread<1>,clients<10000>,connect<10000>,time<1.005197>,send<100000>
+Info [2021-11-16 10:49:20]thread<1>,clients<10000>,connect<10000>,time<1.005204>,send<100000>
+Info [2021-11-16 10:49:21]thread<1>,clients<10000>,connect<10000>,time<1.005211>,send<100000>
+Info [2021-11-16 10:49:22]thread<1>,clients<10000>,connect<10000>,time<1.005212>,send<100000>
+Info [2021-11-16 10:49:23]thread<1>,clients<10000>,connect<10000>,time<1.005183>,send<100000>
+Info [2021-11-16 10:49:24]thread<1>,clients<10000>,connect<10000>,time<1.005209>,send<100000>
+Info [2021-11-16 10:49:25]thread<1>,clients<10000>,connect<10000>,time<1.005206>,send<100000>
+Info [2021-11-16 10:49:26]thread<1>,clients<10000>,connect<10000>,time<1.005199>,send<100000>
+Info [2021-11-16 10:49:27]thread<1>,clients<10000>,connect<10000>,time<1.005692>,send<100000>
+Info [2021-11-16 10:49:28]thread<1>,clients<10000>,connect<10000>,time<1.005219>,send<100000>
+Info [2021-11-16 10:49:29]thread<1>,clients<10000>,connect<10000>,time<1.005199>,send<100000>
+Info [2021-11-16 10:49:30]thread<1>,clients<10000>,connect<10000>,time<1.005191>,send<100000>
+Info [2021-11-16 10:49:31]thread<1>,clients<10000>,connect<10000>,time<1.005320>,send<100000>
+Info [2021-11-16 10:49:32]thread<1>,clients<10000>,connect<10000>,time<1.005714>,send<100000>
+Info [2021-11-16 10:49:33]thread<1>,clients<10000>,connect<10000>,time<1.005208>,send<100000>
+Info [2021-11-16 10:49:34]thread<1>,clients<10000>,connect<10000>,time<1.005193>,send<100000>
+Info [2021-11-16 10:49:35]thread<1>,clients<10000>,connect<10000>,time<1.005217>,send<100000>
+Info [2021-11-16 10:49:36]thread<1>,clients<10000>,connect<10000>,time<1.005212>,send<100000>
+Info [2021-11-16 10:49:37]thread<1>,clients<10000>,connect<10000>,time<1.005190>,send<100000>
+Info [2021-11-16 10:49:38]thread<1>,clients<10000>,connect<10000>,time<1.005213>,send<100000>

@@ -67,11 +67,23 @@ public:
 		{
 			//发送数据
 			ret = send(sockfd, _pBuff, _nLast, 0);
-			//数据尾部位置 置0
-			_nLast = 0;
-			//
+			if (ret <= 0)
+			{
+				CELLLog_Error("write2socket1:sockfd<%d> nSize<%d> nLast<%d> ret<%d>", sockfd, _nSize, _nLast, ret);
+				return SOCKET_ERROR;
+			}
+			if (ret == _nLast)
+			{//_nLast=2000 实际发送ret=2000
+				//数据尾部位置清零
+				_nLast = 0;
+			}
+			else {
+				//_nLast=2000 实际发送ret=1000
+				//CELLLog_Info("write2socket2:sockfd<%d> nSize<%d> nLast<%d> ret<%d>", sockfd, _nSize, _nLast, ret);
+				_nLast -= ret;
+				memcpy(_pBuff, _pBuff + ret, _nLast);
+			}
 			_fullCount = 0;
-
 		}
 		return ret;
 	}

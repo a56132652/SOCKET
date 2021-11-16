@@ -12,14 +12,22 @@
 //客户端数据类型
 class CELLClient
 {
+	//////////用于调试的成员变量
 public:
 	int id = -1;
-	//所属serverID
+	//所属serverid
 	int serverID = -1;
+	//测试接收发逻辑用
+	//用于server检测接收到的消息ID是否连续
+	int nRecvMsgID = 1;
+	//测试接收发逻辑用
+	//用于client检测接收到的消息ID是否连续
+	int nSendMsgID = 1;
+	///////////////////////////////////
 public:
-	CELLClient(SOCKET sockfd = INVALID_SOCKET) : 
-		_sendBuff(SEND_BUFF_SIZE),
-		_recvBuff(RECV_BUFF_SIZE)
+	CELLClient(SOCKET sockfd = INVALID_SOCKET, int sendSize = SEND_BUFF_SIZE, int recvSize = RECV_BUFF_SIZE) :
+		_sendBuff(sendSize),
+		_recvBuff(recvSize)
 	{
 		static int n = 1;
 		id = n++;
@@ -31,7 +39,7 @@ public:
 
 	~CELLClient()
 	{
-		CELLLog_Debug("s=%d CELLClient%d.Close 1", serverID, id);
+		CELLLog_Info("~CELLClient[sId=%d id=%d socket=%d]", serverID, id, (int)_sockfd);
 		if (INVALID_SOCKET != _sockfd)
 		{
 #ifdef _WIN32
@@ -42,6 +50,7 @@ public:
 			_sockfd = INVALID_SOCKET;
 		}
 	}
+
 	SOCKET sockfd()
 	{
 		return _sockfd;
