@@ -2615,7 +2615,236 @@ private:
 
 
 
-# 十、select模型异步发送数据
+# 十、优化线程控制，添加CELLThread.hpp
+
+- 线程启动Start()
+
+- 线程关闭Close()
+
+- 工作函数Onwork()
+
+  - 并非所有工作函数都需要循环去执行，是否需要循环执行由用户自己去定义，因此我并不在OnWork()函数中设置循环，而是默认的设置为执行一次，需要循环时由拥护自己去定义
+
+- 为线程创建事件
+
+  - 用户使用我们自定义封装好的线程时，我们需要给他们暴露至少2个事件——启动以及关闭事件，也可以加上线程运行事件
+
+  - 也可以选择设置三个虚函数，然后让子类继承后去重写，但是这样写比较麻烦，因此我们选择使用与CELLTask中相同的写法，利用function<>与lambda表达式来实现
+
+  - ```c++
+    typedef std::function<void(CELLThread*)> EventCall;
+    ```
+
+  - ```c++
+    //创建3个事件
+    private:
+    	EventCall _onCreate;
+    	EventCall _onRun;
+    	EventCall _onDestory;
+    ```
+
+  - 当我们想要在线程启动、运行或者关闭时做一些额外的事情，我们就可以直接去注册以上这三个匿名函数
+
+- 加锁
+
+  - 防止在多线程中同时调用Start()和Close()
+
+```c++
+#ifndef _CELL_THREAD_HPP_
+#define _CELL_THREAD_HPP_
+
+#include"CELLSemaphore.hpp"
+
+class CELLThread
+{
+public:
+	static void Sleep(time_t dt) 
+	{
+		std::chrono::milliseconds t(dt);
+		std::this_thread::sleep_for(t);
+	}
+private:
+	typedef std::function<void(CELLThread*)> EventCall;
+public:
+    //启动时去设定3个事件，默认为nullptr
+	void Start(EventCall onCreate = nullptr,
+			   EventCall onRun = nullptr ,
+		       EventCall onDestory = nullptr)
+	{
+		std::lock_guard<std::mutex> lock(_mutex); 
+		if (!_isRun)
+		{
+			_isRun = true;
+            //若有值传入，则赋值
+			if (onCreate)
+				_onCreate = onCreate;
+			if (onRun)
+				_onRun = onRun;
+			if (onDestory)
+				_onDestory = onDestory; 
+			//线程启动后去调用OnWork()
+			std::thread t(std::mem_fn(&CELLThread::OnWork), this);
+			t.detach();
+		}
+	}
+	void Close()
+	{
+		std::lock_guard<std::mutex> lock(_mutex);
+		if (_isRun)
+		{  
+			_isRun = false;
+			_sem.wait();
+		}
+	}
+	//在工作函数中退出
+	//不需要使用信号量来等待
+	//如果使用会阻塞
+	void Exit()
+	{
+		std::lock_guard<std::mutex> lock(_mutex);
+		if (_isRun)
+		{
+			_isRun = false;
+		}
+	}
+	//线程是否处于运行中
+	bool isRun()
+	{
+		return _isRun;
+	}
+protected:
+	//线程运行时的工作函数
+	void OnWork()
+	{
+		if (_onCreate)
+            //传递当前线程的指针给函数
+			_onCreate(this);
+		if (_onRun)
+			_onRun(this);
+		if (_onDestory)
+			_onDestory(this);
+		 
+        //执行完以上3个函数后，唤醒信号量，此时close()函数可被执行
+		_isRun = false;
+		_sem.wakeup();
+	}
+private:
+	EventCall _onCreate;
+	EventCall _onRun;
+	EventCall _onDestory;
+	//不同线程中改变数据是需要加锁
+	std::mutex _mutex;
+	//控制线程的终止、退出
+	CELLSemaphore _sem;
+	//线程是否启动运行中
+	bool _isRun = false;
+
+};
+
+
+#endif // !_CELL_THREAD_HPP_
+
+```
+
+## CELLTask.hpp应用自定义线程
+
+**对于工作函数OnRun()，为了避免多线程时判断isRun混淆，因此在OnRun()中传入当前所属线程的指针**
+
+```c++
+#ifndef  _CELL_TASK_H_
+#define  _CELL_TASK_H_
+#include<thread>
+#include<mutex>
+#include<list>
+#include<functional>
+#include"CELLThread.hpp"
+
+
+//执行任务的服务类型
+class CELLTaskServer
+{
+public:
+	//所属serverID
+	int serverID = -1;
+private:
+	typedef std::function<void()> CELLTask;
+private:
+	//任务数据
+	std::list<CELLTask> _tasks;
+	//任务数据缓冲区
+	std::list<CELLTask> _taskBuf;
+	//改变数据缓冲区时需要加锁
+	std::mutex _mutex;
+	//
+	CELLThread _thread;
+public:
+	//添加任务
+	void addTask(CELLTask task)
+	{
+		std::lock_guard<std::mutex> lock(_mutex);
+		_taskBuf.push_back(task);
+	}
+	//启动工作线程
+	void Start()
+	{
+		_thread.Start(nullptr, [this](CELLThread* pThread) {OnRun(pThread);});
+	}
+
+	void Close()
+	{
+		//CELLLog_Info("CELLTaskServer%d.Close begin", serverID);
+		
+		_thread.Close();
+
+		//CELLLog_Info("CELLTaskServer%d.Close end", serverID);
+	}
+protected:
+	//工作函数
+	void OnRun(CELLThread* pThread)
+	{
+		while (pThread->isRun())
+		{
+			//从缓冲区取出数据
+			if (!_taskBuf.empty())
+			{
+				std::lock_guard<std::mutex> lock(_mutex);
+				for (auto pTask : _taskBuf)
+				{
+					_tasks.push_back(pTask);
+				}
+				_taskBuf.clear();
+			}
+			//如果没有任务
+			if (_tasks.empty())
+			{
+				std::chrono::milliseconds t(1);
+				std::this_thread::sleep_for(t);
+				continue;
+			}
+			//处理任务
+			for (auto pTask : _tasks)
+			{
+				pTask();
+			}
+			//清空任务
+			_tasks.clear();
+		}
+		//处理缓冲队列中的任务
+		for (auto pTask : _taskBuf)
+		{
+			pTask();
+		}
+		//CELLLog_Info("CELLTaskServer%d.OnRun exit", serverID);
+	} 
+};
+
+#endif //  _CELL_TASK_H_
+
+```
+
+
+
+# 十一、select模型异步发送数据
 
 本方案中，SOCKET设置为阻塞模式下，在阻塞模式下，在I/O操作完成前，执行的操作函数一直等候而不会立即返回，该函数所在的线程会阻塞在这里，因此当有一个客户端阻塞时，其他客户端都无法正常收发数据，造成阻塞。
 
@@ -2712,7 +2941,7 @@ private:
 
  
 
-# 十一、封装消息缓冲区
+# 十二、封装消息缓冲区
 
 为了以后更改网络模型以后，也能方便的使用消息缓冲区，决定将消息缓冲区封装起来
 
@@ -2861,7 +3090,7 @@ private:
 
 
 
-# 十二、添加运行日志
+# 十三、添加运行日志
 
 ```c++
 #ifndef _CELL_LOG_HPP_
@@ -2968,7 +3197,7 @@ private:
 
 
 
-# 十三、客户端升级异步收发
+# 十四、客户端升级异步收发
 
 **需要判断当前是否需要写数据，若需要写数据，再去判断当前是否可写**
 
@@ -3166,7 +3395,7 @@ protected:
 
 
 
-# 十四、使用字节流传输数据
+# 十五、使用字节流传输数据
 
 **设计与解析字节流消息协议**
 
@@ -3176,7 +3405,7 @@ protected:
 
 
 
-# 十五、优化Server可写检测性能
+# 十六、优化Server可写检测性能
 
 对于客户端，进行了当前客户端可不可写的判断
 
@@ -3241,7 +3470,7 @@ int ret = select(_maxSock + 1, &fdRead, &fdWrite, nullptr, &t);
 
 
 
-# 十六、增强Celllog
+# 十七、增强Celllog
 
 1. 完善输出信息种类 Info、 Error、 Warring、Debug 
 2. 完善日志名：在日志文件名中添加时间日期
@@ -3394,7 +3623,7 @@ private:
 
 ```
 
-# 十七、命令脚本
+# 十八、命令脚本
 
 ## 1. 对main函数的输入参数进行处理
 
@@ -3608,3 +3837,8 @@ private:
 
 
 hasKey()用于扩展脚本功能，例如-p,-s,-k
+
+
+
+# 十九、client优化
+

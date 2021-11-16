@@ -69,6 +69,7 @@ protected:
 		if (_onDestory)
 			_onDestory(this);
 		 
+		_isRun = false;
 		_sem.wakeup();
 	}
 private:
