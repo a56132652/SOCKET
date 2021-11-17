@@ -93,7 +93,7 @@ public:
 		//读取数组元素个数
 		uint32_t len1 = 0;
 		Read(len1,false);
-		if (len1 < len)
+		if (len1 <= len)
 		{
 			//计算数组字节长度
 			auto nLen = len1 * sizeof(T);

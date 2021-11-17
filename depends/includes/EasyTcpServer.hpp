@@ -6,6 +6,7 @@
 #include"CELLClient.hpp"
 #include"CELLServer.hpp"
 #include"INetEvent.hpp"
+#include"CELLConfig.hpp"
 #include"CELLNetWork.hpp"
 
 #include<thread>
@@ -22,6 +23,12 @@ private:
 	CELLTimestamp _tTime;
 	//
 	SOCKET _sock;
+	//客户端发送缓冲区大小
+	int _nSendBuffSize;
+	//客户端接收缓冲区大小
+	int _nRecvBuffSize;
+	//客户端连接上限
+	int _nMaxClient;
 protected:
 	//收到消息计数
 	std::atomic_int _msgCount;
@@ -36,6 +43,9 @@ public:
 		_msgCount = 0;
 		_clientCount = 0;
 		_recvCount = 0;
+		_nSendBuffSize = CELLConfig::Instance().getInt("nSendBuffSize", SEND_BUFF_SIZE);
+		_nRecvBuffSize = CELLConfig::Instance().getInt("nRecvBuffSize", RECV_BUFF_SIZE);
+		_nMaxClient = CELLConfig::Instance().getInt("nMaxClient", FD_SETSIZE);
 	}
 
 	virtual ~EasyTcpServer()
@@ -47,13 +57,19 @@ public:
 	SOCKET InitSocket()
 	{
 		CELLNetWork::Init();
+		if (INVALID_SOCKET != _sock)
+		{
+			CELLLog_Info("warning, initSocket close old socket<%d>...", (int)_sock);
+			Close();
+		}
 		_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (INVALID_SOCKET == _sock)
 		{
-			CELLLog_Error("Error，create socket faild...");
+			CELLLog_Error("create socket failed...");
 		}
 		else {
-			CELLLog_Info("create <socket=%d> success...", (int)_sock);
+			CELLNetWork::make_reuseaddr(_sock);
+			CELLLog_Info("create socket<%d> success...", (int)_sock);
 		}
 		return _sock;
 	}
@@ -127,12 +143,25 @@ public:
 #endif
 		if (INVALID_SOCKET == cSock)
 		{
-			CELLLog_Error("socket=<%d>Error，accept invalid SOCKET...", (int)_sock);
+			CELLLog_Error("socket=<%d>Error，accept invalid SOCKET...");
 		}
 		else {
-			//将新客户端分配给客户数量最少的CELLServer
-			addClientToCELLServer(new CELLClient(cSock));
-			//获取IP地址	inet_ntoa(_clientAddr.sin_addr)
+			if (_clientCount < _nMaxClient)
+			{
+				CELLNetWork::make_reuseaddr(cSock);
+				//将新客户端分配给客户数量最少的cellServer
+				addClientToCELLServer(new CELLClient(cSock, _nSendBuffSize, _nRecvBuffSize));
+				//获取IP地址 inet_ntoa(clientAddr.sin_addr)
+			}
+			else {
+				//获取IP地址 inet_ntoa(clientAddr.sin_addr)
+#ifdef _WIN32
+				closesocket(cSock);
+#else
+				close(cSock);
+#endif
+				CELLLog_Warring("Accept to nMaxClient");
+			}
 		}
 		return cSock;
 	}
@@ -196,7 +225,7 @@ public:
 		auto t1 = _tTime.getElapsedSecond();
 		if (t1 >= 1.0)
 		{
-			CELLLog_Info("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>",(int)_CELLServers.size(),t1, _sock, (int)_clientCount,(int)(_recvCount/ t1), (int)(_msgCount / t1));
+			CELLLog_Info("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>",(int)_CELLServers.size(),t1, _sock, (int)_clientCount,(int)_recvCount, (int)_msgCount);
 			_recvCount = 0;
 			_msgCount = 0;
 			_tTime.update();
