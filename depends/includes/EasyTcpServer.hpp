@@ -75,7 +75,7 @@ public:
 	}
 
 	//绑定Ip和端口号
-	int Bind(const char* ip,unsigned short port)
+	int Bind(const char* ip, unsigned short port)
 	{
 		//if (_sock == INVALID_SOCKET)
 		//{
@@ -87,7 +87,7 @@ public:
 #ifdef _WIN32
 		if (ip == NULL)
 		{
-			_sin.sin_addr.S_un.S_addr = INADDR_ANY;		
+			_sin.sin_addr.S_un.S_addr = INADDR_ANY;
 		}
 		else {
 			_sin.sin_addr.S_un.S_addr = inet_addr(ip);
@@ -101,12 +101,12 @@ public:
 		else {
 			_sin.sin_addr.s_addr = inet_addr(ip);
 		}
-		
+
 #endif
 		int ret = bind(_sock, (sockaddr*)&_sin, sizeof(_sin));
 		if (SOCKET_ERROR == ret)
 		{
-			CELLLog_Error("Error，bind port<%d> failed...",port);
+			CELLLog_Error("Error，bind port<%d> failed...", port);
 		}
 		else {
 			CELLLog_Info("bind port<%d> success...", port);
@@ -175,16 +175,16 @@ public:
 			if (pMinServer->getClientCount() > pCELLServer->getClientCount())
 			{
 				pMinServer = pCELLServer;
-			}	
+			}
 		}
-		pMinServer->addClient(pClient); 
+		pMinServer->addClient(pClient);
 	}
 
 	void Start(int nCELLServer)
 	{
 		for (int i = 0; i < nCELLServer; i++)
 		{
-			auto ser = new CELLServer(i+1);
+			auto ser = new CELLServer(i + 1);
 			_CELLServers.push_back(ser);
 			//注册网络事件接收对象
 			ser->setEventObj(this);
@@ -214,23 +214,10 @@ public:
 			close(_sock);
 #endif
 			_sock == INVALID_SOCKET;
-		} 
+		}
 		CELLLog_Info("EasyTcpServer.Close end");
 	}
 
-	//计算并输出每秒收到的网络消息
-	void time4msg()
-	{
-		
-		auto t1 = _tTime.getElapsedSecond();
-		if (t1 >= 1.0)
-		{
-			CELLLog_Info("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>",(int)_CELLServers.size(),t1, _sock, (int)_clientCount,(int)_recvCount, (int)_msgCount);
-			_recvCount = 0;
-			_msgCount = 0;
-			_tTime.update();
-		}
-	}
 	virtual void OnNetJoin(CELLClient* pClient)
 	{
 		_clientCount++;
@@ -241,19 +228,19 @@ public:
 		_clientCount--;
 		//CELLLog_Info("client<%d> leave", pClient->sockfd());
 	}
-	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient,DataHeader* header)
+	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient, DataHeader* header)
 	{
 		_msgCount++;
 	}
 	virtual void OnNetRecv(CELLClient* pClient)
 	{
-		_recvCount++; 
+		_recvCount++;
 	}
 private:
 	//处理网络消息
 	void onRun(CELLThread* pThread)
 	{
-		while(pThread->isRun())
+		while (pThread->isRun())
 		{
 			time4msg();
 			fd_set fdRead;
@@ -277,6 +264,20 @@ private:
 				FD_CLR(_sock, &fdRead);
 				Accept();
 			}
+		}
+	}
+
+	//计算并输出每秒收到的网络消息
+	void time4msg()
+	{
+
+		auto t1 = _tTime.getElapsedSecond();
+		if (t1 >= 1.0)
+		{
+			CELLLog_Info("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>", (int)_CELLServers.size(), t1, _sock, (int)_clientCount, (int)_recvCount, (int)_msgCount);
+			_recvCount = 0;
+			_msgCount = 0;
+			_tTime.update();
 		}
 	}
 };

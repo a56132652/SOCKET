@@ -251,9 +251,9 @@ public:
 	void DoMsg()
 	{
 		CELLClient* pClient = nullptr;
-		for (auto itr : _clients)
+		for (auto iter : _clients)
 		{
-			pClient = itr.second;
+			pClient = iter.second;
 			//循环 判断是否有消息需要处理
 			while (pClient->hasMsg())
 			{
