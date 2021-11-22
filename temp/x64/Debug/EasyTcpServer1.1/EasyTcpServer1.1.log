@@ -1,12 +1,12 @@
 ﻿D:\Software\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(498,5): warning MSB8004: Intermediate 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Intermediate 目录。
 D:\Software\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(499,5): warning MSB8004: Output 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Output 目录。
   server1.1.cpp
-F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(115,27): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
-F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(118,27): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
-F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(183,21): warning C4018: “<”: 有符号/无符号不匹配
-F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(218,21): warning C4018: “<”: 有符号/无符号不匹配
-F:\A3-git_repos\SOCKET\depends\includes\EasyTcpServer.hpp(187,10): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
-F:\A3-git_repos\SOCKET\depends\includes\EasyTcpServer.hpp(237,27): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(125,26): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(128,26): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(184,21): warning C4018: “<”: 有符号/无符号不匹配
+F:\A3-git_repos\SOCKET\depends\includes\CELLServer.hpp(220,21): warning C4018: “<”: 有符号/无符号不匹配
+F:\A3-git_repos\SOCKET\depends\includes\EasyTcpServer.hpp(216,10): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
+F:\A3-git_repos\SOCKET\depends\includes\EasyTcpServer.hpp(255,27): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
 F:\A3-git_repos\SOCKET\depends\includes\CELLMsgStream.hpp(67,1): warning C4267: “参数”: 从“size_t”转换到“uint32_t”，可能丢失数据
 F:\A3-git_repos\SOCKET\depends\includes\CELLMsgStream.hpp(72,1): warning C4267: “参数”: 从“size_t”转换到“uint32_t”，可能丢失数据
 F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp(77,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据

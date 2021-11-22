@@ -1,109 +1,104 @@
 #ifndef _MessageHeader_hpp_
 #define _MessageHeader_hpp_
 
-
-
-//指令
 enum CMD
 {
 	CMD_LOGIN = 10,
 	CMD_LOGIN_RESULT,
-	CMD_LOGINOUT,
-	CMD_LOGINOUT_RESULT,
+	CMD_LOGOUT,
+	CMD_LOGOUT_RESULT,
 	CMD_NEW_USER_JOIN,
 	CMD_C2S_HEART,
 	CMD_S2C_HEART,
 	CMD_ERROR
 };
-//消息头
-struct DataHeader
+
+struct netmsg_DataHeader
 {
-	DataHeader()
+	netmsg_DataHeader()
 	{
-		dataLength = sizeof(DataHeader);
+		dataLength = sizeof(netmsg_DataHeader);
 		cmd = CMD_ERROR;
 	}
-	short dataLength;
-	short cmd;
+	unsigned short dataLength;
+	unsigned short cmd;
 };
-//登录
-struct Login : public DataHeader
+
+//DataPackage
+struct netmsg_Login : public netmsg_DataHeader
 {
-	Login()
+	netmsg_Login()
 	{
-		dataLength = sizeof(Login);
+		dataLength = sizeof(netmsg_Login);
 		cmd = CMD_LOGIN;
 	}
 	char userName[32];
 	char PassWord[32];
-	char data[32];
+	char data[28];
 	int msgID;
 };
-//心跳
-struct C2S_Heart : public DataHeader
+
+struct netmsg_LoginR : public netmsg_DataHeader
 {
-	C2S_Heart()
+	netmsg_LoginR()
 	{
-		dataLength = sizeof(C2S_Heart);
-		cmd = CMD_C2S_HEART;
-	}
-};
-struct S2C_Heart : public DataHeader
-{
-	S2C_Heart()
-	{
-		dataLength = sizeof(S2C_Heart);
-		cmd = CMD_S2C_HEART;
-	}
-};
-//登录结果
-struct LoginResult : public DataHeader
-{
-	LoginResult()
-	{
-		dataLength = sizeof(LoginResult);
+		dataLength = sizeof(netmsg_LoginR);
 		cmd = CMD_LOGIN_RESULT;
 		result = 0;
 	}
 	int result;
-	char data[92];
+	char data[88];
 	int msgID;
-
 };
 
-//登出
-struct Loginout : public DataHeader
+struct netmsg_Logout : public netmsg_DataHeader
 {
-	Loginout()
+	netmsg_Logout()
 	{
-		dataLength = sizeof(Loginout);
-		cmd = CMD_LOGINOUT;
+		dataLength = sizeof(netmsg_Logout);
+		cmd = CMD_LOGOUT;
 	}
 	char userName[32];
 };
-//登出结果
-struct LoginoutResult : public DataHeader
+
+struct netmsg_LogoutR : public netmsg_DataHeader
 {
-	LoginoutResult()
+	netmsg_LogoutR()
 	{
-		dataLength = sizeof(LoginoutResult);
-		cmd = CMD_LOGINOUT_RESULT;
+		dataLength = sizeof(netmsg_LogoutR);
+		cmd = CMD_LOGOUT_RESULT;
 		result = 0;
 	}
 	int result;
 };
 
-struct NewUserJoin : public DataHeader
+struct netmsg_NewUserJoin : public netmsg_DataHeader
 {
-	NewUserJoin()
+	netmsg_NewUserJoin()
 	{
-		dataLength = sizeof(NewUserJoin);
+		dataLength = sizeof(netmsg_NewUserJoin);
 		cmd = CMD_NEW_USER_JOIN;
-		sock = 0;
+		scok = 0;
 	}
-	int sock;
+	int scok;
 };
 
+struct netmsg_c2s_Heart : public netmsg_DataHeader
+{
+	netmsg_c2s_Heart()
+	{
+		dataLength = sizeof(netmsg_c2s_Heart);
+		cmd = CMD_C2S_HEART;
+	}
+};
 
+struct netmsg_s2c_Heart : public netmsg_DataHeader
+{
+	netmsg_s2c_Heart()
+	{
+		dataLength = sizeof(netmsg_s2c_Heart);
+		cmd = CMD_S2C_HEART;
+	}
+};
 
-#endif
+#endif // !_MessageHeader_hpp_

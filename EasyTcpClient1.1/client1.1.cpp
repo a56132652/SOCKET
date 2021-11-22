@@ -21,8 +21,8 @@ int nClient = 1;
 ::::::数据会先写入发送缓冲区
 ::::::等待socket可写时才实际发送
 ::每个客户端在nSendSleep(毫秒)时间内
-::最大可写入nMsg条Login消息
-::每条消息100字节（Login）
+::最大可写入nMsg条netmsg_Login消息
+::每条消息100字节（netmsg_Login）
 */
 //客户端每次发几条消息
 int nMsg = 1;
@@ -43,13 +43,13 @@ public:
 		_bCheckMsgID = CELLConfig::Instance().hasKey("-checkMsgID");
 	}
 	//响应网络消息
-	virtual void OnNetMsg(DataHeader* header)
+	virtual void OnNetMsg(netmsg_DataHeader* header)
 	{
 		switch (header->cmd)
 		{
 		case CMD_LOGIN_RESULT:
 		{
-			LoginResult* login = (LoginResult*)header;
+			netmsg_LoginR* login = (netmsg_LoginR*)header;
 			if (_bCheckMsgID)
 			{
 				if (login->msgID != _nRecvMsgID)
@@ -61,15 +61,15 @@ public:
 			//CELLLog_Info("<socket=%d> recv msgType：CMD_LOGIN_RESULT", (int)_pClient->sockfd());
 		}
 		break;
-		case CMD_LOGINOUT_RESULT:
+		case CMD_LOGOUT_RESULT:
 		{
-			LoginoutResult* logout = (LoginoutResult*)header;
+			netmsg_LogoutR* logout = (netmsg_LogoutR*)header;
 			//CELLLog_Info("<socket=%d> recv msgType：CMD_LOGOUT_RESULT", (int)_pClient->sockfd());
 		}
 		break;
 		case CMD_NEW_USER_JOIN:
 		{
-			NewUserJoin* userJoin = (NewUserJoin*)header;
+			netmsg_NewUserJoin* userJoin = (netmsg_NewUserJoin*)header;
 			//CELLLog_Info("<socket=%d> recv msgType：CMD_NEW_USER_JOIN", (int)_pClient->sockfd());
 		}
 		break;
@@ -85,7 +85,7 @@ public:
 		}
 	}
 
-	int SendTest(Login* login)
+	int SendTest(netmsg_Login* login)
 	{
 		int ret = 0;
 		//如果剩余发送次数大于0
@@ -173,7 +173,7 @@ void WorkThread(CELLThread* pThread, int id)
 	}
 
 	//消息
-	Login login;
+	netmsg_Login login;
 	//给点有意义的值
 	strcpy(login.userName, "lyd");
 	strcpy(login.PassWord, "lydmm");

@@ -1,0 +1,23 @@
+Info [2021-11-22 9:41:10]CELLLog::setLogPath success,<clientLog.txt,w>
+Info [2021-11-22 9:41:10]CELLConfig::getStr strIP=127.0.0.1
+Info [2021-11-22 9:41:10]CELLConfig::getInt nPort=4567
+Info [2021-11-22 9:41:10]CELLConfig::getInt nThread=1
+Info [2021-11-22 9:41:10]CELLConfig::getInt nClient=10000
+Info [2021-11-22 9:41:10]CELLConfig::getInt nMsg=10
+Info [2021-11-22 9:41:10]CELLConfig::getInt nSendSleep=1000
+Info [2021-11-22 9:41:10]CELLConfig::getInt nSendBuffSize=20480
+Info [2021-11-22 9:41:10]CELLConfig::getInt nRecvBuffSize=20480
+Info [2021-11-22 9:41:10]thread<1>,start
+Info [2021-11-22 9:41:11]thread<1>,Connect<begin=0, end=10000 ,nConnect=10000>
+Info [2021-11-22 9:41:11]thread<1>,clients<10000>,connect<10000>,time<1.010017>,send<0>
+Info [2021-11-22 9:41:12]thread<1>,clients<10000>,connect<10000>,time<1.004713>,send<100000>
+Info [2021-11-22 9:41:13]thread<1>,clients<10000>,connect<10000>,time<1.007201>,send<100000>
+Info [2021-11-22 9:41:14]thread<1>,clients<10000>,connect<10000>,time<1.008530>,send<100000>
+Info [2021-11-22 9:41:15]thread<1>,clients<10000>,connect<10000>,time<1.009388>,send<100000>
+Info [2021-11-22 9:41:16]thread<1>,clients<10000>,connect<10000>,time<1.004607>,send<100000>
+Info [2021-11-22 9:41:17]thread<1>,clients<10000>,connect<10000>,time<1.007680>,send<100000>
+Info [2021-11-22 9:41:18]thread<1>,clients<10000>,connect<10000>,time<1.008855>,send<100000>
+Info [2021-11-22 9:41:19]thread<1>,clients<10000>,connect<10000>,time<1.009943>,send<100000>
+Info [2021-11-22 9:41:20]thread<1>,clients<10000>,connect<10000>,time<1.007165>,send<100000>
+Info [2021-11-22 9:41:21]thread<1>,clients<10000>,connect<10000>,time<1.004581>,send<100000>
+Info [2021-11-22 9:41:22]thread<1>,clients<10000>,connect<10000>,time<1.006851>,send<100000>

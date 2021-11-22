@@ -276,7 +276,7 @@ public:
 	}
 
 	//响应网络消息
-	virtual void OnNetMsg(CELLClient* pClient, DataHeader* header)
+	virtual void OnNetMsg(CELLClient* pClient, netmsg_DataHeader* header)
 	{
 		_pNetEvent->OnNetMsg(this, pClient, header);
 	}
@@ -311,7 +311,7 @@ public:
 		return _clients.size() + _clientsBuff.size();
 	}
 
-	//void addSendTask(CELLClient* pClient, netmsg_DataHeader* header)
+	//void addSendTask(CELLClient* pClient, netmsg_netmsg_DataHeader* header)
 	//{
 	//	_taskServer.addTask([pClient, header]() {
 	//		pClient->SendData(header);

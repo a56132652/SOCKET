@@ -56,12 +56,6 @@ public:
 		return _sockfd;
 	}
 
-	//立即发送数据
-	void SendDataReal(DataHeader* header)
-	{
-		SendData(header);
-		SendDataReal();
-	}
 	//接收数据
 	int RecvData()
 	{
@@ -73,9 +67,9 @@ public:
 		return _recvBuff.hasMsg();
 	}
 	//
-	DataHeader* front_msg()
+	netmsg_DataHeader* front_msg()
 	{
-		return (DataHeader*)_recvBuff.data();
+		return (netmsg_DataHeader*)_recvBuff.data();
 	}
 
 	bool needWrite()
@@ -98,7 +92,7 @@ public:
 
 	//缓冲区大小根据业务需求的差异而变化调整
 	//发送数据
-	int SendData(DataHeader* header)
+	int SendData(netmsg_DataHeader* header)
 	{
 		return SendData((const char*) header, header->dataLength);
 	}
@@ -152,8 +146,6 @@ private:
 	SOCKET _sockfd;
 	//第二缓冲区 接收消息缓冲区
 	CELLBuffer _recvBuff;
-	//消息缓冲区尾部指针
-	int _lastPos = 0;
 	//第二缓冲区 发送缓冲区
 	CELLBuffer _sendBuff;  
 	//心跳死亡计时

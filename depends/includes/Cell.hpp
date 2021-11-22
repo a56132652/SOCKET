@@ -2,21 +2,21 @@
 #define _CELL_HPP_
 
 #ifdef _WIN32
-#define FD_SETSIZE      10256 
-#define WIN32_LEAN_AND_MEAN
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include<windows.h>
-#include<WinSock2.h>
-#pragma comment(lib,"ws2_32.lib")
+	#define FD_SETSIZE      60000
+	#define WIN32_LEAN_AND_MEAN
+	#define _WINSOCK_DEPRECATED_NO_WARNINGS
+	#include<windows.h>
+	#include<WinSock2.h>
+	#pragma comment(lib,"ws2_32.lib")
 #else
-#include<unistd.h>
-#include<arpa/inet.h>
-#include<string.h>
-#include<signal.h>
+	#include<unistd.h>
+	#include<arpa/inet.h>
+	#include<string.h>
+	#include<signal.h>
 
-#define SOCKET int
-#define INVALID_SOCKET (int)(~0)
-#define SOCKET_ERROR (-1)
+	#define SOCKET int
+	#define INVALID_SOCKET (int)(~0)
+	#define SOCKET_ERROR (-1)
 #endif
 //
 #include"MessageHeader.hpp"

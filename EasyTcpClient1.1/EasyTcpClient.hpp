@@ -163,10 +163,10 @@ public:
 	}
 
 	//响应网络消息
-	virtual void OnNetMsg(DataHeader* header) = 0;
+	virtual void OnNetMsg(netmsg_DataHeader* header) = 0;
 
 	//发送数据
-	int SendData(DataHeader* header)
+	int SendData(netmsg_DataHeader* header)
 	{
 		return _pClient->SendData(header);
 	}

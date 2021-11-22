@@ -1,20 +1,21 @@
-#ifndef _CELL_MSGSTREAM_HPP_
-#define _CELL_MSGSTREAM_HPP_
-#include "CELLStream.hpp"
-#include "MessageHeader.hpp"
+#ifndef _CELL_MSG_STREAM_HPP_
+#define _CELL_MSG_STREAM_HPP_
 
-//消息数据字节流 
-class CELLReadStream : public CELLStream
+#include"MessageHeader.hpp"
+#include"CELLStream.hpp"
+
+//消息数据字节流
+class CELLReadStream :public CELLStream
 {
 public:
-	CELLReadStream(DataHeader* header)
-		:CELLStream((char*)header, header->dataLength)
+	CELLReadStream(netmsg_DataHeader* header)
+		:CELLReadStream((char*)header, header->dataLength)
 	{
 
 	}
 
 	CELLReadStream(char* pData, int nSize, bool bDelete = false)
-		:CELLStream(pData, nSize,bDelete)
+		:CELLStream(pData, nSize, bDelete)
 	{
 		push(nSize);
 		////预先读取消息长度
@@ -29,12 +30,9 @@ public:
 		Read<uint16_t>(cmd);
 		return cmd;
 	}
-
-public:
-
 };
 
-
+//消息数据字节流
 class CELLWriteStream :public CELLStream
 {
 public:
@@ -48,7 +46,7 @@ public:
 	CELLWriteStream(int nSize = 1024)
 		:CELLStream(nSize)
 	{
-		//预先占领消息长度所需空间 
+		//预先占领消息长度所需空间
 		Write<uint16_t>(0);
 	}
 
@@ -81,4 +79,5 @@ public:
 	}
 };
 
-#endif // !_CELL_MSGSTREAM_HPP_
+
+#endif // !_CELL_MSG_STREAM_HPP_

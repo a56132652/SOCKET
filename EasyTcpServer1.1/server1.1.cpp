@@ -25,7 +25,7 @@ public:
 	}
 	//cellServer 4 多个线程触发 不安全
 	//如果只开启1个cellServer就是安全的
-	virtual void OnNetMsg(CELLServer* pServer, CELLClient* pClient, DataHeader* header)
+	virtual void OnNetMsg(CELLServer* pServer, CELLClient* pClient, netmsg_DataHeader* header)
 	{
 		EasyTcpServer::OnNetMsg(pServer, pClient, header);
 		switch (header->cmd)
@@ -33,7 +33,7 @@ public:
 		case CMD_LOGIN:
 		{
 			pClient->resetDtHeart();
-			Login* login = (Login*)header;
+			netmsg_Login* login = (netmsg_Login*)header;
 			//检查消息ID
 			if (_bCheckMsgID)
 			{
@@ -48,7 +48,7 @@ public:
 			//回应消息
 			if (_bSendBack)
 			{
-				LoginResult ret;
+				netmsg_LoginR ret;
 				ret.msgID = pClient->nSendMsgID;
 				if (SOCKET_ERROR == pClient->SendData(&ret))
 				{
@@ -69,7 +69,7 @@ public:
 			//CELLLog_Info("recv <Socket=%d> msgType：CMD_LOGIN, dataLen：%d,userName=%s PassWord=%s", cSock, login->dataLength, login->userName, login->PassWord);
 		}//接收 消息---处理 发送   生产者 数据缓冲区  消费者 
 		break;
-		case CMD_LOGINOUT:
+		case CMD_LOGOUT:
 		{
 			pClient->resetDtHeart();
 			CELLReadStream r(header);
@@ -92,7 +92,7 @@ public:
 			auto n8 = r.ReadArray(ata, 10);
 			///
 			CELLWriteStream s(128);
-			s.setNetCmd(CMD_LOGINOUT_RESULT);
+			s.setNetCmd(CMD_LOGOUT_RESULT);
 			s.WriteInt8(n1);
 			s.WriteInt16(n2);
 			s.WriteInt32(n3);
@@ -108,7 +108,7 @@ public:
 		case CMD_C2S_HEART:
 		{
 			pClient->resetDtHeart();
-			S2C_Heart ret;
+			netmsg_s2c_Heart ret;
 			pClient->SendData(&ret);
 		}
 		default:

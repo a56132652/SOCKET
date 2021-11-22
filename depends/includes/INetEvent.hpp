@@ -16,7 +16,7 @@ public:
 	//客户端离开事件
 	virtual void OnNetLeave(CELLClient* pClient) = 0;
 	//客户端消息事件
-	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient, DataHeader* header) = 0;
+	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient, netmsg_DataHeader* header) = 0;
 	//客户端recv事件
 	virtual void OnNetRecv(CELLClient* pClient) = 0;
 };

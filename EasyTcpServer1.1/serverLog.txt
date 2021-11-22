@@ -1,0 +1,9 @@
+Info [2021-11-22 8:7:41]CELLLog::setLogPath success,<serverLog.txt,w>
+Error [2021-11-22 8:7:42]CELLConfig::getStr not found <strIP>
+Info [2021-11-22 8:7:43]CELLConfig::getStr strIP=any
+Error [2021-11-22 8:7:44]CELLConfig::getInit not found <nPort>
+Info [2021-11-22 8:7:47]CELLConfig::getInt nPort=4567
+Error [2021-11-22 8:7:52]CELLConfig::getInit not found <nThread>
+Info [2021-11-22 8:7:55]CELLConfig::getInt nThread=1
+Error [2021-11-22 8:8:2]CELLConfig::getInit not found <nSendBuffSize>
+Info [2021-11-22 8:8:5]CELLConfig::getInt nSendBuffSize=10240

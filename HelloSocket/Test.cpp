@@ -7,11 +7,11 @@ class MyClient : public EasyTcpClient
 {
 public:
 	//响应网络消息
-	virtual void OnNetMsg(DataHeader* header)
+	virtual void OnNetMsg(netmsg_DataHeader* header)
 	{
 		switch (header->cmd)
 		{
-		case CMD_LOGINOUT_RESULT:
+		case CMD_LOGOUT_RESULT:
 		{
 			CELLReadStream r(header);
 			//读取消息长度

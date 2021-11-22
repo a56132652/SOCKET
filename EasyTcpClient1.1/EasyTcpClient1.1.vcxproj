@@ -161,6 +161,8 @@
     <ClInclude Include="..\depends\includes\Cell.hpp" />
     <ClInclude Include="..\depends\includes\CELLBuffer.hpp" />
     <ClInclude Include="..\depends\includes\CellClient.hpp" />
+    <ClInclude Include="..\depends\includes\CELLConfig.hpp" />
+    <ClInclude Include="..\depends\includes\CELLFDSet.hpp" />
     <ClInclude Include="..\depends\includes\CELLLog.hpp" />
     <ClInclude Include="..\depends\includes\CELLMsgStream.hpp" />
     <ClInclude Include="..\depends\includes\CELLNetWork.hpp" />

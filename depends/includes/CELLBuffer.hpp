@@ -98,8 +98,8 @@ public:
 			
 			if (nLen <= 0)
 			{
-				CELLLog_Info("Len=%d", nLen);
-				return nLen;
+				CELLLog_Error("read4socket:sockfd<%d> nSize<%d> nLast<%d> nLen<%d>", sockfd, _nSize, _nLast, nLen);
+				return SOCKET_ERROR;
 			}
 			//消息缓冲区的数据尾部位置后移
 			_nLast += nLen;
@@ -110,11 +110,11 @@ public:
 	//
 	bool hasMsg()
 	{
-		//判断消息缓冲区的数据长度大于消息头netmsg_DataHeader长度
-		if (_nLast >= sizeof(DataHeader))
+		//判断消息缓冲区的数据长度大于消息头netmsg_netmsg_DataHeader长度
+		if (_nLast >= sizeof(netmsg_DataHeader))
 		{
 			//这时就可以知道当前消息的长度
-			DataHeader* header = (DataHeader*)_pBuff;
+			netmsg_DataHeader* header = (netmsg_DataHeader*)_pBuff;
 			//判断消息缓冲区的数据长度是否大于消息长度
 			return _nLast >= header->dataLength;
 		}

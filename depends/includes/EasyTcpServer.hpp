@@ -18,7 +18,7 @@ class EasyTcpServer : public INetEvent
 private:
 	//
 	CELLThread _thread;
-	std::vector<CELLServer*> _CELLServers;
+	std::vector<CELLServer*> _cellServers;
 	//每秒消息计时
 	CELLTimestamp _tTime;
 	//
@@ -132,7 +132,7 @@ public:
 	SOCKET Accept()
 	{
 		sockaddr_in _clientAddr = { };
-		int nAddrLen = sizeof(_clientAddr);
+		int nAddrLen = sizeof(sockaddr_in);
 		SOCKET cSock = INVALID_SOCKET;
 
 		// accept 等待接收客户端连接
@@ -169,8 +169,8 @@ public:
 	void addClientToCELLServer(CELLClient* pClient)
 	{
 		//查找客户数量最少的CELLServer消息处理对象
-		auto pMinServer = _CELLServers[0];
-		for (auto pCELLServer : _CELLServers)
+		auto pMinServer = _cellServers[0];
+		for (auto pCELLServer : _cellServers)
 		{
 			if (pMinServer->getClientCount() > pCELLServer->getClientCount())
 			{
@@ -185,14 +185,14 @@ public:
 		for (int i = 0; i < nCELLServer; i++)
 		{
 			auto ser = new CELLServer(i + 1);
-			_CELLServers.push_back(ser);
+			_cellServers.push_back(ser);
 			//注册网络事件接收对象
 			ser->setEventObj(this);
 			//启动消息处理线程
 			ser->Start();
 		}
 		_thread.Start(nullptr,
-			[this](CELLThread* pThread) {onRun(pThread); });
+			[this](CELLThread* pThread) {OnRun(pThread); });
 	}
 
 	//关闭socket
@@ -202,11 +202,11 @@ public:
 		_thread.Close();
 		if (_sock != INVALID_SOCKET)
 		{
-			for (auto s : _CELLServers)
+			for (auto s : _cellServers)
 			{
 				delete s;
 			}
-			_CELLServers.clear();
+			_cellServers.clear();
 #ifdef _WIN32
 			//关闭套接字socket
 			closesocket(_sock);
@@ -228,7 +228,7 @@ public:
 		_clientCount--;
 		//CELLLog_Info("client<%d> leave", pClient->sockfd());
 	}
-	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient, DataHeader* header)
+	virtual void OnNetMsg(CELLServer* pCELLServer, CELLClient* pClient, netmsg_DataHeader* header)
 	{
 		_msgCount++;
 	}
@@ -237,35 +237,37 @@ public:
 		_recvCount++;
 	}
 private:
-	//处理网络消息
-	void onRun(CELLThread* pThread)
+	void OnRun(CELLThread* pThread)
 	{
+		//伯克利套接字 BSD socket
+		//描述符（socket） 集合
+		CELLFDSet fdRead;
 		while (pThread->isRun())
 		{
 			time4msg();
-			fd_set fdRead;
-			//清空
-			FD_ZERO(&fdRead);
-			//将描述符存入数组
-			FD_SET(_sock, &fdRead);
-
-			timeval t = { 0,1 };
-			int ret = select(_sock + 1, &fdRead, 0, 0, &t);
+			//清理集合
+			fdRead.zero();
+			//将描述符（socket）加入集合
+			fdRead.add(_sock);
+			///nfds 是一个整数值 是指fd_set集合中所有描述符(socket)的范围，而不是数量
+			///既是所有文件描述符最大值+1 在Windows中这个参数可以写0
+			timeval t = { 0, 1 };
+			int ret = select(_sock + 1, fdRead.fdset(), 0, 0, &t); //
 			if (ret < 0)
 			{
-				CELLLog_Info("EasyTcpServer.OnRun Accept Select Exit.");
+				CELLLog_Info("EasyTcpServer.OnRun select exit.");
 				pThread->Exit();
 				break;
 			}
-			//判断描述符(socket)是否在集合中
-			if (FD_ISSET(_sock, &fdRead))
+			//判断描述符（socket）是否在集合中
+			if (fdRead.has(_sock))
 			{
-				//将数组中对应的描述符的计数值清0，并未将该描述符清除
-				FD_CLR(_sock, &fdRead);
+				//fdRead.del(_sock);
 				Accept();
 			}
 		}
 	}
+
 
 	//计算并输出每秒收到的网络消息
 	void time4msg()
@@ -274,7 +276,7 @@ private:
 		auto t1 = _tTime.getElapsedSecond();
 		if (t1 >= 1.0)
 		{
-			CELLLog_Info("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>", (int)_CELLServers.size(), t1, _sock, (int)_clientCount, (int)_recvCount, (int)_msgCount);
+			CELLLog_Info("thread<%d>,time<%lf>,socket<%d>,clients<%d>,recv<%d>,msg<%d>", (int)_cellServers.size(), t1, _sock, (int)_clientCount, (int)_recvCount, (int)_msgCount);
 			_recvCount = 0;
 			_msgCount = 0;
 			_tTime.update();
