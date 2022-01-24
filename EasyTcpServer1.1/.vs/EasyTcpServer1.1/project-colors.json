@@ -1,0 +1,16 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "aea02d47-a353-460c-87ee-a2a4af64bb4d": {
+      "ProjectGuid": "aea02d47-a353-460c-87ee-a2a4af64bb4d",
+      "DisplayName": "EasyTcpServer1.1",
+      "ColorIndex": 0
+    },
+    "27d35481-3af2-4fbb-8fc2-cf420118ceb9": {
+      "ProjectGuid": "27d35481-3af2-4fbb-8fc2-cf420118ceb9",
+      "DisplayName": "EasyTcpClient1.1",
+      "ColorIndex": 1
+    }
+  },
+  "NextColorIndex": 2
+}
