@@ -3842,9 +3842,135 @@ hasKey()用于扩展脚本功能，例如-p,-s,-k
 
 # 十九、client优化
 
-
+提高模拟客户端性能
 
 # 二十、Epoll网络模型
 
+参考[(Epoll原理解析_~~ LINUX ~~-CSDN博客_epoll](https://blog.csdn.net/armlinuxww/article/details/92803381)
+
+Seclect网络模型实现了100W条消息的稳定收发
+
+Epoll网络模型主要适用于Linux系统及其衍生网络系统
 
 
+
+**同时监视多个 Socket 的简单方法**
+
+服务端需要管理多个客户端连接，而 Recv 只能监视单个 Socket，这种矛盾下，人们开始寻找监视多个 Socket 的方法。Epoll 的要义就是高效地监视多个 Socket。
+
+从历史发展角度看，必然先出现一种不太高效的方法，人们再加以改进，正如 Select 之于 Epoll。先理解不太高效的 Select，才能够更好地理解 Epoll 的本质。
+
+假如能够预先传入一个 Socket 列表，如果列表中的 Socket 都没有数据，挂起进程，直到有一个 Socket 收到数据，唤醒进程。这种方法很直接，也是 Select 的设计思想。
+
+为方便理解，我们先复习 Select 的用法。在下边的代码中，先准备一个数组 FDS，让 FDS 存放着所有需要监视的 Socket。
+
+然后调用 Select，如果 FDS 中的所有 Socket 都没有数据，Select 会阻塞，直到有一个 Socket 接收到数据，Select 返回，唤醒进程。
+
+用户可以遍历 FDS，通过 FD_ISSET 判断具体哪个 Socket 收到数据，然后做出处理。 
+
+```c++
+
+int s = socket(AF_INET, SOCK_STREAM, 0);   
+bind(s, ...) 
+listen(s, ...) 
+ 
+int fds[] =  存放需要监听的socket 
+ 
+while(1){ 
+    int n = select(..., fds, ...) 
+    for(int i=0; i < fds.count; i++){ 
+        if(FD_ISSET(fds[i], ...)){ 
+            //fds[i]的数据处理 
+        } 
+    } 
+```
+
+**操作系统创建Socket**：这个Socket对象包含了**发送缓冲区**、**接收缓冲区**以及**等待队列**，**等待队列是个非常重要的结构，它指向所有需要等待该 Socket 事件的进程。**
+
+假设进程A创建了一个Socket，并在执行Recv时阻塞，此时操作系统就会将进程A从工作队列移动到该Socket的等待队列中，该进程进入阻塞状态；当 Socket 接收到数据后，操作系统将该 Socket 等待队列上的进程重新放回到工作队列，该进程变成运行状态，继续执行代码
+
+当进程A创建了多个Socket，即sock1、sock2、sock3，在调用Select后，操作系统会把进程A分别加入这三个Socket的等待队列中，当任何一个Socket收到数据后，中断程序将唤醒进程，即**将进程A从所有等待队列中移除**，加入到工作队列中。
+
+经由这些步骤，当进程 A 被唤醒后，它知道至少有一个 Socket 接收了数据。程序只需遍历一遍 Socket 列表，就可以得到就绪的 Socket。
+
+**但是该方法有几个主要缺点：**
+
+- 每次调用 Select 都需要将进程加入到所有监视 Socket 的等待队列，每次唤醒都需要从每个队列中移除。这里涉及了两次遍历，而且每次都要将整个 FDS 列表传递给内核，有一定的开销。
+
+**正是因为遍历操作开销大，出于效率的考量，才会规定 Select 的最大监视数量，默认只能监视 1024 个 Socket。**
+
+- 进程被唤醒后，程序并不知道哪些 Socket 收到数据，还需要遍历一次。
+
+**而如何减少遍历，如何保存保存就绪Socket，就是Epoll技术需要解决的问题**
+
+## Epoll的设计思路
+
+- **功能分离**
+
+Select 低效的原因之一是将“**维护等待队列**”和“**阻塞进程**”两个步骤合二为一。
+
+然而大多数应用场景中，需要监视的 Socket 相对固定，并不需要每次都修改。
+
+Epoll 将这两个操作分开，先用 epoll_ctl 维护等待队列，再调用 epoll_wait 阻塞进程。显而易见地，效率就能得到提升。
+
+**Epoll用法**
+
+```c++
+int s = socket(AF_INET, SOCK_STREAM, 0);    
+bind(s, ...) 
+listen(s, ...) 
+ 
+ //用 epoll_create 创建一个 Epoll 对象 Epfd
+int epfd = epoll_create(...); 
+ //将所有需要监听的socket添加到epfd中 
+epoll_ctl(epfd, ...);
+ 
+while(1){ 
+    //调用 epoll_wait 等待数据
+    int n = epoll_wait(...) 
+    for(接收到数据的socket){ 
+        //处理 
+    } 
+} 
+```
+
+- **就绪列表**
+
+Select 低效的另一个原因在于程序不知道哪些 Socket 收到数据，只能一个个遍历。如果内核维护一个“就绪列表”，引用收到数据的 Socket，就能避免遍历。
+
+假设计算机共有三个 Socket，收到数据的 Sock2 和 Sock3 被就绪列表 Rdlist 所引用。当进程被唤醒后，只要获取 Rdlist 的内容，就能够知道哪些 Socket 收到数据。
+
+## Epoll原理与工作流程
+
+1. 创建epoll_create方法时，内核会创建一个eventpoll对象，即程序中 Epfd 所代表的对象，eventpoll 对象也是文件系统中的一员，和 Socket 一样，它也会有等待队列，**它还包含一个就序列表rdlist，用于保存就绪Socket的引用**。
+2. 维护监视列表：创建 Epoll 对象后，可以用 epoll_ctl 添加或删除所要监听的 Socket。如果通过epoll_ctl 添加 Sock1、Sock2 和 Sock3 的监视，内核会将 eventpoll 添加到这三个 Socket 的等待队列中。当Socket 收到数据后，中断程序会操作 eventpoll 对象，而不是直接操作进程，**select就会直接操作进程，将进程从所有socket等待列表中移除，将进程放入工作队列**。
+3. 接收数据：当 Socket 收到数据后，中断程序会给 **eventpoll 的“就绪列表”**添加 Socket 引用。 当Sock2 和 Sock3 收到数据后，中断程序让 Rdlist 引用这两个 Socket，**eventpoll 对象相当于 Socket 和进程之间的中介**，**Socket 的数据接收并不直接影响进程，而是通过改变 eventpoll 的就绪列表来改变进程状态。**当程序执行到 epoll_wait 时，如果 Rdlist 已经引用了 Socket，那么 epoll_wait 直接返回，如果 Rdlist 为空，阻塞进程
+4. 进程阻塞和唤醒：假设计算机中正在运行进程 A 和进程 B，在某时刻进程 A 运行到了 epoll_wait 语句，内核会将进程 A 放入 eventpoll 的等待队列中，阻塞进程，当 Socket 接收到数据，中断程序一方面修改 Rdlist，另一方面唤醒 eventpoll 等待队列中的进程，进程 A 再次进入运行状态
+
+
+
+## 就绪列表的数据结构
+
+就绪列表引用着就绪的 Socket，所以它应能够快速的插入数据。程序可能随时调用 epoll_ctl 添加监视Socket，也可能随时删除。当删除时，若该 Socket 已经存放在就绪列表中，它也应该被移除。所以就绪列表应是一种能够快速插入和删除的数据结构。双向链表就是这样一种数据结构，Epoll 使用双向链表来实现就绪队列。
+
+## 索引结构
+
+既然 Epoll 将“维护监视队列”和“进程阻塞”分离，也意味着需要有个数据结构来保存监视的 Socket，至少要方便地添加和移除，还要便于搜索，以避免重复添加。红黑树是一种自平衡二叉查找树，搜索、插入和删除时间复杂度都是 O(log(N))，效率较好，Epoll 使用了红黑树作为索引结构
+
+## 总结
+
+**Epoll 在 Select 和 Poll 的基础上引入了 eventpoll 作为中间层，使用了先进的数据结构，是一种高效的多路复用技术**
+
+
+
+# 	二十一、IOCP网络模型
+
+ 
+
+![网络通信引擎应用select模型](F:\A3-git_repos\SOCKET\Server开发日记\网络通信引擎应用select模型-16467430499261.png)
+
+
+
+![在网络通信引擎中应用epoll网络模型](F:\A3-git_repos\SOCKET\在网络通信引擎中应用epoll网络模型.png)
+
+![在网络通信引擎中应用IOCP网络模型](F:\A3-git_repos\SOCKET\Server开发日记\在网络通信引擎中应用IOCP网络模型.png)
