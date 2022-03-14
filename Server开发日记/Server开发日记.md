@@ -1,4 +1,4 @@
-# 一、首次封装EasyTcpServer
+一、首次封装EasyTcpServer
 
 - 初始化SOCKET——InitSocket()
 - 绑定端口号——Bind()
@@ -3973,4 +3973,160 @@ Select 低效的另一个原因在于程序不知道哪些 Socket 收到数据�
 
 ![在网络通信引擎中应用epoll网络模型](F:\A3-git_repos\SOCKET\在网络通信引擎中应用epoll网络模型.png)
 
-![在网络通信引擎中应用IOCP网络模型](F:\A3-git_repos\SOCKET\Server开发日记\在网络通信引擎中应用IOCP网络模型.png)
+
+
+![在网络通信引擎中应用IOCP网络模型](F:\A3-git_repos\SOCKET\Server开发日记\在网络通信引擎中应用IOCP网络模型-16472583242552.png)
+
+
+
+
+
+## 1. 创建Socket
+
+```c++
+//当使用socket函数创建套接字时，会默认设置WSA_FLAG_OVERLAPPED标志
+SOCKET sockServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+//注意这里也可以用 WSASocket函数创建socket
+//最后一个参数需要设置为重叠标志（WSA_FLAG_OVERLAPPED）
+SOCKET sockServer = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+```
+
+**也可以使用`WSASocket()`创建SOCKET，考虑到跨平台的需求，这里使用普通socket()函数创建**
+
+## 2. 设置对外IP与端口信息并绑定sockaddr与ServerSocket
+
+```c++
+	// 2.1 设置对外IP与端口信息 
+	sockaddr_in _sin = {};
+	_sin.sin_family = AF_INET;
+	_sin.sin_port = htons(4567);//host to net unsigned short
+	_sin.sin_addr.s_addr = INADDR_ANY;
+	// 2.2 绑定sockaddr与ServerSocket
+	if (SOCKET_ERROR == bind(sockServer, (sockaddr*)&_sin, sizeof(_sin)))
+	{
+		printf("错误,绑定网络端口失败...\n");
+	}
+	else {
+		printf("绑定网络端口成功...\n");
+	}
+```
+
+
+
+## 3. 监听ServerSocket
+
+```c++
+	// 3 监听ServerSocket
+	if (SOCKET_ERROR == listen(sockServer, 64))
+	{
+		printf("错误,监听网络端口失败...\n");
+	}
+	else {
+		printf("监听网络端口成功...\n");
+	}
+```
+
+
+
+## 4. 创建完成端口
+
+```c++
+//功能：创建完成端口和关联完成端口
+ HANDLE WINAPI CreateIoCompletionPort(
+     *    __in   HANDLE FileHandle,              // 已经打开的文件句柄或者空句柄，一般是客户端的句柄
+     *    __in   HANDLE ExistingCompletionPort,  // 已经存在的IOCP句柄
+     *    __in   ULONG_PTR CompletionKey,        // 完成键，包含了指定I/O完成包的指定文件
+     *    __in   DWORD NumberOfConcurrentThreads // 真正并发同时执行最大线程数，一般推介是CPU核心数*2
+     * );
+```
+
+`  HANDLE _completionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);`
+
+## 5. 关联IOCP与ServerSocket
+
+```c++
+ HANDLE WINAPI CreateIoCompletionPort(  
+    __in      HANDLE  FileHandle,             // 这里当然是连入的这个套接字句柄了   
+     __in_opt  HANDLE  ExistingCompletionPort, // 这个就是前面创建的那个完成端口   
+     __in      ULONG_PTR CompletionKey,        // 这个参数就是类似于线程参数一样，在   
+                                               // 绑定的时候把自己定义的结构体指针传递   
+                                               // 这样到了Worker线程中，也可以使用这个   
+                                               // 结构体的数据了，相当于参数的传递   
+     __in      DWORD NumberOfConcurrentThreads // 这里同样置0   
+);  
+```
+
+
+
+```c++
+	auto ret = CreateIoCompletionPort((HANDLE)sockServer, 
+                                      _completionPort, 	 
+                                      (ULONG_PTR)sockServer,
+                                      0);
+	if (!ret)
+	{
+		printf("关联IOCP与ServerSocket失败,错误码=%d\n", GetLastError());
+		return -1;
+	}
+```
+
+
+
+## 6. 向IOCP投递接收连接的任务
+
+```c++
+#include <MSWSock.h>
+BOOL AcceptEx (       
+    SOCKET sListenSocket,   
+    SOCKET sAcceptSocket,   
+    PVOID lpOutputBuffer,   
+    DWORD dwReceiveDataLength,   
+    DWORD dwLocalAddressLength,   
+    DWORD dwRemoteAddressLength,   
+    LPDWORD lpdwBytesReceived,   
+    LPOVERLAPPED lpOverlapped   
+);  
+```
+
+- 参数1--sListenSocket, 用来监听的Socket了；
+- 参数2--sAcceptSocket, 用于接受连接的socket，是AcceptEx高性能的关键所在。
+  - `AcceptEx()`与普通`accept()`相比，它是先创建好一个socketA，当有客户端连接申请时，`AcceptEx()`直接将socketA与该客户端绑定,减少了连接过程中的资源消耗，提升了通信效率
+- 参数3--lpOutputBuffer,接收缓冲区，这也是AcceptEx比较有特色的地方，既然AcceptEx不是普通的accpet函数，那么这个缓冲区也不是普通的缓冲区，这个缓冲区包含了三个信息：一是客户端发来的第一组数据，二是server的地址，三是client地址
+- 参数4--dwReceiveDataLength，**参数`lpOutputBuffer`**中用于**存放数据的空间大小**。如果此参数=0，则Accept时将不会等待数据到来，而直接返回，如果此参数不为0，那么一定得等接收到数据了才会返回…… 所以通常当需要Accept接收数据时，就需要将该参数设成为：`sizeof(lpOutputBuffer) - 2*(sizeof sockaddr_in +16)`，即**总长度减去两个地址空间的长度**
+- 参数5--dwLocalAddressLength，存放本地址地址信息的空间大小；
+-  参数6--dwRemoteAddressLength，存放本远端地址信息的空间大小；
+- 参数7--lpdwBytesReceived，out参数，对我们来说没用，不用管；
+- 参数8--lpOverlapped，本次重叠I/O所要用到的重叠结构。
+
+```c++
+SOCKET socketClient = socket(AF_INET， SOCK_STREAM，IPPROTO_TCP);
+char buffer[1024] = {};
+OVERLAPPED overlapped = {};
+if(FALSE == AcceptEx(sockServer,
+                     sockClient,
+                     buffer,
+                     100,
+                     sizeof(sockaddr_in + 16),
+                     sizeof(sockaddr_in + 16),
+                     NULL,
+                     &overlapped
+                    ))
+{
+    int err = WSAGetLastError();
+    if(ERROR_IO_PENDING != err)
+    {
+        printf("AcceptEx failed with error %d\n", err);
+        return 0;
+    }
+}
+AcceptEx()
+```
+
+
+
+## 7.  
+
+
+
+
+
