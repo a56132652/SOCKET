@@ -3940,6 +3940,100 @@ Select 低效的另一个原因在于程序不知道哪些 Socket 收到数据�
 
 假设计算机共有三个 Socket，收到数据的 Sock2 和 Sock3 被就绪列表 Rdlist 所引用。当进程被唤醒后，只要获取 Rdlist 的内容，就能够知道哪些 Socket 收到数据。
 
+## Epoll函数详解
+
+- int epoll_create(int size)
+
+创建一个epoll的句柄，size用来告诉内核这个监听的数目一共有多大。这个参数不同于select()中的第一个参数，给出最大监听的fd+1的值。需要注意的是，当创建好epoll句柄后，它就是会占用一个fd值，在linux下如果查看/proc/进程id/fd/，是能够看到这个fd的，所以在使用完epoll后，必须调用close()关闭，否则可能导致fd被耗尽。
+
+- int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+
+  - int epfd : epoll_create()返回值，epoll句柄
+
+  - int op：表示动作，用 3 个宏来表示
+
+    - EPOLL_CTL_ADD：注册新的fd到epfd中
+    - EPOLL_CTL_MOD：修改已经注册的fd的监听事件
+    - EPOLL_CTL_DEL：从epfd中删除一个fd
+
+  - int fd ： 需要监听的 fd
+
+  - struct epoll_event *event：告诉内核需要监听什么事，结构如下：
+
+    - ```c++
+      typedef union epoll_data {
+          void *ptr;
+          int fd;
+          __uint32_t u32;
+          __uint64_t u64;
+      } epoll_data_t;
+      
+      struct epoll_event {
+          __uint32_t events; /* Epoll events */
+          epoll_data_t data; /* User data variable */
+      };
+      ```
+
+    - `events`可以是几个宏的集合
+
+      - EPOLLIN ：表示对应的文件描述符可以读（包括对端SOCKET正常关闭
+      - EPOLLOUT：表示对应的文件描述符可以写；
+      - EPOLLPRI：表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；
+      - EPOLLERR：表示对应的文件描述符发生错误；
+      - EPOLLHUP：表示对应的文件描述符被挂断；
+      - EPOLLET： 将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。
+      - EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里
+
+- int epoll_wait(int epfd, struct epoll_event * events, int maxevents, int timeout)
+
+  - 等待事件发生，类似于seclect()调用
+  - int epfd ： epoll句柄
+  - struct epoll_event * events ：用来从内核得到事件的集合
+  - int maxevents ： 告之内核这个events有多大，该值不能大于创建epoll_create()时的size
+  - int timeout ： 超时时间（毫秒，0会立即返回，-1将不确定，也有说法说是永久阻塞）
+  - 返回值：该函数返回需要处理的事件数目，如返回0表示已超时。
+
+## 基本Epoll示例模板程序
+
+```c++
+    for( ; ; )
+    {
+        nfds = epoll_wait(epfd,events,20,500);
+        for(i=0;i<nfds;++i)
+        {
+            if(events[i].data.fd==listenfd) //有新的连接
+            {
+                connfd = accept(listenfd,(sockaddr *)&clientaddr, &clilen); //accept这个连接
+                ev.data.fd=connfd;
+                ev.events=EPOLLIN|EPOLLET;
+                epoll_ctl(epfd,EPOLL_CTL_ADD,connfd,&ev); //将新的fd添加到epoll的监听队列中
+            }
+            else if( events[i].events&EPOLLIN ) //接收到数据，读socket
+            {
+                n = read(sockfd, line, MAXLINE)) < 0    //读
+                ev.data.ptr = md;     //md为自定义类型，添加数据
+                ev.events=EPOLLOUT|EPOLLET;
+                epoll_ctl(epfd,EPOLL_CTL_MOD,sockfd,&ev);//修改标识符，等待下一个循环时发送数据，异步处理的精髓
+            }
+            else if(events[i].events&EPOLLOUT) //有数据待发送，写socket
+            {
+                struct myepoll_data* md = (myepoll_data*)events[i].data.ptr;    //取数据
+                sockfd = md->fd;
+                send( sockfd, md->ptr, strlen((char*)md->ptr), 0 );        //发送数据
+                ev.data.fd=sockfd;
+                ev.events=EPOLLIN|EPOLLET;
+                epoll_ctl(epfd,EPOLL_CTL_MOD,sockfd,&ev); //修改标识符，等待下一个循环时接收数据
+            }
+            else
+            {
+                //其他的处理
+            }
+        }
+    }
+```
+
+
+
 ## Epoll原理与工作流程
 
 1. 创建epoll_create方法时，内核会创建一个eventpoll对象，即程序中 Epfd 所代表的对象，eventpoll 对象也是文件系统中的一员，和 Socket 一样，它也会有等待队列，**它还包含一个就序列表rdlist，用于保存就绪Socket的引用**。
@@ -4059,6 +4153,10 @@ SOCKET sockServer = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAP
      __in      DWORD NumberOfConcurrentThreads // 这里同样置0   
 );  
 ```
+
+- FileHandle：是我们要监测的文件句柄，注意是这个句柄不一定非得是socket，ICOP可以监测很多异步调用的返回，不过在这里我们只用来做网络IO复用，所以传递的是已经准备好的socket(一定是listen调用之后的或者accept接收完成的,而且是异步的socket)
+- ExistingCompletionPort：第一步调用时候返回的IOCP的句柄
+- CompletionKey：这个其实是IOCP交给用户保存网络会话上下文的一个渠道，类似于epoll中epoll_event的data成员，当我们阻塞监测到接收到新事件到来时，会从IOCP中得到这个我们传进去的值。这个只是保存网络会话上下文的其中之一，一会儿我们会看到还可以通过别的方式保存针对每个连接类似于上下文这样的信息。其类型是ULONG_PTR，所以我们可以传递任意指针进去
 
 **此时完成键参数CompletionKey是一个普通的sockServer**
 
@@ -4315,6 +4413,37 @@ DWORD bytesTrans = 0;
 		}
 ```
 
+
+
+## 9 投递接收数据请求
+
+```c++
+int WSARecv(  
+    SOCKET s,                      // 当然是投递这个操作的套接字   
+     LPWSABUF lpBuffers,            // 接收缓冲区    
+                                        // 这里需要一个由WSABUF结构构成的数组   
+     DWORD dwBufferCount,           // 数组中WSABUF结构的数量，设置为1即可   
+     LPDWORD lpNumberOfBytesRecvd,  // 如果接收操作立即完成，这里会返回函数调用所接收到的字节数   
+     LPDWORD lpFlags,               // 说来话长了，我们这里设置为0 即可   
+     LPWSAOVERLAPPED lpOverlapped,  // 这个Socket对应的重叠结构   
+     NULL                           // 这个参数只有完成例程模式才会用到，   
+                                        // 完成端口中我们设置为NULL即可   
+);  
+```
+
+- **LPWSABUF lpBuffers：需要我们自己new 一个 WSABUF 的结构体传进去**
+
+```c++
+typedef struct _WSABUF {  
+               ULONG len; /* the length of the buffer */  
+               __field_bcount(len) CHAR FAR *buf; /* the pointer to the buffer */  
+  
+        } WSABUF, FAR * LPWSABUF; 
+```
+
+- **LPWSAOVERLAPPED lpOverlapped：重叠结构**
+  - 自定义一个重叠结构传入，请求结束时，这个重叠结构中会被分配有效的系统参数
+
 ```c++
 	//向IOCP投递接收数据的任务
 void postRecv(IO_DATA_BASE* pIO_DATA)
@@ -4336,6 +4465,13 @@ void postRecv(IO_DATA_BASE* pIO_DATA)
 		}
 	}
 }
+```
+
+
+
+## 10 投递发送数据请任务
+
+```c++
 //向IOCP投递发送数据的任务
 void postSend(IO_DATA_BASE* pIO_DATA)
 {
