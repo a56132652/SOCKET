@@ -1,7 +1,11 @@
-#ifndef _CELL_BUFFER_HPP_
-#define	_CELL_BUFFER_HPP_
+ï»¿#ifndef _CELL_BUFFER_HPP_
+#define _CELL_BUFFER_HPP_
 
-#include "Cell.hpp"
+#include"CELL.hpp"
+
+#ifdef CELL_USE_IOCP
+#include"CELLIOCP.hpp"
+#endif
 
 class CELLBuffer
 {
@@ -11,42 +15,69 @@ public:
 		_nSize = nSize;
 		_pBuff = new char[_nSize];
 	}
-	virtual ~CELLBuffer()
+
+	~CELLBuffer()
 	{
 		if (_pBuff)
 		{
 			delete[] _pBuff;
-			_pBuff = _pBuff;
+			_pBuff = nullptr;
 		}
 	}
 
-	char* data()
+	inline char* data()
 	{
 		return _pBuff;
 	}
 
+	//inline int dataLen()
+	//{
+	//	return _nLast;
+	//}
+
+	//inline int buffSize()
+	//{
+	//	return _nSize;
+	//}
+
 	bool push(const char* pData, int nLen)
 	{
+		////å†™å…¥å¤§é‡æ•°æ®ä¸ä¸€å®šè¦æ”¾åˆ°å†…å­˜ä¸­
+		////ä¹Ÿå¯ä»¥å­˜å‚¨åˆ°æ•°æ®åº“æˆ–è€…ç£ç›˜ç­‰å­˜å‚¨å™¨ä¸­
+		//if (_nLast + nLen > _nSize)
+		//{
+		//	//éœ€è¦å†™å…¥çš„æ•°æ®å¤§äºå¯ç”¨ç©ºé—´
+		//	int n = (_nLast + nLen) - _nSize;
+		//	//æ‹“å±•BUFF
+		//	if (n < 8192)
+		//		n = 8192;
+		//	char* buff = new char[_nSize+n];
+		//	memcpy(buff, _pBuff, _nLast);
+		//	delete[] _pBuff;
+		//	_pBuff = buff;
+		//}
+
 		if (_nLast + nLen <= _nSize)
 		{
-			//½«Òª·¢ËÍµÄÊı¾İ¿½±´µ½·¢ËÍ»º³åÇøÎ²²¿
+			//å°†è¦å‘é€çš„æ•°æ® æ‹·è´åˆ°å‘é€ç¼“å†²åŒºå°¾éƒ¨
 			memcpy(_pBuff + _nLast, pData, nLen);
-			//Êı¾İÎ²²¿Î»ÖÃÒÆ¶¯
+			//è®¡ç®—æ•°æ®å°¾éƒ¨ä½ç½®
 			_nLast += nLen;
 
-			if (_nLast == SEND_BUFF_SIZE)
+			if (_nLast == SEND_BUFF_SZIE)
 			{
 				++_fullCount;
 			}
+
 			return true;
 		}
 		else {
 			++_fullCount;
 		}
+
 		return false;
 	}
 
-	//
 	void pop(int nLen)
 	{
 		int n = _nLast - nLen;
@@ -58,27 +89,27 @@ public:
 		if (_fullCount > 0)
 			--_fullCount;
 	}
-	//Á¢¼´½«·¢ËÍ»º³åÇøµÄÊı¾İ·¢ËÍ¸ø¿Í»§¶Ë
+
 	int write2socket(SOCKET sockfd)
 	{
 		int ret = 0;
-		//»º³åÇøÓĞÊı¾İ
+		//ç¼“å†²åŒºæœ‰æ•°æ®
 		if (_nLast > 0 && INVALID_SOCKET != sockfd)
 		{
-			//·¢ËÍÊı¾İ
+			//å‘é€æ•°æ®
 			ret = send(sockfd, _pBuff, _nLast, 0);
 			if (ret <= 0)
 			{
-				CELLLog_Error("write2socket1:sockfd<%d> nSize<%d> nLast<%d> ret<%d>", sockfd, _nSize, _nLast, ret);
+				CELLLog_PError("write2socket1:sockfd<%d> nSize<%d> nLast<%d> ret<%d>", sockfd, _nSize, _nLast, ret);
 				return SOCKET_ERROR;
 			}
 			if (ret == _nLast)
-			{//_nLast=2000 Êµ¼Ê·¢ËÍret=2000
-				//Êı¾İÎ²²¿Î»ÖÃÇåÁã
+			{//_nLast=2000 å®é™…å‘é€ret=2000
+				//æ•°æ®å°¾éƒ¨ä½ç½®æ¸…é›¶
 				_nLast = 0;
 			}
 			else {
-				//_nLast=2000 Êµ¼Ê·¢ËÍret=1000
+				//_nLast=2000 å®é™…å‘é€ret=1000
 				//CELLLog_Info("write2socket2:sockfd<%d> nSize<%d> nLast<%d> ret<%d>", sockfd, _nSize, _nLast, ret);
 				_nLast -= ret;
 				memcpy(_pBuff, _pBuff + ret, _nLast);
@@ -87,54 +118,116 @@ public:
 		}
 		return ret;
 	}
-	//
+
 	int read4socket(SOCKET sockfd)
 	{
 		if (_nSize - _nLast > 0)
 		{
+			//æ¥æ”¶å®¢æˆ·ç«¯æ•°æ®
 			char* szRecv = _pBuff + _nLast;
-			// ½ÓÊÕ¿Í»§¶ËÊı¾İ
 			int nLen = (int)recv(sockfd, szRecv, _nSize - _nLast, 0);
-			
 			if (nLen <= 0)
 			{
-				CELLLog_Error("read4socket:sockfd<%d> nSize<%d> nLast<%d> nLen<%d>", sockfd, _nSize, _nLast, nLen);
+				CELLLog_PError("read4socket:sockfd<%d> nSize<%d> nLast<%d> nLen<%d>", sockfd, _nSize, _nLast, nLen);
 				return SOCKET_ERROR;
 			}
-			//ÏûÏ¢»º³åÇøµÄÊı¾İÎ²²¿Î»ÖÃºóÒÆ
+			//æ¶ˆæ¯ç¼“å†²åŒºçš„æ•°æ®å°¾éƒ¨ä½ç½®åç§»
 			_nLast += nLen;
 			return nLen;
 		}
 		return 0;
 	}
-	//
+
 	bool hasMsg()
 	{
-		//ÅĞ¶ÏÏûÏ¢»º³åÇøµÄÊı¾İ³¤¶È´óÓÚÏûÏ¢Í·netmsg_netmsg_DataHeader³¤¶È
+		//åˆ¤æ–­æ¶ˆæ¯ç¼“å†²åŒºçš„æ•°æ®é•¿åº¦å¤§äºæ¶ˆæ¯å¤´netmsg_DataHeaderé•¿åº¦
 		if (_nLast >= sizeof(netmsg_DataHeader))
 		{
-			//ÕâÊ±¾Í¿ÉÒÔÖªµÀµ±Ç°ÏûÏ¢µÄ³¤¶È
+			//è¿™æ—¶å°±å¯ä»¥çŸ¥é“å½“å‰æ¶ˆæ¯çš„é•¿åº¦
 			netmsg_DataHeader* header = (netmsg_DataHeader*)_pBuff;
-			//ÅĞ¶ÏÏûÏ¢»º³åÇøµÄÊı¾İ³¤¶ÈÊÇ·ñ´óÓÚÏûÏ¢³¤¶È
+			//åˆ¤æ–­æ¶ˆæ¯ç¼“å†²åŒºçš„æ•°æ®é•¿åº¦å¤§äºæ¶ˆæ¯é•¿åº¦
 			return _nLast >= header->dataLength;
 		}
 		return false;
 	}
-	//
-	bool needWrite()
+
+	inline bool needWrite()
 	{
 		return _nLast > 0;
 	}
+
+#ifdef CELL_USE_IOCP
+	IO_DATA_BASE* makeRecvIoData(SOCKET sockfd)
+	{
+		int nLen = _nSize - _nLast;
+		if (nLen > 0)
+		{
+			_ioData.wsabuff.buf = _pBuff + _nLast;
+			_ioData.wsabuff.len = nLen;
+			_ioData.sockfd = sockfd;
+			return &_ioData;
+		}
+		return nullptr;
+	}
+
+	IO_DATA_BASE* makeSendIoData(SOCKET sockfd)
+	{
+		if (_nLast > 0)
+		{
+			_ioData.wsabuff.buf = _pBuff;
+			_ioData.wsabuff.len = _nLast;
+			_ioData.sockfd = sockfd;
+			return &_ioData;
+		}
+		return nullptr;
+	}
+
+	bool read4iocp(int nRecv)
+	{
+		if (nRecv > 0 && _nSize - _nLast >= nRecv)
+		{
+			_nLast += nRecv;
+			return true;
+		}
+		CELLLog_Error("read4iocp:sockfd<%d> nSize<%d> nLast<%d> nRecv<%d>", _ioData.sockfd, _nSize, _nLast, nRecv);
+		return false;
+	}
+
+	bool write2iocp(int nSend)
+	{
+		if (_nLast < nSend)
+		{
+			CELLLog_Error("write2iocp:sockfd<%d> nSize<%d> nLast<%d> nSend<%d>", _ioData.sockfd, _nSize, _nLast, nSend);
+			return false;
+		}
+		if (_nLast == nSend)
+		{//_nLast=2000 å®é™…å‘é€nSend=2000
+		 //æ•°æ®å°¾éƒ¨ä½ç½®æ¸…é›¶
+			_nLast = 0;
+		}
+		else {
+			//_nLast=2000 å®é™…å‘é€ret=1000
+			_nLast -= nSend;
+			memcpy(_pBuff, _pBuff + nSend, _nLast);
+		}
+		_fullCount = 0;
+		return true;
+	}
+#endif // CELL_USE_IOCP
 private:
-	//µÚ¶ş»º³åÇø ·¢ËÍ»º³åÇø
+	//ç¬¬äºŒç¼“å†²åŒº å‘é€ç¼“å†²åŒº
 	char* _pBuff = nullptr;
-	//¿ÉÒÔÓÃÁ´±í»ò¶ÓÁĞÀ´¹ÜÀí»º³åÊı¾İ¿é
+	//å¯ä»¥ç”¨é“¾è¡¨æˆ–é˜Ÿåˆ—æ¥ç®¡ç†ç¼“å†²æ•°æ®å—
 	//list<char*> _pBuffList;
-	//»º³åÇøµÄÊı¾İÎ²²¿Î»ÖÃ£¬ÒÑÓĞÊı¾İ³¤¶È
+	//ç¼“å†²åŒºçš„æ•°æ®å°¾éƒ¨ä½ç½®ï¼Œå·²æœ‰æ•°æ®é•¿åº¦
 	int _nLast = 0;
-	//»º³åÇø×ÜµÄ¿Õ¼ä´óĞ¡£¬×Ö½Ú³¤¶È
+	//ç¼“å†²åŒºæ€»çš„ç©ºé—´å¤§å°ï¼Œå­—èŠ‚é•¿åº¦
 	int _nSize = 0;
-	//»º³åÇøĞ´Âú´ÎÊı¼ÆÊı
+	//ç¼“å†²åŒºå†™æ»¡æ¬¡æ•°è®¡æ•°
 	int _fullCount = 0;
+#ifdef CELL_USE_IOCP
+	IO_DATA_BASE _ioData = {};
+#endif // CELL_USE_IOCP
 };
+
 #endif // !_CELL_BUFFER_HPP_

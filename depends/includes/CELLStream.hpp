@@ -1,11 +1,11 @@
-#ifndef _CELL_STREAM_HPP_
+ï»¿#ifndef _CELL_STREAM_HPP_
 #define _CELL_STREAM_HPP_
 
 #include"CELLLog.hpp"
 #include<cstdint>
 #include<string>
 
-//×Ö½ÚÁ÷BYTE
+//å­—èŠ‚æµBYTE
 class CELLStream
 {
 public:
@@ -44,24 +44,24 @@ public:
 	{
 		return _nWritePos;
 	}
-
-	//ÄÚÁªº¯Êı
-	//»¹ÄÜ¶Á³ön×Ö½ÚµÄÊı¾İÂğ?
+	
+	//å†…è”å‡½æ•°
+	//è¿˜èƒ½è¯»å‡ºnå­—èŠ‚çš„æ•°æ®å—?
 	inline bool canRead(int n)
 	{
 		return _nSize - _nReadPos >= n;
 	}
-	//»¹ÄÜĞ´Èën×Ö½ÚµÄÊı¾İÂğ?
+	//è¿˜èƒ½å†™å…¥nå­—èŠ‚çš„æ•°æ®å—?
 	inline bool canWrite(int n)
 	{
 		return _nSize - _nWritePos >= n;
 	}
-	//ÒÑĞ´ÈëÎ»ÖÃ£¬Ìí¼Ón×Ö½Ú³¤¶È
+	//å·²å†™å…¥ä½ç½®ï¼Œæ·»åŠ nå­—èŠ‚é•¿åº¦
 	inline void push(int n)
 	{
 		_nWritePos += n;
 	}
-	//ÒÑ¶ÁÈ¡Î»ÖÃ£¬Ìí¼Ón×Ö½Ú³¤¶È
+	//å·²è¯»å–ä½ç½®ï¼Œæ·»åŠ nå­—èŠ‚é•¿åº¦
 	inline void pop(int n)
 	{
 		_nReadPos += n;
@@ -72,25 +72,25 @@ public:
 		_nWritePos = n;
 	}
 
-	//////Read
+//////Read
 	template<typename T>
 	bool Read(T& n, bool bOffset = true)
 	{
 		//
-		//¼ÆËãÒª¶ÁÈ¡Êı¾İµÄ×Ö½Ú³¤¶È
+		//è®¡ç®—è¦è¯»å–æ•°æ®çš„å­—èŠ‚é•¿åº¦
 		auto nLen = sizeof(T);
-		//ÅĞ¶ÏÄÜ²»ÄÜ¶Á
+		//åˆ¤æ–­èƒ½ä¸èƒ½è¯»
 		if (canRead(nLen))
 		{
-			//½«Òª¶ÁÈ¡µÄÊı¾İ ¿½±´³öÀ´
+			//å°†è¦è¯»å–çš„æ•°æ® æ‹·è´å‡ºæ¥
 			memcpy(&n, _pBuff + _nReadPos, nLen);
-			//¼ÆËãÒÑ¶ÁÊı¾İÎ»ÖÃ
-			if (bOffset)
+			//è®¡ç®—å·²è¯»æ•°æ®ä½ç½®
+			if(bOffset)
 				pop(nLen);
 			return true;
 		}
-		//¶ÏÑÔassert
-		//´íÎóÈÕÖ¾
+		//æ–­è¨€assert
+		//é”™è¯¯æ—¥å¿—
 		CELLLog_Error("error, CELLStream::Read failed.");
 		return false;
 	}
@@ -105,21 +105,21 @@ public:
 	uint32_t ReadArray(T* pArr, uint32_t len)
 	{
 		uint32_t len1 = 0;
-		//¶ÁÈ¡Êı×éÔªËØ¸öÊı,µ«²»Æ«ÒÆ¶ÁÈ¡Î»ÖÃ
-		Read(len1, false);
-		//ÅĞ¶Ï»º´æÊı×éÄÜ·ñ·ÅµÃÏÂ
+		//è¯»å–æ•°ç»„å…ƒç´ ä¸ªæ•°,ä½†ä¸åç§»è¯»å–ä½ç½®
+		Read(len1,false);
+		//åˆ¤æ–­ç¼“å­˜æ•°ç»„èƒ½å¦æ”¾å¾—ä¸‹
 		if (len1 <= len)
 		{
-			//¼ÆËãÊı×éµÄ×Ö½Ú³¤¶È
+			//è®¡ç®—æ•°ç»„çš„å­—èŠ‚é•¿åº¦
 			auto nLen = len1 * sizeof(T);
-			//ÅĞ¶ÏÄÜ²»ÄÜ¶Á³ö
+			//åˆ¤æ–­èƒ½ä¸èƒ½è¯»å‡º
 			if (canRead(nLen + sizeof(uint32_t)))
 			{
-				//¼ÆËãÒÑ¶ÁÎ»ÖÃ+Êı×é³¤¶ÈËùÕ¼ÓĞ¿Õ¼ä
+				//è®¡ç®—å·²è¯»ä½ç½®+æ•°ç»„é•¿åº¦æ‰€å æœ‰ç©ºé—´
 				pop(sizeof(uint32_t));
-				//½«Òª¶ÁÈ¡µÄÊı¾İ ¿½±´³öÀ´
+				//å°†è¦è¯»å–çš„æ•°æ® æ‹·è´å‡ºæ¥
 				memcpy(pArr, _pBuff + _nReadPos, nLen);
-				//¼ÆËãÒÑ¶ÁÊı¾İÎ»ÖÃ
+				//è®¡ç®—å·²è¯»æ•°æ®ä½ç½®
 				pop(nLen);
 				return len1;
 			}
@@ -194,32 +194,32 @@ public:
 		Read(nLen, false);
 		if (nLen > 0)
 		{
-			//ÅĞ¶ÏÄÜ²»ÄÜ¶Á³ö
+			//åˆ¤æ–­èƒ½ä¸èƒ½è¯»å‡º
 			if (canRead(nLen + sizeof(uint32_t)))
 			{
-				//¼ÆËãÒÑ¶ÁÎ»ÖÃ+Êı×é³¤¶ÈËùÕ¼ÓĞ¿Õ¼ä
+				//è®¡ç®—å·²è¯»ä½ç½®+æ•°ç»„é•¿åº¦æ‰€å æœ‰ç©ºé—´
 				pop(sizeof(uint32_t));
-				//½«Òª¶ÁÈ¡µÄÊı¾İ ¿½±´³öÀ´
+				//å°†è¦è¯»å–çš„æ•°æ® æ‹·è´å‡ºæ¥
 				str.insert(0, _pBuff + _nReadPos, nLen);
-				//¼ÆËãÒÑ¶ÁÊı¾İÎ»ÖÃ
+				//è®¡ç®—å·²è¯»æ•°æ®ä½ç½®
 				pop(nLen);
 				return true;
 			}
 		}
 		return false;
 	}
-	//////Write
+//////Write
 	template<typename T>
 	bool Write(T n)
 	{
-		//¼ÆËãÒªĞ´ÈëÊı¾İµÄ×Ö½Ú³¤¶È
+		//è®¡ç®—è¦å†™å…¥æ•°æ®çš„å­—èŠ‚é•¿åº¦
 		auto nLen = sizeof(T);
-		//ÅĞ¶ÏÄÜ²»ÄÜĞ´Èë
+		//åˆ¤æ–­èƒ½ä¸èƒ½å†™å…¥
 		if (canWrite(nLen))
 		{
-			//½«ÒªĞ´ÈëµÄÊı¾İ ¿½±´µ½»º³åÇøÎ²²¿
+			//å°†è¦å†™å…¥çš„æ•°æ® æ‹·è´åˆ°ç¼“å†²åŒºå°¾éƒ¨
 			memcpy(_pBuff + _nWritePos, &n, nLen);
-			//¼ÆËãÒÑĞ´ÈëÊı¾İÎ²²¿Î»ÖÃ
+			//è®¡ç®—å·²å†™å…¥æ•°æ®å°¾éƒ¨ä½ç½®
 			push(nLen);
 			return true;
 		}
@@ -229,16 +229,16 @@ public:
 	template<typename T>
 	bool WriteArray(T* pData, uint32_t len)
 	{
-		//¼ÆËãÒªĞ´ÈëÊı×éµÄ×Ö½Ú³¤¶È
-		auto nLen = sizeof(T) * len;
-		//ÅĞ¶ÏÄÜ²»ÄÜĞ´Èë
+		//è®¡ç®—è¦å†™å…¥æ•°ç»„çš„å­—èŠ‚é•¿åº¦
+		auto nLen = sizeof(T)*len;
+		//åˆ¤æ–­èƒ½ä¸èƒ½å†™å…¥
 		if (canWrite(nLen + sizeof(uint32_t)))
 		{
-			//ÏÈĞ´ÈëÊı×éµÄÔªËØÊıÁ¿
+			//å…ˆå†™å…¥æ•°ç»„çš„å…ƒç´ æ•°é‡
 			Write(len);
-			//½«ÒªĞ´ÈëµÄÊı¾İ ¿½±´µ½»º³åÇøÎ²²¿
+			//å°†è¦å†™å…¥çš„æ•°æ® æ‹·è´åˆ°ç¼“å†²åŒºå°¾éƒ¨
 			memcpy(_pBuff + _nWritePos, pData, nLen);
-			//¼ÆËãÊı¾İÎ²²¿Î»ÖÃ
+			//è®¡ç®—æ•°æ®å°¾éƒ¨ä½ç½®
 			push(nLen);
 			return true;
 		}
@@ -273,15 +273,15 @@ public:
 		return Write(n);
 	}
 private:
-	//Êı¾İ»º³åÇø
+	//æ•°æ®ç¼“å†²åŒº
 	char* _pBuff = nullptr;
-	//»º³åÇø×ÜµÄ¿Õ¼ä´óĞ¡£¬×Ö½Ú³¤¶È
+	//ç¼“å†²åŒºæ€»çš„ç©ºé—´å¤§å°ï¼Œå­—èŠ‚é•¿åº¦
 	int _nSize = 0;
-	//ÒÑĞ´ÈëÊı¾İµÄÎ²²¿Î»ÖÃ£¬ÒÑĞ´ÈëÊı¾İ³¤¶È
+	//å·²å†™å…¥æ•°æ®çš„å°¾éƒ¨ä½ç½®ï¼Œå·²å†™å…¥æ•°æ®é•¿åº¦
 	int _nWritePos = 0;
-	//ÒÑ¶ÁÈ¡Êı¾İµÄÎ²²¿Î»ÖÃ
+	//å·²è¯»å–æ•°æ®çš„å°¾éƒ¨ä½ç½®
 	int _nReadPos = 0;
-	//_pBuffÊÇÍâ²¿´«ÈëµÄÊı¾İ¿éÊ±ÊÇ·ñÓ¦¸Ã±»ÊÍ·Å
+	//_pBuffæ˜¯å¤–éƒ¨ä¼ å…¥çš„æ•°æ®å—æ—¶æ˜¯å¦åº”è¯¥è¢«é‡Šæ”¾
 	bool _bDelete = true;
 };
 

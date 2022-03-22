@@ -1,11 +1,10 @@
-#ifndef _EasyTcpClient_hpp_
+Ôªø#ifndef _EasyTcpClient_hpp_
 #define _EasyTcpClient_hpp_
 
 #include"CELL.hpp"
 #include"CELLNetWork.hpp"
 #include"MessageHeader.hpp"
 #include"CELLClient.hpp"
-#include"CELLFDSet.hpp"
 
 class EasyTcpClient
 {
@@ -14,13 +13,13 @@ public:
 	{
 		_isConnect = false;
 	}
-
+	
 	virtual ~EasyTcpClient()
 	{
 		Close();
 	}
-	//≥ı ºªØsocket
-	SOCKET InitSocket(int sendSize = SEND_BUFF_SIZE, int recvSize = RECV_BUFF_SIZE)
+	//ÂàùÂßãÂåñsocket
+	SOCKET InitSocket(int sendSize = SEND_BUFF_SZIE, int recvSize = RECV_BUFF_SZIE)
 	{
 		CELLNetWork::Init();
 
@@ -32,18 +31,19 @@ public:
 		SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (INVALID_SOCKET == sock)
 		{
-			CELLLog_Error("create socket failed...");
+			CELLLog_PError("create socket failed...");
 		}
 		else {
 			CELLNetWork::make_reuseaddr(sock);
 			//CELLLog_Info("create socket<%d> success...", (int)sock);
 			_pClient = new CELLClient(sock, sendSize, recvSize);
+			OnInitSocket();
 		}
 		return sock;
 	}
 
-	//¡¨Ω”∑˛ŒÒ∆˜
-	int Connect(const char* ip, unsigned short port)
+	//ËøûÊé•ÊúçÂä°Âô®
+	int Connect(const char* ip,unsigned short port)
 	{
 		if (!_pClient)
 		{
@@ -52,7 +52,7 @@ public:
 				return SOCKET_ERROR;
 			}
 		}
-		// 2 ¡¨Ω”∑˛ŒÒ∆˜ connect
+		// 2 ËøûÊé•ÊúçÂä°Âô® connect
 		sockaddr_in _sin = {};
 		_sin.sin_family = AF_INET;
 		_sin.sin_port = htons(port);
@@ -65,17 +65,18 @@ public:
 		int ret = connect(_pClient->sockfd(), (sockaddr*)&_sin, sizeof(sockaddr_in));
 		if (SOCKET_ERROR == ret)
 		{
-			CELLLog_Info("<socket=%d> connect <%s:%d> failed...", (int)_pClient->sockfd(), ip, port);
+			CELLLog_PError("<socket=%d> connect <%s:%d> failed...", (int)_pClient->sockfd(), ip, port);
 		}
 		else {
 			_isConnect = true;
+			OnConnect();
 			//CELLLog_Info("<socket=%d> connect <%s:%d> success...", (int)_pClient->sockfd(), ip, port);
 		}
 		return ret;
 	}
 
-	//πÿ±’Ã◊Ω⁄◊÷closesocket
-	void Close()
+	//ÂÖ≥Èó≠Â•óËäÇÂ≠óclosesocket
+	virtual void Close()
 	{
 		if (_pClient)
 		{
@@ -85,98 +86,50 @@ public:
 		_isConnect = false;
 	}
 
-	//¥¶¿ÌÕ¯¬Áœ˚œ¢
-	bool OnRun(int microseconds = 1)
-	{
-		if (isRun())
-		{
-			SOCKET _sock = _pClient->sockfd();
+	//Â§ÑÁêÜÁΩëÁªúÊ∂àÊÅØ
+	virtual bool OnRun(int microseconds = 1) = 0;
 
-
-			_fdRead.zero();
-			_fdRead.add(_sock);
-
-			_fdWrite.zero();
-
-			timeval t = { 0,microseconds };
-			int ret = 0;
-			if (_pClient->needWrite())
-			{
-
-				_fdWrite.add(_sock);
-				ret = select(_sock + 1, _fdRead.fdset(), _fdWrite.fdset(), nullptr, &t);
-			}
-			else {
-				ret = select(_sock + 1, _fdRead.fdset(), nullptr, nullptr, &t);
-			}
-
-			if (ret < 0)
-			{
-				CELLLog_Error("<socket=%d>OnRun.select exit", (int)_sock);
-				Close();
-				return false;
-			}
-
-			if (_fdRead.has(_sock))
-			{
-				if (SOCKET_ERROR == RecvData(_sock))
-				{
-					CELLLog_Error("<socket=%d>OnRun.select RecvData exit", (int)_sock);
-					Close();
-					return false;
-				}
-			}
-
-			if (_fdWrite.has(_sock))
-			{
-				if (SOCKET_ERROR == _pClient->SendDataReal())
-				{
-					CELLLog_Error("<socket=%d>OnRun.select SendDataReal exit", (int)_sock);
-					Close();
-					return false;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-
-	// «∑Òπ§◊˜÷–
+	//ÊòØÂê¶Â∑•‰Ωú‰∏≠
 	bool isRun()
 	{
 		return _pClient && _isConnect;
 	}
 
-	//Ω” ’ ˝æ› ¥¶¿Ì’≥∞¸ ≤∑÷∞¸
-	int RecvData(SOCKET cSock)
+	//Êé•Êî∂Êï∞ÊçÆ Â§ÑÁêÜÁ≤òÂåÖ ÊãÜÂàÜÂåÖ
+	int RecvData()
 	{
 		if (isRun())
 		{
-			//Ω” ’øÕªß∂À ˝æ›
+			//Êé•Êî∂ÂÆ¢Êà∑Á´ØÊï∞ÊçÆ
 			int nLen = _pClient->RecvData();
 			if (nLen > 0)
 			{
-				//—≠ª∑ ≈–∂œ «∑Ò”–œ˚œ¢–Ë“™¥¶¿Ì
-				while (_pClient->hasMsg())
-				{
-					//¥¶¿ÌÕ¯¬Áœ˚œ¢
-					OnNetMsg(_pClient->front_msg());
-					//“∆≥˝œ˚œ¢∂”¡–£®ª∫≥Â«¯£©◊Ó«∞µƒ“ªÃı ˝æ›
-					_pClient->pop_front_msg();
-				}
+				DoMsg();
 			}
 			return nLen;
 		}
 		return 0;
 	}
 
-	//œÏ”¶Õ¯¬Áœ˚œ¢
+	void DoMsg()
+	{
+		//Âæ™ÁéØ Âà§Êñ≠ÊòØÂê¶ÊúâÊ∂àÊÅØÈúÄË¶ÅÂ§ÑÁêÜ
+		while (_pClient->hasMsg())
+		{
+			//Â§ÑÁêÜÁΩëÁªúÊ∂àÊÅØ
+			OnNetMsg(_pClient->front_msg());
+			//ÁßªÈô§Ê∂àÊÅØÈòüÂàóÔºàÁºìÂÜ≤Âå∫ÔºâÊúÄÂâçÁöÑ‰∏ÄÊù°Êï∞ÊçÆ
+			_pClient->pop_front_msg();
+		}
+	}
+
+	//ÂìçÂ∫îÁΩëÁªúÊ∂àÊÅØ
 	virtual void OnNetMsg(netmsg_DataHeader* header) = 0;
 
-	//∑¢ÀÕ ˝æ›
+	//ÂèëÈÄÅÊï∞ÊçÆ
 	int SendData(netmsg_DataHeader* header)
 	{
-		if (isRun())
+		if(isRun())
 			return _pClient->SendData(header);
 		return SOCKET_ERROR;
 	}
@@ -188,8 +141,14 @@ public:
 		return SOCKET_ERROR;
 	}
 protected:
-	CELLFDSet _fdRead;
-	CELLFDSet _fdWrite;
+	virtual void OnInitSocket() {
+		
+	};
+
+	virtual void OnConnect() {
+		
+	};
+protected:
 	CELLClient* _pClient = nullptr;
 	bool _isConnect = false;
 };

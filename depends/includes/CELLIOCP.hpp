@@ -200,10 +200,6 @@ public:
 			{
 				return 1;
 			}
-			if (ERROR_SEM_TIMEOUT == err)
-			{
-				return 1;
-			}
 			CELLLog_PError("GetQueuedCompletionStatus failed");
 			return -1;
 		}

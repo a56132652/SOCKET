@@ -19,7 +19,6 @@ protected:
 		//伯克利套接字 BSD socket
 		//描述符（socket） 集合
 		CELLFDSet fdRead;
-		fdRead.create(_nMaxClient);
 		while (pThread->isRun())
 		{
 			time4msg();

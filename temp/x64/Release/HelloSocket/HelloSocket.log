@@ -1,0 +1,13 @@
+﻿C:\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(495,5): warning MSB8004: Intermediate 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Intermediate 目录。
+C:\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(496,5): warning MSB8004: Output 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Output 目录。
+  Test.cpp
+F:\A3-git_repos\SOCKET\depends\includes\CELLLog.hpp(61,24): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+F:\A3-git_repos\SOCKET\depends\includes\CELLLog.hpp(62,4): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+F:\A3-git_repos\SOCKET\depends\includes\CELLLog.hpp(65,4): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+F:\A3-git_repos\SOCKET\depends\includes\CELLLog.hpp(69,14): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+F:\A3-git_repos\SOCKET\depends\includes\EasyTcpClient.hpp(107,24): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\EasyTcpClient.hpp(110,24): warning C4244: “参数”: 从“SOCKET”转换到“int”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLMsgStream.hpp(65,1): warning C4267: “参数”: 从“size_t”转换到“uint32_t”，可能丢失数据
+F:\A3-git_repos\SOCKET\depends\includes\CELLMsgStream.hpp(70,1): warning C4267: “参数”: 从“size_t”转换到“uint32_t”，可能丢失数据
+F:\A3-git_repos\SOCKET\HelloSocket\Test.cpp(55,14): error C2065: “CMD_LOGINOUT”: 未声明的标识符
+F:\A3-git_repos\SOCKET\HelloSocket\Test.cpp(63,27): warning C4267: “参数”: 从“size_t”转换到“uint32_t”，可能丢失数据

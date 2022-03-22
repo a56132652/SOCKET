@@ -1,4 +1,4 @@
-#ifndef _CELL_THREAD_HPP_
+ï»¿#ifndef _CELL_THREAD_HPP_
 #define _CELL_THREAD_HPP_
 
 #include"CELLSemaphore.hpp"
@@ -6,7 +6,7 @@
 class CELLThread
 {
 public:
-	static void Sleep(time_t dt) 
+	static void Sleep(time_t dt)
 	{
 		std::chrono::milliseconds t(dt);
 		std::this_thread::sleep_for(t);
@@ -14,52 +14,59 @@ public:
 private:
 	typedef std::function<void(CELLThread*)> EventCall;
 public:
-	void Start(EventCall onCreate = nullptr,
-			   EventCall onRun = nullptr ,
-		       EventCall onDestory = nullptr)
+	//å¯åŠ¨çº¿ç¨‹
+	void Start(
+		EventCall onCreate = nullptr,
+		EventCall onRun = nullptr,
+		EventCall onDestory = nullptr)
 	{
-		std::lock_guard<std::mutex> lock(_mutex); 
+		std::lock_guard<std::mutex> lock(_mutex);
 		if (!_isRun)
 		{
 			_isRun = true;
+
 			if (onCreate)
 				_onCreate = onCreate;
 			if (onRun)
 				_onRun = onRun;
 			if (onDestory)
-				_onDestory = onDestory; 
+				_onDestory = onDestory;
 
+			//çº¿ç¨‹
 			std::thread t(std::mem_fn(&CELLThread::OnWork), this);
 			t.detach();
 		}
 	}
+
+	//å…³é—­çº¿ç¨‹
 	void Close()
-	{
-		std::lock_guard<std::mutex> lock(_mutex);
-		if (_isRun)
-		{  
-			_isRun = false;
-			_sem.wait();
-		}
-	}
-	//ÔÚ¹¤×÷º¯ÊıÖĞÍË³ö
-	//²»ĞèÒªÊ¹ÓÃĞÅºÅÁ¿À´µÈ´ı
-	//Èç¹ûÊ¹ÓÃ»á×èÈû
-	void Exit()
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
 		if (_isRun)
 		{
 			_isRun = false;
+			_sem.wait();
 		}
 	}
-	//Ïß³ÌÊÇ·ñ´¦ÓÚÔËĞĞÖĞ
+	//åœ¨å·¥ä½œå‡½æ•°ä¸­é€€å‡º
+	//ä¸éœ€è¦ä½¿ç”¨ä¿¡å·é‡æ¥é˜»å¡ç­‰å¾…
+	//å¦‚æœä½¿ç”¨ä¼šé˜»å¡
+	void Exit()
+	{
+		if (_isRun)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+			_isRun = false;
+		}
+	}
+
+	//çº¿ç¨‹æ˜¯å¦å¯åŠ¨è¿è¡ŒçŠ¶æ€
 	bool isRun()
 	{
 		return _isRun;
 	}
 protected:
-	//Ïß³ÌÔËĞĞÊ±µÄ¹¤×÷º¯Êı
+	//çº¿ç¨‹çš„è¿è¡Œæ—¶çš„å·¥ä½œå‡½æ•°
 	void OnWork()
 	{
 		if (_onCreate)
@@ -68,21 +75,20 @@ protected:
 			_onRun(this);
 		if (_onDestory)
 			_onDestory(this);
-		 
-		_isRun = false;
+
 		_sem.wakeup();
+		_isRun = false;
 	}
 private:
 	EventCall _onCreate;
 	EventCall _onRun;
 	EventCall _onDestory;
-	//²»Í¬Ïß³ÌÖĞ¸Ä±äÊı¾İÊÇĞèÒª¼ÓËø
+	//ä¸åŒçº¿ç¨‹ä¸­æ”¹å˜æ•°æ®æ—¶éœ€è¦åŠ é”
 	std::mutex _mutex;
-	//¿ØÖÆÏß³ÌµÄÖÕÖ¹¡¢ÍË³ö
+	//æ§åˆ¶çº¿ç¨‹çš„ç»ˆæ­¢ã€é€€å‡º
 	CELLSemaphore _sem;
-	//Ïß³ÌÊÇ·ñÆô¶¯ÔËĞĞÖĞ
-	bool _isRun = false;
-
+	//çº¿ç¨‹æ˜¯å¦å¯åŠ¨è¿è¡Œä¸­
+	bool	_isRun = false;
 };
 
 

@@ -7,11 +7,7 @@
 class EasySelectClient : public EasyTcpClient
 {
 public:
-	EasySelectClient()
-	{
-		_fdRead.create(1);
-		_fdWrite.create(1);
-	}
+	
 	//处理网络消息
 	bool OnRun(int microseconds = 1)
 	{

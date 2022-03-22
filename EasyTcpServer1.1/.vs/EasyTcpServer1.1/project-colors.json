@@ -10,7 +10,17 @@
       "ProjectGuid": "27d35481-3af2-4fbb-8fc2-cf420118ceb9",
       "DisplayName": "EasyTcpClient1.1",
       "ColorIndex": 1
+    },
+    "ffcea327-33ef-455b-8f98-58b3b91abcc4": {
+      "ProjectGuid": "ffcea327-33ef-455b-8f98-58b3b91abcc4",
+      "DisplayName": "HelloSocket",
+      "ColorIndex": 2
+    },
+    "fc2caeba-1d5b-4b61-8dcc-86ed334ffb67": {
+      "ProjectGuid": "fc2caeba-1d5b-4b61-8dcc-86ed334ffb67",
+      "DisplayName": "CppNet100",
+      "ColorIndex": 3
     }
   },
-  "NextColorIndex": 2
+  "NextColorIndex": 4
 }

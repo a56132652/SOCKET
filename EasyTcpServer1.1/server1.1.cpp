@@ -1,8 +1,10 @@
-﻿#include"EasyTcpServer.hpp"
+﻿//#include"EasySelectServer.hpp"
+//#include"EasyEpollServer.hpp"
+#include"EasyIOCPServer.hpp"
 #include"CELLMsgStream.hpp"
 #include"CELLConfig.hpp"
 
-class MyServer : public EasyTcpServer
+class MyServer : public EasyIOCPServer
 {
 public:
 	MyServer()
@@ -32,7 +34,7 @@ public:
 		{
 		case CMD_LOGIN:
 		{
-			pClient->resetDtHeart();
+			pClient->resetDTHeart();
 			netmsg_Login* login = (netmsg_Login*)header;
 			//检查消息ID
 			if (_bCheckMsgID)
@@ -71,7 +73,7 @@ public:
 		break;
 		case CMD_LOGOUT:
 		{
-			pClient->resetDtHeart();
+			pClient->resetDTHeart();
 			CELLReadStream r(header);
 			//读取消息长度
 			r.ReadInt16();
@@ -107,7 +109,7 @@ public:
 		break;
 		case CMD_C2S_HEART:
 		{
-			pClient->resetDtHeart();
+			pClient->resetDTHeart();
 			netmsg_s2c_Heart ret;
 			pClient->SendData(&ret);
 		}

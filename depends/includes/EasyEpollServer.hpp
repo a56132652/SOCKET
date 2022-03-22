@@ -17,7 +17,7 @@ protected:
 	void OnRun(CELLThread* pThread)
 	{
 		CELLEpoll ep;
-		ep.create(_nMaxClient);
+		ep.create(1);
 		ep.ctl(EPOLL_CTL_ADD, sockfd(), EPOLLIN);
 		while (pThread->isRun())
 		{

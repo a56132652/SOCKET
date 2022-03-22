@@ -77,10 +77,9 @@ protected:
 		}
 		else
 		{
-			if (_clientAccept < _nMaxClient)
+			if (_clientCount < _nMaxClient)
 			{
-				_clientAccept++;
-				CELLNetWork::make_reuseaddr(cSock);
+				//CELLNetWork::make_reuseaddr(cSock);
 				//将新客户端分配给客户数量最少的cellServer
 				addClientToCELLServer(new CELLClient(cSock, _nSendBuffSize, _nRecvBuffSize));
 				//获取IP地址 inet_ntoa(clientAddr.sin_addr)

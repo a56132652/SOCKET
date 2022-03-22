@@ -1,10 +1,10 @@
-#ifndef _CELL_MSG_STREAM_HPP_
+ï»¿#ifndef _CELL_MSG_STREAM_HPP_
 #define _CELL_MSG_STREAM_HPP_
 
 #include"MessageHeader.hpp"
 #include"CELLStream.hpp"
 
-//ÏûÏ¢Êı¾İ×Ö½ÚÁ÷
+//æ¶ˆæ¯æ•°æ®å­—èŠ‚æµ
 class CELLReadStream :public CELLStream
 {
 public:
@@ -18,9 +18,9 @@ public:
 		:CELLStream(pData, nSize, bDelete)
 	{
 		push(nSize);
-		////Ô¤ÏÈ¶ÁÈ¡ÏûÏ¢³¤¶È
+		////é¢„å…ˆè¯»å–æ¶ˆæ¯é•¿åº¦
 		//ReadInt16();
-		////Ô¤ÏÈ¶ÁÈ¡ÏûÏ¢ÃüÁî
+		////é¢„å…ˆè¯»å–æ¶ˆæ¯å‘½ä»¤
 		//getNetCmd();
 	}
 
@@ -32,21 +32,21 @@ public:
 	}
 };
 
-//ÏûÏ¢Êı¾İ×Ö½ÚÁ÷
+//æ¶ˆæ¯æ•°æ®å­—èŠ‚æµ
 class CELLWriteStream :public CELLStream
 {
 public:
 	CELLWriteStream(char* pData, int nSize, bool bDelete = false)
 		:CELLStream(pData, nSize, bDelete)
 	{
-		//Ô¤ÏÈÕ¼ÁìÏûÏ¢³¤¶ÈËùĞè¿Õ¼ä
+		//é¢„å…ˆå é¢†æ¶ˆæ¯é•¿åº¦æ‰€éœ€ç©ºé—´
 		Write<uint16_t>(0);
 	}
 
 	CELLWriteStream(int nSize = 1024)
 		:CELLStream(nSize)
 	{
-		//Ô¤ÏÈÕ¼ÁìÏûÏ¢³¤¶ÈËùĞè¿Õ¼ä
+		//é¢„å…ˆå é¢†æ¶ˆæ¯é•¿åº¦æ‰€éœ€ç©ºé—´
 		Write<uint16_t>(0);
 	}
 

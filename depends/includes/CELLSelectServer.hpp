@@ -12,14 +12,6 @@ public:
 	{
 		Close();
 	}
-
-	virtual void setClientNum(int nSocketNum)
-	{
-		_fdRead.create(nSocketNum);
-		_fdWrite.create(nSocketNum);
-		_fdRead_bak.create(nSocketNum);
-	}
-
 	bool DoNetEvents()
 	{
 		//计算可读集合

@@ -100,7 +100,7 @@ public:
 		{
 			if (_ioEvent.bytesTrans <= 0)
 			{//客户端断开处理
-				//CELLLog_Info("rmClient sockfd=%d, IO_TYPE::RECV bytesTrans=%d", _ioEvent.pIoData->sockfd, _ioEvent.bytesTrans);
+				CELLLog_Info("rmClient sockfd=%d, IO_TYPE::RECV bytesTrans=%d", _ioEvent.pIoData->sockfd, _ioEvent.bytesTrans);
 				rmClient(_ioEvent);
 				return ret;
 			}
@@ -119,7 +119,7 @@ public:
 		{
 			if (_ioEvent.bytesTrans <= 0)
 			{//客户端断开处理
-				//CELLLog_Info("rmClient sockfd=%d, IO_TYPE::SEND bytesTrans=%d", _ioEvent.pIoData->sockfd, _ioEvent.bytesTrans);
+				CELLLog_Info("rmClient sockfd=%d, IO_TYPE::SEND bytesTrans=%d", _ioEvent.pIoData->sockfd, _ioEvent.bytesTrans);
 				rmClient(_ioEvent);
 				return ret;
 			}

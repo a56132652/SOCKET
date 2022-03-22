@@ -1,12 +1,13 @@
-#include"EasyTcpClient.hpp"
-#include"MessageHeader.hpp"
+//#include"EasySelectClient.hpp"
+#include"EasyIOCPClient.hpp"
 #include"CELLTimestamp.hpp"
 #include"CELLConfig.hpp"
-#include<stdio.h>
-#include<thread>
-#include<atomic>
-#include<vector>
+#include"CELLThread.hpp"
+#include"CELLMsgStream.hpp"
 
+#include<atomic>
+#include<list>
+#include<vector>
 using namespace std;
 
 //服务端IP地址
@@ -21,8 +22,8 @@ int nClient = 1;
 ::::::数据会先写入发送缓冲区
 ::::::等待socket可写时才实际发送
 ::每个客户端在nSendSleep(毫秒)时间内
-::最大可写入nMsg条netmsg_Login消息
-::每条消息100字节（netmsg_Login）
+::最大可写入nMsg条Login消息
+::每条消息100字节（Login）
 */
 //客户端每次发几条消息
 int nMsg = 1;
@@ -31,11 +32,11 @@ int nSendSleep = 1;
 //工作休眠时间
 int nWorkSleep = 1;
 //客户端发送缓冲区大小
-int nSendBuffSize = SEND_BUFF_SIZE;
+int nSendBuffSize = SEND_BUFF_SZIE;
 //客户端接收缓冲区大小
-int nRecvBuffSize = RECV_BUFF_SIZE;
+int nRecvBuffSize = RECV_BUFF_SZIE;
 
-class MyClient : public EasyTcpClient
+class MyClient : public EasyIOCPClient
 {
 public:
 	MyClient()
@@ -93,6 +94,7 @@ public:
 		{
 			login->msgID = _nSendMsgID;
 			ret = SendData(login);
+			//CELLLog_Info("%d", _nSendMsgID);
 			if (SOCKET_ERROR != ret)
 			{
 				++_nSendMsgID;
@@ -144,7 +146,6 @@ void WorkThread(CELLThread* pThread, int id)
 	int end = nClient;
 	for (int n = begin; n < end; n++)
 	{
-		//判断线程是否在运行中，例如输入Exit命令时，10000个客户端还没创建完，此时直接退出，不再继续创建
 		if (!pThread->isRun())
 			break;
 		clients[n] = new MyClient();
@@ -153,7 +154,6 @@ void WorkThread(CELLThread* pThread, int id)
 	}
 	for (int n = begin; n < end; n++)
 	{
-		//判断线程是否在运行中，若线程未运行，直接退出
 		if (!pThread->isRun())
 			break;
 		if (INVALID_SOCKET == clients[n]->InitSocket(nSendBuffSize, nRecvBuffSize))
@@ -255,8 +255,8 @@ int main(int argc, char* args[])
 	nClient = CELLConfig::Instance().getInt("nClient", 10000);
 	nMsg = CELLConfig::Instance().getInt("nMsg", 10);
 	nSendSleep = CELLConfig::Instance().getInt("nSendSleep", 100);
-	nSendBuffSize = CELLConfig::Instance().getInt("nSendBuffSize", SEND_BUFF_SIZE);
-	nRecvBuffSize = CELLConfig::Instance().getInt("nRecvBuffSize", RECV_BUFF_SIZE);
+	nSendBuffSize = CELLConfig::Instance().getInt("nSendBuffSize", SEND_BUFF_SZIE);
+	nRecvBuffSize = CELLConfig::Instance().getInt("nRecvBuffSize", RECV_BUFF_SZIE);
 
 	//启动终端命令线程
 	//用于接收运行时用户输入的指令

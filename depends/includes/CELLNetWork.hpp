@@ -1,4 +1,4 @@
-#ifndef _CELL_NET_WORK_HPP_
+ï»¿#ifndef _CELL_NET_WORK_HPP_
 #define _CELL_NET_WORK_HPP_
 
 #include"CELL.hpp"
@@ -14,7 +14,7 @@ private:
 	CELLNetWork()
 	{
 #ifdef _WIN32
-		//Æô¶¯Windows socket 2.x»·¾³
+		//å¯åŠ¨Windows socket 2.xç¯å¢ƒ
 		WORD ver = MAKEWORD(2, 2);
 		WSADATA dat;
 		WSAStartup(ver, &dat);
@@ -23,7 +23,7 @@ private:
 #ifndef _WIN32
 		//if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 		//	return (1);
-		//ºöÂÔÒì³£ĞÅºÅ£¬Ä¬ÈÏÇé¿ö»áµ¼ÖÂ½ø³ÌÖÕÖ¹
+		//å¿½ç•¥å¼‚å¸¸ä¿¡å·ï¼Œé»˜è®¤æƒ…å†µä¼šå¯¼è‡´è¿›ç¨‹ç»ˆæ­¢
 		signal(SIGPIPE, SIG_IGN);
 #endif
 	}
@@ -31,7 +31,7 @@ private:
 	~CELLNetWork()
 	{
 #ifdef _WIN32
-		//Çå³ıWindows socket»·¾³
+		//æ¸…é™¤Windows socketç¯å¢ƒ
 		WSACleanup();
 #endif
 	}
@@ -72,11 +72,33 @@ public:
 	static int make_reuseaddr(SOCKET fd)
 	{
 		int flag = 1;
-		if (SOCKET_ERROR == setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&flag, sizeof(flag))) {
-			CELLLog_Warring("setsockopt socket<%d> SO_REUSEADDR fail", (int)fd);
+		if (SOCKET_ERROR == setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&flag, sizeof(flag))) {
+			CELLLog_Warring("setsockopt socket<%d> SO_REUSEADDR failed",(int)fd);
 			return SOCKET_ERROR;
 		}
 		return 0;
+	}
+
+	static int make_nodelay(SOCKET fd)
+	{
+		int flag = 1;
+		if (SOCKET_ERROR == setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&flag, sizeof(flag))) {
+			CELLLog_Warring("setsockopt socket<%d> IPPROTO_TCP TCP_NODELAY failed", (int)fd);
+			return SOCKET_ERROR;
+		}
+		return 0;
+	}
+
+	static int destorySocket(SOCKET sockfd)
+	{
+#ifdef _WIN32
+		int ret = closesocket(sockfd);
+#else
+		int ret = close(sockfd);
+#endif
+		if(ret < 0)
+			CELLLog_PError("destory sockfd<%d>",(int)sockfd);
+		return ret;
 	}
 };
 

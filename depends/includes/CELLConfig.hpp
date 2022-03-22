@@ -49,8 +49,7 @@ public:
 			//val值:127.0.0.1
 			_kv[cmd] = val;
 			CELLLog_Debug("madeCmd k<%s> v<%s>", cmd, val);
-		}
-		else {
+		} else {
 			_kv[cmd] = "";
 			CELLLog_Debug("madeCmd k<%s>", cmd);
 		}
@@ -62,8 +61,7 @@ public:
 		if (itr == _kv.end())
 		{
 			CELLLog_Error("CELLConfig::getStr not find <%s>", argName);
-		}
-		else {
+		} else {
 			def = itr->second.c_str();
 		}
 		CELLLog_Info("CELLConfig::getStr %s=%s", argName, def);

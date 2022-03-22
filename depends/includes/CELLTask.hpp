@@ -1,87 +1,88 @@
-#ifndef  _CELL_TASK_H_
-#define  _CELL_TASK_H_
+ï»¿#ifndef _CELL_TASK_H_
+#define _CELL_TASK_H_
+
 #include<thread>
 #include<mutex>
 #include<list>
+
 #include<functional>
+
 #include"CELLThread.hpp"
 
-
-//Ö´ĞĞÈÎÎñµÄ·şÎñÀàĞÍ
-class CELLTaskServer
+//æ‰§è¡Œä»»åŠ¡çš„æœåŠ¡ç±»å‹
+class CELLTaskServer 
 {
 public:
-	//ËùÊôserverID
-	int serverID = -1;
+	//æ‰€å±serverid
+	int serverId = -1;
 private:
 	typedef std::function<void()> CELLTask;
 private:
-	//ÈÎÎñÊı¾İ
+	//ä»»åŠ¡æ•°æ®
 	std::list<CELLTask> _tasks;
-	//ÈÎÎñÊı¾İ»º³åÇø
-	std::list<CELLTask> _taskBuf;
-	//¸Ä±äÊı¾İ»º³åÇøÊ±ĞèÒª¼ÓËø
+	//ä»»åŠ¡æ•°æ®ç¼“å†²åŒº
+	std::list<CELLTask> _tasksBuf;
+	//æ”¹å˜æ•°æ®ç¼“å†²åŒºæ—¶éœ€è¦åŠ é”
 	std::mutex _mutex;
 	//
 	CELLThread _thread;
 public:
-	//Ìí¼ÓÈÎÎñ
+	//æ·»åŠ ä»»åŠ¡
 	void addTask(CELLTask task)
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
-		_taskBuf.push_back(task);
+		_tasksBuf.push_back(task);
 	}
-	//Æô¶¯¹¤×÷Ïß³Ì
+	//å¯åŠ¨å·¥ä½œçº¿ç¨‹
 	void Start()
 	{
-		_thread.Start(nullptr, [this](CELLThread* pThread) {OnRun(pThread);});
+		_thread.Start(nullptr, [this](CELLThread* pThread) {
+			OnRun(pThread);
+		});
 	}
 
 	void Close()
 	{
-		//CELLLog_Info("CELLTaskServer%d.Close begin", serverID);
-		
+		///CELLLog_Info("CELLTaskServer%d.Close begin", serverId);
 		_thread.Close();
-
-		//CELLLog_Info("CELLTaskServer%d.Close end", serverID);
+		//CELLLog_Info("CELLTaskServer%d.Close end", serverId);
 	}
 protected:
-	//¹¤×÷º¯Êı
+	//å·¥ä½œå‡½æ•°
 	void OnRun(CELLThread* pThread)
 	{
 		while (pThread->isRun())
 		{
-			//´Ó»º³åÇøÈ¡³öÊı¾İ
-			if (!_taskBuf.empty())
+			//ä»ç¼“å†²åŒºå–å‡ºæ•°æ®
+			if (!_tasksBuf.empty())
 			{
 				std::lock_guard<std::mutex> lock(_mutex);
-				for (auto pTask : _taskBuf)
+				for (auto pTask : _tasksBuf)
 				{
 					_tasks.push_back(pTask);
 				}
-				_taskBuf.clear();
+				_tasksBuf.clear();
 			}
-			//Èç¹ûÃ»ÓĞÈÎÎñ
+			//å¦‚æœæ²¡æœ‰ä»»åŠ¡
 			if (_tasks.empty())
 			{
 				CELLThread::Sleep(1);
 				continue;
 			}
-			//´¦ÀíÈÎÎñ
+			//å¤„ç†ä»»åŠ¡
 			for (auto pTask : _tasks)
 			{
 				pTask();
 			}
-			//Çå¿ÕÈÎÎñ
+			//æ¸…ç©ºä»»åŠ¡
 			_tasks.clear();
 		}
-		//´¦Àí»º³å¶ÓÁĞÖĞµÄÈÎÎñ
-		for (auto pTask : _taskBuf)
+		//å¤„ç†ç¼“å†²é˜Ÿåˆ—ä¸­çš„ä»»åŠ¡
+		for (auto pTask : _tasksBuf)
 		{
 			pTask();
 		}
-		//CELLLog_Info("CELLTaskServer%d.OnRun exit", serverID);
-	} 
+		//CELLLog_Info("CELLTaskServer%d.OnRun exit", serverId);
+	}
 };
-
-#endif //  _CELL_TASK_H_
+#endif // !_CELL_TASK_H_

@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="CELLBuffer" Collapsed="true">
+    <Position X="16.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAABgAAAAAQAAAAEgAIAAAgAAAAAAAEAYAAAgQAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLBuffer.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLClient" Collapsed="true">
+    <Position X="18.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QkABAAAhAIkAogAgAAEgAABCAAIAAAAAIAAAAABKAwA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CellClient.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLConfig" Collapsed="true">
+    <Position X="20.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAgAAAAAAAAAAQAAABAAAAAACAAAQQAiAAAQAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLConfig.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLEpoll" Collapsed="true">
+    <Position X="22" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIAAAAAEAAAAAAAQAAIEoABAAAAAAQA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLEpoll.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLEpollServer" Collapsed="true">
+    <Position X="8.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAABEAAAAAAAEAAAAAAAACAgAAAAAAAAAAEA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLEpollServer.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLFDSet" Collapsed="true">
+    <Position X="16.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAIIAAAAAAAAAAABgAAAAAAAAQIAEAEAAAACAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLFDSet.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLIOCP" Collapsed="true">
+    <Position X="18.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAIAAAIIAgCAEAAEAAAAFEABAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLIOCP.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLIOCPServer" Collapsed="true">
+    <Position X="10.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAEAgAAAAAEAAAAQAAAAAAAAAACAAAAAEg=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLIOCPServer.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLLog" Collapsed="true">
+    <Position X="20.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgIQACAAAAAYgAgAAAAAAAAAAAAAAAQAEAAEAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLLog.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLReadStream" Collapsed="true">
+    <Position X="8.25" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLMsgStream.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLWriteStream" Collapsed="true">
+    <Position X="10.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACgAAEAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLMsgStream.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLNetWork" Collapsed="true">
+    <Position X="22" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAAAAAAIAAABAAAACAAACAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLNetWork.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLSelectServer" Collapsed="true">
+    <Position X="13" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAACAAAABgAAAAAAEAAAAAAAoBAAAAAAAAAAAAAI=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLSelectServer.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLSemaphore" Collapsed="true">
+    <Position X="16.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAACAAAAAgAAAAAEABAAAAABAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLSemaphore.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLServer" Collapsed="true">
+    <Position X="10.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>KIAwgAAAACABgIAAAABDIABgAAsoBIAACAAAAACAAgY=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CellServer.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLStream" Collapsed="true">
+    <Position X="9.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAQCIAEAAQAAEGEAoJAgABBCAQIACEgbwAFAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLStream.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLTaskServer" Collapsed="true">
+    <Position X="18.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IEgAAAAAACAAAQAAAAADAAAAAAEAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLTask.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLThread" Collapsed="true">
+    <Position X="20.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAASgAEAAABAACAAgACAAAAAAAIAAAAACAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLThread.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLTime" Collapsed="true">
+    <Position X="22" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLTimestamp.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CELLTimestamp" Collapsed="true">
+    <Position X="16.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAgAAAAAAAAAKAAAAAAAAACAAAkAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLTimestamp.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyEpollClient" Collapsed="true">
+    <Position X="0.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAAAAAAAAAAAAAAEQAAAAAAAAAACAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\EasyEpollClient.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyEpollServer" Collapsed="true">
+    <Position X="0.5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\EasyEpollServer.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyIOCPClient" Collapsed="true">
+    <Position X="2.75" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAEQAAAAAAACAACAAAg=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\EasyIOCPClient.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyIOCPServer" Collapsed="true">
+    <Position X="2.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAACAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\EasyIOCPServer.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasySelectClient" Collapsed="true">
+    <Position X="5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAEIBAAAAAAAAAEAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\EasySelectClient.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasySelectServer" Collapsed="true">
+    <Position X="5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\EasySelectServer.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyTcpClient" Collapsed="true">
+    <Position X="2.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAQAAAAAIAAAAAABAAAAIBAAIEIBAAAAAAEAACgAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\EasyTcpClient.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyTcpServer" Collapsed="true">
+    <Position X="2.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>YoAQgAIEAKAAAUBAAAQBAAAABAEAAAAAAAUEAQCAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\EasyTcpServer.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="INetEvent" Collapsed="true">
+    <Position X="2.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAQAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\INetEvent.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="IO_DATA_BASE" Collapsed="true">
+    <Position X="16.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIAAAAAAAAAAgAIgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLIOCP.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="IO_EVENT" Collapsed="true">
+    <Position X="18.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAAgAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLIOCP.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="netmsg_DataHeader" Collapsed="true">
+    <Position X="7.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\MessageHeader.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="netmsg_Login" Collapsed="true">
+    <Position X="7.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAAAAAAAAAAAAgAAAAAAAQAAEAEAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\MessageHeader.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="netmsg_LoginR" Collapsed="true">
+    <Position X="0.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABAAABAAAAAAgAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\MessageHeader.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="netmsg_Logout" Collapsed="true">
+    <Position X="5.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\MessageHeader.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="netmsg_LogoutR" Collapsed="true">
+    <Position X="9.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABAAQAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\MessageHeader.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="netmsg_NewUserJoin" Collapsed="true">
+    <Position X="3" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAACAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\MessageHeader.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="netmsg_c2s_Heart" Collapsed="true">
+    <Position X="14.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\MessageHeader.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="netmsg_s2c_Heart" Collapsed="true">
+    <Position X="12" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\MessageHeader.hpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="IO_TYPE" Collapsed="true">
+    <Position X="18.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAACAAIAAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\CELLIOCP.hpp</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="CMD" Collapsed="true">
+    <Position X="16.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAABAAAACAAAAAAAIAABAAAABAAAAAAAgIAAA=</HashCode>
+      <FileName>F:\A3-git_repos\SOCKET\depends\includes\MessageHeader.hpp</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>

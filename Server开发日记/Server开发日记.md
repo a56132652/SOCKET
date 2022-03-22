@@ -4034,11 +4034,41 @@ Select 低效的另一个原因在于程序不知道哪些 Socket 收到数据�
 
 
 
+## Epoll的两种触发模式
+
+- LT（水平触发）模式下，只要这个文件描述符还有数据可读，每次 epoll_wait都会返回它的事件，提醒用户程序去操作；**只要缓冲区有数据，就会一直触发**
+
+
+- ET（边缘触发）模式下，在它检测到有 I/O 事件时，通过 epoll_wait 调用会得到有事件通知的文件描述符，对于每一个被通知的文件描述符，如可读，则必须将该文件描述符一直读到空，让 errno 返回 EAGAIN 为止，否则下次的 epoll_wait 不会返回余下的数据，会丢掉事件。如果ET模式不是非阻塞的，那这个一直读或一直写势必会在最后一次阻塞。**触发一次需要用户读完，若未读完缓冲区数据，无数据到来时，不会再触发**
+
+- 两种触发方式优劣：
+
+  - 如果采用EPOLLLT模式的话，系统中一旦有大量你不需要读写的就绪文件描述符，它们每次调用epoll_wait都会返回，这样会大大降低处理程序检索自己关心的就绪文件描述符的效率.。而采用EPOLLET这种边缘触发模式的话，当被监控的文件描述符上有可读写事件发生时，epoll_wait()会通知处理程序去读写。如果这次没有把数据全部读写完(如读写缓冲区太小)，那么下次调用epoll_wait()时，它不会通知你，也就是它只会通知你一次，直到该文件描述符上出现第二次可读写事件才会通知你！！！这种模式比水平触发效率高，系统不会充斥大量你不关心的就绪文件描述符。
+
+  
+
 ## Epoll原理与工作流程
 
 1. 创建epoll_create方法时，内核会创建一个eventpoll对象，即程序中 Epfd 所代表的对象，eventpoll 对象也是文件系统中的一员，和 Socket 一样，它也会有等待队列，**它还包含一个就序列表rdlist，用于保存就绪Socket的引用**。
+
+   - ```c++
+     struct eventpoll {
+     　　...
+     　　/*红黑树的根节点，这棵树中存储着所有添加到epoll中的事件，
+     　　也就是这个epoll监控的事件*/
+     　　struct rb_root rbr;
+     　　/*双向链表rdllist保存着将要通过epoll_wait返回给用户的、满足条件的事件*/
+     　　struct list_head rdllist;
+     　　...
+     };
+     ```
+
+     
+
 2. 维护监视列表：创建 Epoll 对象后，可以用 epoll_ctl 添加或删除所要监听的 Socket。如果通过epoll_ctl 添加 Sock1、Sock2 和 Sock3 的监视，内核会将 eventpoll 添加到这三个 Socket 的等待队列中。当Socket 收到数据后，中断程序会操作 eventpoll 对象，而不是直接操作进程，**select就会直接操作进程，将进程从所有socket等待列表中移除，将进程放入工作队列**。
+
 3. 接收数据：当 Socket 收到数据后，中断程序会给 **eventpoll 的“就绪列表”**添加 Socket 引用。 当Sock2 和 Sock3 收到数据后，中断程序让 Rdlist 引用这两个 Socket，**eventpoll 对象相当于 Socket 和进程之间的中介**，**Socket 的数据接收并不直接影响进程，而是通过改变 eventpoll 的就绪列表来改变进程状态。**当程序执行到 epoll_wait 时，如果 Rdlist 已经引用了 Socket，那么 epoll_wait 直接返回，如果 Rdlist 为空，阻塞进程
+
 4. 进程阻塞和唤醒：假设计算机中正在运行进程 A 和进程 B，在某时刻进程 A 运行到了 epoll_wait 语句，内核会将进程 A 放入 eventpoll 的等待队列中，阻塞进程，当 Socket 接收到数据，中断程序一方面修改 Rdlist，另一方面唤醒 eventpoll 等待队列中的进程，进程 A 再次进入运行状态
 
 
@@ -4231,12 +4261,38 @@ AcceptEx()
 ```c++
 BOOL WINAPI GetQueuedCompletionStatus(  
     __in   HANDLE          CompletionPort,    // 这个就是我们建立的那个唯一的完成端口   
-    __out  LPDWORD         lpNumberOfBytes,   //这个是操作完成后返回的字节数   
+    __out  LPDWORD         lpNumberOfBytes,   //该事件从socket中读取或写入的数据，注意这里和epoll有巨大区别，epoll是事件触发之后，我们自己来负责读写数据，而IOCP则是数据读写完成后再来通知我们(Reactor和Proactor的差别)。  
     __out  PULONG_PTR      lpCompletionKey,   // 这个是我们建立完成端口的时候绑定的那个自定义结构体参数   
     __out  LPOVERLAPPED    *lpOverlapped,     // 这个是我们在连入Socket的时候一起建立的那个重叠结构   
     __in   DWORD           dwMilliseconds     // 等待完成端口的超时时间，如果线程不需要做其他的事情，那就INFINITE就行了   
     );  
 ```
+
+- CompletionPort ： IOCP句柄
+
+- lpNumberOfBytes：该事件从socket中读取或写入的数据，注意这里和epoll有巨大区别，epoll是事件触发之后，我们自己来负责读写数据，而IOCP则是数据读写完成后再来通知我们(Reactor和Proactor的差别)。
+
+- lpCompletionKey：第二次调用CreateIoCompletionPort时传递的第三个参数，我们可以从这个参数里获取到网络连接的上下文之类的信息
+
+- lpOverlapped：Windows定义好的结构体，叫做重叠结构体，这里我们可以自定义一个结构体，成员变量中包含一个OVERLAPPED类型的变量，在IOCP事件返回时通过CONTAINING_RECORD宏来获取自定义结构体的指针，这是第二个可以绑定用户数据(连接上下文的地方，另外一个是GetQueuedCompletionStatus绑定socket时传递的第三个参数)。
+
+  - ```c++
+    typedef struct _OVERLAPPED {
+        ULONG_PTR Internal;
+        ULONG_PTR InternalHigh;
+        union {
+            struct {
+                DWORD Offset;
+                DWORD OffsetHigh;
+            } DUMMYSTRUCTNAME;
+            PVOID Pointer;
+        } DUMMYUNIONNAME;
+    
+        HANDLE  hEvent;
+    } OVERLAPPED, *LPOVERLAPPED;
+    ```
+
+    
 
 `GetQueuedCompletionStatus()`会让Worker线程进入不占用CPU的睡眠状态，直到完成端口上出现了需要处理的网络操作或者超出了等待的时间限制为止
 
@@ -4492,5 +4548,29 @@ void postSend(IO_DATA_BASE* pIO_DATA)
 		}
 	}
 }	
+```
+
+
+
+## 11 预加载AcceptEx()
+
+**使用`WSAloctl将AcceptEx加载到内存中`**
+
+```c++
+//将AcceptEx函数加载内存中，调用效率更高
+LPFN_ACCEPTEX lpfnAcceptEx = NULL;
+void loadAcceptEx(SOCKET ListenSocket)
+{
+	GUID GuidAcceptEx = WSAID_ACCEPTEX;
+	DWORD dwBytes = 0;
+	int iResult = WSAIoctl(ListenSocket, SIO_GET_EXTENSION_FUNCTION_POINTER,
+		&GuidAcceptEx, sizeof(GuidAcceptEx),
+		&lpfnAcceptEx, sizeof(lpfnAcceptEx),
+		&dwBytes, NULL, NULL);
+
+	if (iResult == SOCKET_ERROR) {
+		printf("WSAIoctl failed with error: %u\n", WSAGetLastError());
+	}
+}
 ```
 
