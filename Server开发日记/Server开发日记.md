@@ -426,7 +426,6 @@
 为方便管理，在服务端中定义一个客户数据类型ClientSocket
 
 ```c++
-
 class ClientSocket 
 {
 public:
@@ -847,7 +846,7 @@ m.unlock();
 
 **自解锁**
 
-```
+```c++
 lock_guard<mutex> lg(m);
 ```
 
