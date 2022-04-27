@@ -306,7 +306,7 @@ protected:
 
 - 重写`doTask()`
 
-  - 
+  - 执行任务即向客户端发送指定数据，直接调用用户类的`SendData()`
 
 
 ```c++
@@ -331,22 +331,64 @@ public:
 };
 ```
 
-#### （2）CELLServer中添加
+#### （2）CELLServer中引入发送消息线程
 
-```c++
-CeLLTaskServer _taskServer;
-```
+- 新增成员`CeLLTaskServer`
+
+  ```c++
+  CeLLTaskServer _taskServer;
+  ```
+
+- 新增成员函数——添加网络消息发送任务
+
+  - 向任务处理类成员`_taskServer`中添加任务
+
+  ```c++
+  void addSendTask(ClientSocket* pClient, DataHeader* header)
+  	{
+  		CellSendMsg2ClientTask* task = new CellSendMsg2ClientTask(pClient, header);
+  		_taskServer.addTask(task);
+  	}
+  ```
+
+- 启动消息发送任务线程
+
+  ```c++
+  void Start()
+  	{
+  		_thread = std::thread(std::mem_fn(&CellServer::OnRun), this);
+      	//调用其启动函数，启动任务发送线程
+  		_taskServer.Start();
+  	}
+  ```
 
 #### （3）调用
 
+- 服务端没收到一条消息时，添加一个网络消息发送任务，发送任务处理线程自会去发送
+
 ```c++
-LoginResult* ret = new LoginResult();
-pCellServer->addSendTask(pClient, ret);
+virtual void OnNetMsg(CellServer* pCellServer, ClientSocket* pClient, DataHeader* header)
+	{
+		EasyTcpServer::OnNetMsg(pCellServer, pClient, header);
+		switch (header->cmd)
+		{
+		case CMD_LOGIN:
+		{
+			Login* login = (Login*)header;
+			LoginResult* ret = new LoginResult();
+			pCellServer->addSendTask(pClient, ret);
+		}//接收 消息---处理 发送   生产者 数据缓冲区  消费者 
+		case ...
+        ...
+        ...
+	}
 ```
 
-### 6.4 隐患
+## 7. 隐患
 
-频繁的申请与释放内存，降低了效率，还可能形成内存碎片
+由于当前的逻辑是：
+
+​		没收到一条消息，就`new`一个响应消息进行发送，频繁的申请与释放内存，降低了效率，并  容易形成内存碎片
 
 ![image-20211016225851183](C:\Users\Sakura\AppData\Roaming\Typora\typora-user-images\image-20211016225851183.png)
 
